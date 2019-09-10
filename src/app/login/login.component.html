@@ -1,26 +1,27 @@
-<div class="alert alert-danger" [hidden]="!error">
-  There was a problem logging in. Please try again.
-</div>
-<form role="form" (submit)="login()">
-  <div class="form-group">
-    <label for="username">Username:</label>
+<form name="form" (ngSubmit)="f.form.valid && login()" #f="ngForm" novalidate>
+  <div [ngClass]="{ 'has-error': f.submitted && !username.valid }">
+    <label for="username">Username</label>
     <input
       type="text"
-      class="form-control"
-      id="username"
       name="username"
-      [(ngModel)]="credentials.username"
+      [(ngModel)]="model.username"
+      #username="ngModel"
+      required
     />
+    <div *ngIf="f.submitted && !username.valid">Username is required</div>
   </div>
-  <div class="form-group">
-    <label for="password">Password:</label>
+  <div [ngClass]="{ 'has-error': f.submitted && !password.valid }">
+    <label for="password">Password</label>
     <input
       type="password"
-      class="form-control"
-      id="password"
       name="password"
-      [(ngModel)]="credentials.password"
+      [(ngModel)]="model.password"
+      #password="ngModel"
+      required
     />
+    <div *ngIf="f.submitted && !password.valid">Password is required</div>
   </div>
-  <button type="submit" class="btn btn-primary">Submit</button>
+  <div>
+    <button [disabled]="loading">Login</button>
+  </div>
 </form>

@@ -1,7 +1,7 @@
-import { Component, OnInit } from "@angular/core";
-import { AuthenticationService } from "../services/authentication.service";
 import { HttpClient } from "@angular/common/http";
-import { Router } from "@angular/router";
+import { Component, OnInit } from "@angular/core";
+import { ActivatedRoute, Router } from "@angular/router";
+import { Observable } from "rxjs";
 
 @Component({
   selector: "app-login",
@@ -9,18 +9,39 @@ import { Router } from "@angular/router";
   styleUrls: ["./login.component.scss"]
 })
 export class LoginComponent implements OnInit {
-  credentials = { username: "", password: "" };
+  model: any = {};
 
   constructor(
-    private authentication: AuthenticationService,
-    private http: HttpClient,
-    private router: Router
+    private route: ActivatedRoute,
+    private router: Router,
+    private http: HttpClient
   ) {}
-  ngOnInit() {}
+
+  ngOnInit() {
+    sessionStorage.setItem("token", "");
+  }
+
+  /**
+   * login.
+   */
   login() {
-    this.authentication.authenticate(this.credentials, () => {
-      this.router.navigateByUrl("/");
-    });
-    return false;
+    let url = "/partyr-api/login";
+
+    this.http
+      .post<Observable<boolean>>(url, {
+        userName: this.model.username,
+        password: this.model.password
+      })
+      .subscribe(isValid => {
+        if (isValid) {
+          sessionStorage.setItem(
+            "token",
+            btoa(this.model.username + ":" + this.model.password)
+          );
+          this.router.navigate([""]);
+        } else {
+          alert("Authentication failed.");
+        }
+      });
   }
 }

@@ -1,6 +1,10 @@
+import {
+  HttpClient,
+  HttpErrorResponse,
+  HttpHeaders
+} from "@angular/common/http";
 import { Component, OnInit } from "@angular/core";
-import { AuthenticationService } from "../services/authentication.service";
-import { HttpClient } from "@angular/common/http";
+import { Observable, throwError } from "rxjs";
 
 @Component({
   selector: "app-home",
@@ -8,18 +12,46 @@ import { HttpClient } from "@angular/common/http";
   styleUrls: ["./home.component.scss"]
 })
 export class HomeComponent implements OnInit {
-  title = "Demo";
-  greeting = {};
+  userName: string;
 
-  constructor(
-    private authentication: AuthenticationService,
-    private http: HttpClient
-  ) {
-    http.get("/partyr-api/welcome").subscribe(data => (this.greeting = data));
+  constructor(private http: HttpClient) {}
+
+  ngOnInit() {
+    let url = "/partyr-api/user";
+
+    let headers: HttpHeaders = new HttpHeaders({
+      Authorization: "Basic " + sessionStorage.getItem("token")
+    });
+
+    let options = { headers: headers };
+    this.http.post<Observable<Object>>(url, {}, options).subscribe(
+      principal => {
+        this.userName = principal["name"];
+      },
+      error => {
+        if (error.status == 401) alert("Unauthorized");
+      }
+    );
   }
-  ngOnInit() {}
 
-  authenticated() {
-    return this.authentication.authenticated;
+  /**
+   * logout.
+   */
+  logout() {
+    sessionStorage.setItem("token", "");
+  }
+
+  /**
+   * handleError.
+   */
+  private handleError(error: HttpErrorResponse) {
+    if (error.error instanceof ErrorEvent) {
+      console.error("An error occurred:", error.error.message);
+    } else {
+      console.error(
+        `Backend returned code ${error.status}, ` + `body was: ${error.error}`
+      );
+    }
+    return throwError("Something bad happened; please try again later.");
   }
 }
