@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
+    "start": "node server",
     "build": "ng build",
     "test": "ng test",
     "lint": "ng lint",
@@ -11,7 +11,6 @@
   },
   "private": true,
   "dependencies": {
-    "@angular/animations": "~7.2.0",
     "@angular/common": "~7.2.0",
     "@angular/compiler": "~7.2.0",
     "@angular/core": "~7.2.0",
@@ -19,8 +18,14 @@
     "@angular/platform-browser": "~7.2.0",
     "@angular/platform-browser-dynamic": "~7.2.0",
     "@angular/router": "~7.2.0",
+    "angularx-social-login": "^1.2.7",
+    "body-parser": "^1.19.0",
+    "cookie-parser": "^1.4.4",
+    "cookies": "^0.7.3",
     "core-js": "^2.5.4",
-    "rxjs": "~6.3.3",
+    "cors": "^2.8.5",
+    "express-http-proxy": "^1.5.1",
+    "rxjs": "^6.5.3",
     "tslib": "^1.9.0",
     "zone.js": "~0.8.26"
   },

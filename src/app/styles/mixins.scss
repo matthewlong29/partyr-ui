@@ -1,0 +1,6 @@
+@mixin icon-button($color) {
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  color: $color;
+}

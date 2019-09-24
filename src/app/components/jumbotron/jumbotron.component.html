@@ -1,0 +1,9 @@
+<div class="jumbotron">
+  <ng-container *ngIf="activeImgSrc | async as activeImg">
+    <img [src]="activeImg" alt="Cartoon image of rural Italian mafia members`">
+  </ng-container>
+  <div class="jumbotron__footer">
+    <h1>Mafia is here!</h1>
+    Click Go! to jump right into our newest dramatic installment of Mafia
+  </div>
+</div>

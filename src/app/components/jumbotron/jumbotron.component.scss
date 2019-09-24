@@ -1,0 +1,26 @@
+$footer-opacity: 0.5;
+
+.jumbotron {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  position: relative;
+  width: fit-content;
+
+  img {
+    width: 85vw;
+    max-height: 50vh;
+  }
+
+  &__footer {
+    width: 85vw;
+    background-color: black;
+    opacity: $footer-opacity;
+    position: absolute;
+    bottom: 0;
+    z-index: 5;
+    color: white;
+    padding-bottom: 1rem;
+  }
+}

@@ -1,0 +1,30 @@
+$border-color: #e0e0e0;
+$form-bg-color: #f8f8f8;
+
+.login {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+
+  &__form {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    width: 15rem;
+    background-color: $form-bg-color;
+    border: 1px solid $border-color;
+  }
+
+  &__form-field {
+    display: flex;
+    flex-direction: column;
+    margin: 0.5rem;
+  }
+
+  &__button-row {
+    display: flex;
+    justify-content: flex-end;
+    padding: 0.5rem;
+  }
+}
