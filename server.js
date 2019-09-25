@@ -4,13 +4,22 @@ const proxy = require('express-http-proxy');
 const url = require('url');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
+const serverless = require('serverless-http');
 
 var app = express();
 app.use(cookieParser());
 app.use(bodyParser.json());
 
+/** ENVIRONMENT */
+const env = process.env.NODE_ENV;
+
+if (env && env.trim() === 'local') {
+  require('dotenv').config({ path: './local.env' });
+}
+
 /** PROXY */
-const apiProxy = proxy('localhost:8080/api', {
+const proxyPath = process.env.PROXY_PATH;
+const apiProxy = proxy(proxyPath, {
   proxyReqPathResolver: req => url.parse(req.originalUrl).path
 });
 
@@ -41,20 +50,16 @@ app.delete('/auth-id-token', (req, res) => {
   res.clearCookie('AUTH_ID_TOKEN').send();
 });
 
-// app.post('/auth-id-token', (req, res) => {
-//   res
-//     .cookie('AUTH_ID_TOKEN', req.body.idToken, {
-//       httpOnly: true
-//     })
-//     .send();
-// });
-
 app.get('*', (req, res) => {
   res.sendFile('public/index.html', {
     root: __dirname
   });
 });
 
-app.listen(app.get('port'), () => {
-  console.log('App running on port', app.get('port'));
-});
+if (env && env === 'local') {
+  app.listen(app.get('port'), () => {
+    console.log('App running on port', app.get('port'));
+  });
+} else {
+  module.exports.handler = serverless(app);
+}
