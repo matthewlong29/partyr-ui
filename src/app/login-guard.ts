@@ -22,7 +22,7 @@ export class LoginGuard implements CanActivate {
       ),
       catchError((err: any) => {
         console.error(err);
-        return scheduled([this.router.parseUrl(URLStore.HOME_URL)], asap);
+        return scheduled([true], asap);
       })
     );
   }
