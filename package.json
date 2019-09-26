@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng build && \"./node_modules/.bin/netlify-lambda\" -p 3000 serve ./",
+    "start": "SET NODE_ENV=local && node server",
     "build": "ng build --prod && \"./node_modules/.bin/netlify-lambda\" build ./",
     "test": "ng test",
     "lint": "ng lint",

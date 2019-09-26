@@ -1,7 +1,7 @@
 const express = require('express');
 const path = require('path');
-// const proxy = require('express-http-proxy');
-// const url = require('url');
+const proxy = require('express-http-proxy');
+const url = require('url');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const serverless = require('serverless-http');
@@ -13,18 +13,10 @@ app.use(cookieParser());
 app.use(bodyParser.json());
 
 /** ENVIRONMENT */
-// const env = process.env.NODE_ENV;
-
-/** PROXY */
-// const proxyPath = process.env.PROXY_PATH;
-// const apiProxy = proxy(proxyPath, {
-//   proxyReqPathResolver: req => url.parse(req.originalUrl).path
-// });
-
-// app.use('/api/*', apiProxy);
+const env = process.env.NODE_ENV;
 
 /** APPLICATION */
-// app.set('port', process.env.PORT || 3000);
+app.set('port', process.env.PORT || 3000);
 
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -48,19 +40,29 @@ router.delete('/auth-id-token', (req, res) => {
   res.clearCookie('AUTH_ID_TOKEN').send();
 });
 
-// router.get('*', (req, res) => {
-//   res.sendFile('public/index.html', {
-//     root: __dirname
-//   });
-// });
+if (env && env.trim() === 'local') {
+  /** LOCAL PROXY */
+  const proxyPath = 'localhost:8080';
+  const apiProxy = proxy(proxyPath, {
+    proxyReqPathResolver: req => url.parse(req.originalUrl).path
+  });
 
-app.use('/.netlify/functions/server', router);
+  app.use('/api/*', apiProxy);
 
-// if (env && env === 'local') {
-//   app.listen(app.get('port'), () => {
-//     console.log('App running on port', app.get('port'));
-//   });
-// } else {
-module.exports = app;
-module.exports.handler = serverless(app);
-// }
+  app.listen(app.get('port'), () => {
+    console.log('App running on port', app.get('port'));
+  });
+
+  router.get('*', (req, res) => {
+    res.sendFile('public/index.html', {
+      root: __dirname
+    });
+  });
+
+  app.use(router);
+} else {
+  app.use('/.netlify/functions/server', router);
+
+  module.exports = app;
+  module.exports.handler = serverless(app);
+}
