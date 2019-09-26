@@ -13,10 +13,6 @@ app.use(bodyParser.json());
 /** ENVIRONMENT */
 const env = process.env.NODE_ENV;
 
-if (env && env.trim() === 'local') {
-  require('dotenv').config({ path: './local.env' });
-}
-
 /** PROXY */
 const proxyPath = process.env.PROXY_PATH;
 const apiProxy = proxy(proxyPath, {
