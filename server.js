@@ -29,7 +29,7 @@ app.set('port', process.env.PORT || 3000);
 app.use(express.static(path.join(__dirname, 'public')));
 
 /** COOKIES */
-router.get('/logged-in', (req, res) => {
+router.get('logged-in', (req, res) => {
   const cookie = req.cookies['LOGGED_IN'];
   const loggedIn = (cookie || '').toUpperCase() === 'TRUE';
   res.send(loggedIn);
