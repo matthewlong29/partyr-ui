@@ -54,7 +54,7 @@ router.get('*', (req, res) => {
   });
 });
 
-app.use('/.netlify/functions/api', router);
+app.use('/.netlify/functions/server', router);
 
 if (env && env === 'local') {
   app.listen(app.get('port'), () => {
