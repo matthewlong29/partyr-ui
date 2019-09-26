@@ -1,5 +1,21 @@
 [build]
   functions = "functions"
 
+[context.production]
+  environment = { NODE_ENV = "production", PROXY_PATH = "http://party-games-service-dev.us-east-2.elasticbeanstalk.com/" }
+
+[context.local]
+  environment = { NODE_ENV = "local", PROXY_PATH = "localhost:8080" }
+
 [dev]
   publish = "public"
+
+[[headers]]
+  [headers.values]
+    Content-Security-Policy = "font-src 'self'; img-src 'self'; default-src 'self' http://localhost:3000/"
+    cache-control = '''
+    max-age=0,
+    no-cache,
+    no-store,
+    must-revalidate
+'''

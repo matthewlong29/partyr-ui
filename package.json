@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "\"./node_modules/.bin/netlify-lambda\" serve ./",
+    "start": "ng build && \"./node_modules/.bin/netlify-lambda\" -p 3000 serve ./",
     "build": "ng build --prod && \"./node_modules/.bin/netlify-lambda\" build ./",
     "test": "ng test",
     "lint": "ng lint",
@@ -41,6 +41,7 @@
     "@types/jasminewd2": "~2.0.3",
     "@types/node": "~8.9.4",
     "codelyzer": "~4.5.0",
+    "dotenv": "^8.1.0",
     "jasmine-core": "~2.99.1",
     "jasmine-spec-reporter": "~4.2.1",
     "karma": "~4.0.0",
@@ -52,5 +53,6 @@
     "ts-node": "~7.0.0",
     "tslint": "~5.11.0",
     "typescript": "~3.2.2"
-  }
+  },
+  "proxy": "localhost:3000"
 }
