@@ -62,7 +62,6 @@ if (env && env.trim() === 'local') {
   app.use(router);
 } else {
   app.use('/.netlify/functions/server', router);
-
-  module.exports = app;
-  module.exports.handler = serverless(app);
 }
+module.exports = app;
+module.exports.handler = serverless(app);
