@@ -48,17 +48,16 @@ router.delete('/auth-id-token', (req, res) => {
   res.clearCookie('AUTH_ID_TOKEN').send();
 });
 
-router.get('*', (req, res) => {
-  res.sendFile('public/index.html', {
-    root: __dirname
-  });
-});
-
 app.use('/.netlify/functions/api', router);
 
 if (env && env === 'local') {
   app.listen(app.get('port'), () => {
     console.log('App running on port', app.get('port'));
+  });
+  router.get('*', (req, res) => {
+    res.sendFile('public/index.html', {
+      root: __dirname
+    });
   });
 } else {
   module.exports = app;
