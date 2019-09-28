@@ -13,12 +13,9 @@ app.use(cookieParser());
 app.use(bodyParser.json());
 
 /** ENVIRONMENT */
-const env = process.env.NODE_ENV;
+// const env = process.env.NODE_ENV;
 
-/** APPLICATION */
-app.set('port', process.env.PORT || 3000);
-
-app.use(express.static(path.join(__dirname, 'public')));
+// app.use(express.static(path.join(__dirname, 'public')));
 
 /** COOKIES */
 router.get('/logged-in', (req, res) => {
@@ -40,28 +37,31 @@ router.delete('/auth-id-token', (req, res) => {
   res.clearCookie('AUTH_ID_TOKEN').send();
 });
 
-if (env && env.trim() === 'local') {
-  /** LOCAL PROXY */
-  const proxyPath = 'localhost:8080';
-  const apiProxy = proxy(proxyPath, {
-    proxyReqPathResolver: req => url.parse(req.originalUrl).path
-  });
+// if (env && env.trim() === 'local') {
+//   /** APPLICATION */
+//   app.set('port', process.env.PORT || 3000);
 
-  app.use('/api/*', apiProxy);
+//   /** LOCAL PROXY */
+//   const proxyPath = 'localhost:8080';
+//   const apiProxy = proxy(proxyPath, {
+//     proxyReqPathResolver: req => url.parse(req.originalUrl).path
+//   });
 
-  app.listen(app.get('port'), () => {
-    console.log('App running on port', app.get('port'));
-  });
+//   app.use('/api/*', apiProxy);
 
-  router.get('*', (req, res) => {
-    res.sendFile('public/index.html', {
-      root: __dirname
-    });
-  });
+//   app.listen(app.get('port'), () => {
+//     console.log('App running on port', app.get('port'));
+//   });
 
-  app.use(router);
-} else {
-  app.use('/.netlify/functions/server', router);
-}
+//   router.get('*', (req, res) => {
+//     res.sendFile('public/index.html', {
+//       root: __dirname
+//     });
+//   });
+
+//   app.use(router);
+// }
+
+app.use('/.netlify/functions/server', router);
 module.exports = app;
 module.exports.handler = serverless(app);
