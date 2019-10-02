@@ -4,6 +4,7 @@
   "scripts": {
     "ng": "ng",
     "start": "SET NODE_ENV=local && node server",
+    "start:local": "SET NODE_ENV=local && node server",
     "build": "ng build --prod && \"./node_modules/.bin/netlify-lambda\" build ./",
     "test": "ng test",
     "lint": "ng lint",
