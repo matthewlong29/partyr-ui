@@ -1,0 +1,11 @@
+<div class="header">
+  <div *ngIf="!isLoginPage()" class="header__white-space"></div>
+  <h1>Partyr</h1>
+  <div *ngIf="!isLoginPage()" class="header__settings">
+    <app-menu triggerType="icon" label="settings" position="before">
+      <a appMenuItem href="#" (click)="signOut()">
+        <i class="material-icons">exit_to_app</i>&nbsp;&nbsp;&nbsp;Sign out
+      </a>
+    </app-menu>
+  </div>
+</div>

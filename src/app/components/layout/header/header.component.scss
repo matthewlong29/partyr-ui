@@ -1,0 +1,25 @@
+$border-bottom-color: #e91e63;
+$bg-color: #673ab7;
+$offset-width: 3.5rem;
+
+.header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  height: 3rem;
+  width: 100vw;
+  background-color: $bg-color;
+  border-bottom: 0.25rem solid $border-bottom-color;
+
+  .header__white-space {
+    margin-right: auto;
+    width: $offset-width;
+  }
+
+  .header__settings {
+    margin-left: auto;
+    width: $offset-width;
+    text-align: center;
+  }
+}

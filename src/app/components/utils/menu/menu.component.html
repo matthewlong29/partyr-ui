@@ -1,0 +1,10 @@
+<div class="menu" tabindex="-1">
+  <button class="menu__trigger{{ triggerType === 'icon' ? '--icon' : 'text'}}" (click)="toggle(); menuContent.focus()">
+    <i *ngIf="triggerType === 'icon'" class="material-icons">{{ label }}</i>
+    <span *ngIf="triggerType === 'text'">{{ label }}</span>
+  </button>
+  <div #menuContent class="menu__content{{ hidden ? '--hidden' : '--shown'}}"
+    [style.right]="position === 'before' ? '0' : 'unset'" (blur)="hide()" (click)="hide()">
+    <ng-content></ng-content>
+  </div>
+</div>
