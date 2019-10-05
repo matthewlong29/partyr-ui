@@ -1,3 +1,15 @@
-<p>
-  chat works!
-</p>
+<section id="chat">
+  <h3>{{ chatPurposeName }}</h3>
+  <ul #chatWindow>
+    <li *ngFor="let receivedMessage of messages">
+      {{ receivedMessage }}
+    </li>
+  </ul>
+  <div class="input-text">
+    <textarea
+      type="text"
+      [(ngModel)]="message"
+      (keydown)="sendMessage($event)"
+    ></textarea>
+  </div>
+</section>

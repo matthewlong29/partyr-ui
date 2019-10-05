@@ -3,6 +3,11 @@ import { NgModule } from "@angular/core";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { BrowserModule } from "@angular/platform-browser";
 import {
+  InjectableRxStompConfig,
+  RxStompService,
+  rxStompServiceFactory
+} from "@stomp/ng2-stompjs";
+import {
   AuthServiceConfig,
   GoogleLoginProvider,
   SocialLoginModule
@@ -22,6 +27,7 @@ import { LobbyComponent } from "./components/views/lobby/lobby.component";
 import { AuthInterceptor } from "./interceptors/auth-interceptor";
 import { CredentialsInterceptor } from "./interceptors/credentials-interceptor";
 import { LoginGuard } from "./login-guard";
+import { myRxStompConfig } from "./rx-stomp.config";
 import { AppAuthService } from "./services/app-auth.service";
 import { UserService } from "./services/user.service";
 
@@ -72,6 +78,15 @@ export const provideConfig = () => config;
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,
       multi: true
+    },
+    {
+      provide: InjectableRxStompConfig,
+      useValue: myRxStompConfig
+    },
+    {
+      provide: RxStompService,
+      useFactory: rxStompServiceFactory,
+      deps: [InjectableRxStompConfig]
     }
   ],
   bootstrap: [AppComponent]

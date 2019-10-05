@@ -1,5 +1,5 @@
 export class URLStore {
-  /** CLIENT ROUTES *****/
+  //***** CLIENT ROUTES *****/
   static LOGIN_URL = '/login';
   static HOME_URL = '/home';
 
@@ -9,4 +9,7 @@ export class URLStore {
 
   /***** AUTHENTICATION *****/
   static GOOGLE_SIGN_IN_URL = '/api/google-authenticate';
+
+  /*****  *****/
+  static WEBSOCKET_URL = 'http://localhost:8080/socket'
 }

@@ -1,0 +1,38 @@
+@import "~src/app/styles/mixins.scss";
+@import "~src/app/styles/variables.scss";
+
+::-webkit-scrollbar {
+  display: none;
+}
+
+#chat {
+  border: 1px solid black;
+  h3 {
+    margin: 0;
+    border-bottom: 1px solid $border-bottom-color;
+    box-shadow: $bottom-box-shadow;
+  }
+  ul {
+    max-height: 100px;
+    min-height: 50px;
+    width: 100%;
+    overflow-y: scroll;
+    padding: 0;
+    li {
+      margin: 0.25rem;
+      list-style: none;
+      display: inline-block;
+      border: 1px solid $border-bottom-color;
+    }
+  }
+  .input-text {
+    display: flex;
+    flex-direction: column;
+    min-height: 50px;
+    textarea {
+      flex: 1;
+      outline: none;
+      resize: vertical;
+    }
+  }
+}
