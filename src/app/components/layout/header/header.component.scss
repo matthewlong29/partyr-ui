@@ -1,6 +1,4 @@
-$border-bottom-color: #e91e63;
-$bg-color: #673ab7;
-$offset-width: 3.5rem;
+@import '~src/app/styles/variables.scss';
 
 .header {
   display: flex;

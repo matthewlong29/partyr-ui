@@ -1,4 +1,5 @@
-$footer-opacity: 0.5;
+@import '~src/app/styles/mixins.scss';
+@import '~src/app/styles/variables.scss';
 
 .jumbotron {
   display: flex;

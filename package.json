@@ -6,6 +6,7 @@
     "start": "SET NODE_ENV=local && node server",
     "start:local": "SET NODE_ENV=local && node server",
     "build": "ng build --prod && \"./node_modules/.bin/netlify-lambda\" build ./",
+    "build:local": "ng build --aot --watch",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e"
