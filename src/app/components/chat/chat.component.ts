@@ -1,67 +1,89 @@
 import {
-  Component,
-  OnInit,
-  ViewChild,
-  ElementRef,
   AfterViewChecked,
-  Input
-} from "@angular/core";
-import * as SockJS from "sockjs-client";
-import { URLStore } from "src/app/classes/url-store";
-import * as Stomp from "stompjs";
+  Component,
+  ElementRef,
+  Input,
+  OnInit,
+  ViewChild
+} from '@angular/core';
+import { AuthService } from 'angularx-social-login';
+import * as SockJS from 'sockjs-client';
+import { PartyrUser } from 'src/app/classes/PartyrUser';
+import { URLStore } from 'src/app/classes/url-store';
+import { UserService } from 'src/app/services/user.service';
+import * as Stomp from 'stompjs';
 
 @Component({
-  selector: "app-chat",
-  templateUrl: "./chat.component.html",
-  styleUrls: ["./chat.component.scss"]
+  selector: 'app-chat',
+  templateUrl: './chat.component.html',
+  styleUrls: ['./chat.component.scss']
 })
 export class ChatComponent implements OnInit, AfterViewChecked {
-  @ViewChild("chatWindow") private chatWindow: ElementRef;
+  @ViewChild('chatWindow') private chatWindow: ElementRef;
+  @Input() chatPurposeName: string;
 
-  messages: Array<String> = [];
-  message: String;
-  @Input() chatPurposeName: String;
-
+  messages: Array<string> = [];
+  message: string;
   private stompClient: Stomp;
+  private partyrUser: PartyrUser;
 
-  constructor() {}
+  /**
+   * constructor.
+   */
+  constructor(
+    private userService: UserService,
+    private authService: AuthService
+  ) {}
 
+  /**
+   * ngOnInit.
+   */
   ngOnInit() {
-    let ws = new SockJS(URLStore.WEBSOCKET_URL);
+    // TODO flatten nested subscribes and move logic to user service.
+    this.authService.authState.subscribe(currentUser => {
+      this.userService
+        .getPartyrUserByEmail(currentUser.email)
+        .subscribe(partyrUser => (this.partyrUser = partyrUser));
+    });
+
+    const ws = new SockJS(URLStore.WEBSOCKET_URL);
 
     this.stompClient = Stomp.over(ws);
 
     this.stompClient.connect({}, () => {
-      this.stompClient.subscribe("/chat", message => {
+      this.stompClient.subscribe('/chat', message => {
         if (message.body) {
           this.messages.push(message.body);
         }
       });
     });
 
-    this.scrollToBottom();
+    this.scrollChatToBottom();
   }
 
+  /**
+   * ngAfterViewChecked.
+   */
   ngAfterViewChecked() {
-    this.scrollToBottom();
+    this.scrollChatToBottom();
   }
 
   /**
    * sendMessage.
    */
   sendMessage(event) {
-    if (event.ctrlKey && event.key === "Enter") {
-      this.message += "\n";
-    } else if (event.key === "Enter") {
-      this.stompClient.send("/app/send/message", {}, this.message);
+    if (event.ctrlKey && event.key === 'Enter') {
+      this.message += '\n';
+    } else if (event.key === 'Enter') {
+      this.stompClient.send('/app/send/message', {}, this.message);
       this.message = null; // clear message in textarea after send
     }
   }
 
   /**
-   * scrollToBottom: keeps chat scrolled to bottom.
+   * scrollChatToBottom: keeps chat scrolled to bottom.
    */
-  scrollToBottom() {
+  scrollChatToBottom() {
     try {
       this.chatWindow.nativeElement.scrollTop = this.chatWindow.nativeElement.scrollHeight;
     } catch (error) {
