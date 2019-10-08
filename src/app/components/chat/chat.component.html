@@ -2,13 +2,13 @@
   <h3>{{ chatPurposeName }}</h3>
   <ul #chatWindow>
     <li *ngFor="let receivedMessage of messages">
-      {{ receivedMessage }}
+      {{ receivedMessage.content }}
     </li>
   </ul>
   <div class="input-text">
     <textarea
       type="text"
-      [(ngModel)]="message"
+      [(ngModel)]="message.content"
       (keydown)="sendMessage($event)"
     ></textarea>
   </div>

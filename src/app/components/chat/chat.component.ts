@@ -8,6 +8,7 @@ import {
 } from '@angular/core';
 import { AuthService } from 'angularx-social-login';
 import * as SockJS from 'sockjs-client';
+import { Message } from 'src/app/classes/Message';
 import { PartyrUser } from 'src/app/classes/PartyrUser';
 import { URLStore } from 'src/app/classes/url-store';
 import { UserService } from 'src/app/services/user.service';
@@ -22,10 +23,10 @@ export class ChatComponent implements OnInit, AfterViewChecked {
   @ViewChild('chatWindow') private chatWindow: ElementRef;
   @Input() chatPurposeName: string;
 
-  messages: Array<string> = [];
-  message: string;
+  messages: Array<Message> = [];
+  message: Message = new Message();
   private stompClient: Stomp;
-  private partyrUser: PartyrUser;
+  private partyrUser: PartyrUser = new PartyrUser();
 
   /**
    * constructor.
@@ -43,7 +44,10 @@ export class ChatComponent implements OnInit, AfterViewChecked {
     this.authService.authState.subscribe(currentUser => {
       this.userService
         .getPartyrUserByEmail(currentUser.email)
-        .subscribe(partyrUser => (this.partyrUser = partyrUser));
+        .subscribe(partyrUser => {
+          this.partyrUser = partyrUser;
+          this.initializeNewMessage();
+        });
     });
 
     const ws = new SockJS(URLStore.WEBSOCKET_URL);
@@ -53,7 +57,7 @@ export class ChatComponent implements OnInit, AfterViewChecked {
     this.stompClient.connect({}, () => {
       this.stompClient.subscribe('/chat', message => {
         if (message.body) {
-          this.messages.push(message.body);
+          console.log(message.body);
         }
       });
     });
@@ -69,14 +73,23 @@ export class ChatComponent implements OnInit, AfterViewChecked {
   }
 
   /**
+   * initializeMessage.
+   */
+  private initializeNewMessage() {
+    this.message = new Message();
+    this.message.author = this.partyrUser.email;
+  }
+
+  /**
    * sendMessage.
    */
   sendMessage(event) {
     if (event.ctrlKey && event.key === 'Enter') {
-      this.message += '\n';
+      this.message.content += '\n';
     } else if (event.key === 'Enter') {
-      this.stompClient.send('/app/send/message', {}, this.message);
-      this.message = null; // clear message in textarea after send
+      this.stompClient.send('/app/send/message', {}, JSON.stringify(this.message));
+      this.messages.push(this.message);
+      this.initializeNewMessage();
     }
   }
 
