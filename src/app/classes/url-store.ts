@@ -6,6 +6,7 @@ export class URLStore {
   /***** NODE ENDPOINTS *****/
   static LOGGED_IN_URL = '/logged-in';
   static CURRENT_USER = 'api/current-user/';
+  static CHAT_MESSAGES = 'api/chat/';
   static AUTH_ID_TOKEN_URL = '/auth-id-token';
 
   /***** AUTHENTICATION *****/

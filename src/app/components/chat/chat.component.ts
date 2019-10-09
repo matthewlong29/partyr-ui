@@ -13,6 +13,7 @@ import { PartyrUser } from 'src/app/classes/PartyrUser';
 import { URLStore } from 'src/app/classes/url-store';
 import { UserService } from 'src/app/services/user.service';
 import * as Stomp from 'stompjs';
+import { ChatService } from 'src/app/services/chat.service';
 
 @Component({
   selector: 'app-chat',
@@ -33,6 +34,7 @@ export class ChatComponent implements OnInit, AfterViewChecked {
    */
   constructor(
     private userService: UserService,
+    private chatService: ChatService,
     private authService: AuthService
   ) {}
 
@@ -50,6 +52,8 @@ export class ChatComponent implements OnInit, AfterViewChecked {
         });
     });
 
+    this.getOldChatMessages();
+
     const ws = new SockJS(URLStore.WEBSOCKET_URL);
 
     this.stompClient = Stomp.over(ws);
@@ -63,6 +67,16 @@ export class ChatComponent implements OnInit, AfterViewChecked {
     });
 
     this.scrollChatToBottom();
+  }
+
+  /**
+   * getOldChatMessages
+   */
+  public getOldChatMessages(): void {
+    this.chatService.getAllChat().subscribe(messages => {
+      console.log(messages);
+      this.messages.push(messages as unknown as Message);
+    });
   }
 
   /**
@@ -87,7 +101,11 @@ export class ChatComponent implements OnInit, AfterViewChecked {
     if (event.ctrlKey && event.key === 'Enter') {
       this.message.content += '\n';
     } else if (event.key === 'Enter') {
-      this.stompClient.send('/app/send/message', {}, JSON.stringify(this.message));
+      this.stompClient.send(
+        '/app/send/message',
+        {},
+        JSON.stringify(this.message)
+      );
       this.messages.push(this.message);
       this.initializeNewMessage();
     }
