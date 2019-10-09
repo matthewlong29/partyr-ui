@@ -74,8 +74,7 @@ export class ChatComponent implements OnInit, AfterViewChecked {
    */
   public getOldChatMessages(): void {
     this.chatService.getAllChat().subscribe(messages => {
-      console.log(messages);
-      this.messages.push(messages as unknown as Message);
+      this.messages = messages;
     });
   }
 
@@ -106,7 +105,7 @@ export class ChatComponent implements OnInit, AfterViewChecked {
         {},
         JSON.stringify(this.message)
       );
-      this.messages.push(this.message);
+      this.getOldChatMessages();
       this.initializeNewMessage();
     }
   }

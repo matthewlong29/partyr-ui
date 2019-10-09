@@ -1,8 +1,8 @@
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { Message } from '@angular/compiler/src/i18n/i18n_ast';
+import { Message } from '../classes/Message';
 import { URLStore } from '../classes/url-store';
-import { HttpClient } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root'
