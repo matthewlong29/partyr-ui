@@ -52,7 +52,7 @@ export class ChatComponent implements OnInit, AfterViewChecked {
         });
     });
 
-    this.getOldChatMessages();
+    this.getChatMessages(); // initialize with old chat
 
     const ws = new SockJS(URLStore.WEBSOCKET_URL);
 
@@ -62,6 +62,7 @@ export class ChatComponent implements OnInit, AfterViewChecked {
       this.stompClient.subscribe('/chat', message => {
         if (message.body) {
           console.log(message.body);
+          this.getChatMessages(); // message was received so get chat
         }
       });
     });
@@ -70,9 +71,9 @@ export class ChatComponent implements OnInit, AfterViewChecked {
   }
 
   /**
-   * getOldChatMessages
+   * getChatMessages
    */
-  public getOldChatMessages(): void {
+  public getChatMessages(): void {
     this.chatService.getAllChat().subscribe(messages => {
       this.messages = messages;
     });
@@ -105,7 +106,7 @@ export class ChatComponent implements OnInit, AfterViewChecked {
         {},
         JSON.stringify(this.message)
       );
-      this.getOldChatMessages();
+      this.getChatMessages();
       this.initializeNewMessage();
     }
   }

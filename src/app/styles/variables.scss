@@ -1,7 +1,17 @@
 $primary-btn-color: #9c27b0;
 
-$border-bottom-color: #e91e63;
-$bg-color: #673ab7;
+$primary: #e91e63;
+$primary-transparent: transparentize(
+  $color: $primary,
+  $amount: 0.5
+);
+
+$secondary: #673ab7;
+$secondary-transparent: transparentize(
+  $color: $secondary,
+  $amount: 0.5
+);
+
 $offset-width: 3.5rem;
 
 $footer-opacity: 0.5;
@@ -9,4 +19,10 @@ $footer-opacity: 0.5;
 $border-color: #e0e0e0;
 $form-bg-color: #f8f8f8;
 
-$bottom-box-shadow: 0px 2px 2px 0px fade-out($border-bottom-color, 0.65);
+$black: #010101;
+
+$header-height: 3rem;
+
+$bottom-box-shadow: 0px 2px 2px 0px fade-out($primary, 0.65);
+
+$common-radius-small: 6px;

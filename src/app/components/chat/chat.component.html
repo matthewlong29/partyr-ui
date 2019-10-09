@@ -1,8 +1,14 @@
 <section id="chat">
   <h3>{{ chatPurposeName }}</h3>
   <ul #chatWindow>
-    <li *ngFor="let receivedMessage of messages">
-      {{ receivedMessage.content }}
+    <li
+      *ngFor="let receivedMessage of messages"
+      [ngClass]="
+        receivedMessage.author === partyrUser.email ? 'you' : 'someone-else'
+      "
+    >
+      <span>{{ receivedMessage.author }}</span>
+      <span>{{ receivedMessage.content }}</span>
     </li>
   </ul>
   <div class="input-text">

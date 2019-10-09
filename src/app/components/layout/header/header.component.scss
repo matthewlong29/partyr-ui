@@ -5,10 +5,10 @@
   justify-content: center;
   align-items: center;
   color: white;
-  height: 3rem;
+  height: $header-height - 0.25rem;
   width: 100vw;
-  background-color: $bg-color;
-  border-bottom: 0.25rem solid $border-bottom-color;
+  background-color: $secondary;
+  border-bottom: 0.25rem solid $primary;
 
   .header__white-space {
     margin-right: auto;
