@@ -1,20 +1,22 @@
-import { Injectable } from '@angular/core';
-import { Observable, from, combineLatest, scheduled } from 'rxjs';
-import { URLStore } from '../classes/url-store';
 import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { Router } from '@angular/router';
 import {
   AuthService,
   GoogleLoginProvider,
   SocialUser
 } from 'angularx-social-login';
-import { switchMap, tap } from 'rxjs/operators';
-import { Router } from '@angular/router';
+import { combineLatest, from, Observable, scheduled } from 'rxjs';
 import { asap } from 'rxjs/internal/scheduler/asap';
+import { switchMap, tap } from 'rxjs/operators';
+import { URLStore } from '../classes/url-store';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AppAuthService {
+  private user: SocialUser;
+
   constructor(
     readonly http: HttpClient,
     readonly xAuthSvc: AuthService,

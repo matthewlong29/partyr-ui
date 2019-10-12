@@ -1,30 +1,37 @@
-import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
-import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
-
-import { AppRoutingModule } from './app-routing.module';
-import { AppComponent } from './app.component';
-import { LoginComponent } from './components/login/login.component';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { HomeComponent } from './components/home/home.component';
-import { AuthGuard } from './auth-guard';
-import { HeaderComponent } from './components/layout/header/header.component';
-import { JumbotronComponent } from './components/jumbotron/jumbotron.component';
+import { HttpClientModule, HTTP_INTERCEPTORS } from "@angular/common/http";
+import { NgModule } from "@angular/core";
+import { FormsModule, ReactiveFormsModule } from "@angular/forms";
+import { BrowserModule } from "@angular/platform-browser";
+import {
+  InjectableRxStompConfig,
+  RxStompService,
+  rxStompServiceFactory
+} from "@stomp/ng2-stompjs";
 import {
   AuthServiceConfig,
   GoogleLoginProvider,
   SocialLoginModule
-} from 'angularx-social-login';
-import { UserService } from './services/user.service';
-import { AuthInterceptor } from './interceptors/auth-interceptor';
-import { LoginGuard } from './login-guard';
-import { CredentialsInterceptor } from './interceptors/credentials-interceptor';
-import { AppAuthService } from './services/app-auth.service';
-import { GSignInComponent } from './components/utils/g-sign-in/g-sign-in.component';
-import { MenuComponent } from './components/utils/menu/menu.component';
-import { MenuItemDirective } from './components/utils/menu/menu-item.directive';
+} from "angularx-social-login";
+import { AppRoutingModule } from "./app-routing.module";
+import { AppComponent } from "./app.component";
+import { AuthGuard } from "./auth-guard";
+import { ChatComponent } from "./components/chat/chat.component";
+import { JumbotronComponent } from "./components/jumbotron/jumbotron.component";
+import { HeaderComponent } from "./components/layout/header/header.component";
+import { LoginComponent } from "./components/login/login.component";
+import { GSignInComponent } from "./components/utils/g-sign-in/g-sign-in.component";
+import { MenuItemDirective } from "./components/utils/menu/menu-item.directive";
+import { MenuComponent } from "./components/utils/menu/menu.component";
+import { HomeComponent } from "./components/views/home/home.component";
+import { LobbyComponent } from "./components/views/lobby/lobby.component";
+import { AuthInterceptor } from "./interceptors/auth-interceptor";
+import { CredentialsInterceptor } from "./interceptors/credentials-interceptor";
+import { LoginGuard } from "./login-guard";
+import { myRxStompConfig } from "./rx-stomp.config";
+import { AppAuthService } from "./services/app-auth.service";
+import { UserService } from "./services/user.service";
 
-const GOOGLE_OAUTH_CLIENT_ID = '276174427953-o7q6mv623adttteep82an71rs4bgge0r';
+const GOOGLE_OAUTH_CLIENT_ID = "276174427953-o7q6mv623adttteep82an71rs4bgge0r";
 
 const config = new AuthServiceConfig([
   {
@@ -44,7 +51,9 @@ export const provideConfig = () => config;
     JumbotronComponent,
     GSignInComponent,
     MenuComponent,
-    MenuItemDirective
+    MenuItemDirective,
+    ChatComponent,
+    LobbyComponent
   ],
   imports: [
     BrowserModule,
@@ -69,6 +78,15 @@ export const provideConfig = () => config;
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,
       multi: true
+    },
+    {
+      provide: InjectableRxStompConfig,
+      useValue: myRxStompConfig
+    },
+    {
+      provide: RxStompService,
+      useFactory: rxStompServiceFactory,
+      deps: [InjectableRxStompConfig]
     }
   ],
   bootstrap: [AppComponent]

@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css?family=Roboto:500&display=swap');
 @import url('https://fonts.googleapis.com/icon?family=Material+Icons');
-
-$primary-btn-color: #9c27b0;
+@import '../src/app/styles/variables.scss';
+@import '../src/app/styles/mixins.scss';
 
 body {
   font-family: brandon-grotesque, sans-serif;
