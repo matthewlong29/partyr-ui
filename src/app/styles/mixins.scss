@@ -1,3 +1,11 @@
+@mixin generic-button($type) {
+  
+  @if $type == 'primary' {
+  }
+  @if $type == 'secondary' {
+  }
+}
+
 @mixin icon-button($color) {
   cursor: pointer;
   background: transparent;

@@ -1,0 +1,16 @@
+<table class="auto-table">
+  <thead>
+    <tr>
+      <th *ngFor="let col of columns">
+        {{ col.header }}
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let data of dataSource">
+      <td *ngFor="let col of columns">
+        {{ data[col.id] }}
+      </td>
+    </tr>
+  </tbody>
+</table>

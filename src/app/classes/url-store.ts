@@ -2,6 +2,8 @@ export class URLStore {
   //***** CLIENT ROUTES *****/
   static LOGIN_URL = '/login';
   static HOME_URL = '/home';
+  static GAME_SELECT_URL = '/game-select';
+  static LOBBY_URL = '/lobby';
 
   /***** NODE ENDPOINTS *****/
   static LOGGED_IN_URL = '/logged-in';

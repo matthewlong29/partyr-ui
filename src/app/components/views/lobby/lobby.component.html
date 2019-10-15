@@ -1,3 +1,8 @@
 <section>
   <app-chat chatPurposeName="Lobby"></app-chat>
 </section>
+<section>
+  <button>Create Room</button>
+  <h1>Rooms Available</h1>
+  <app-auto-table [columns]="availableRoomsCols" [dataSource]="dataSource | async"></app-auto-table>
+</section>
