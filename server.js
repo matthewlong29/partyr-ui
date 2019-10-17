@@ -14,8 +14,10 @@ app.use(bodyParser.json());
 const env = process.env.NODE_ENV;
 
 /** LOCAL PROXY */
+
+const proxyPath = 'http://localhost:8080';
+
 if (env && env.trim() === 'local') {
-  const proxyPath = 'http://localhost:8080';
   const apiProxy = proxy(proxyPath, {
     proxyReqPathResolver: req => url.parse(req.originalUrl).path
   });
@@ -28,23 +30,14 @@ app.set('port', process.env.PORT || 3000);
 app.use(express.static(path.join(__dirname, 'public')));
 
 /** COOKIES */
-app.get('/logged-in', (req, res) => {
-  const cookie = req.cookies['LOGGED_IN'];
-  const loggedIn = (cookie || '').toUpperCase() === 'TRUE';
-  res.send(loggedIn);
-});
 
 app.get('/auth-id-token', (req, res) => {
-  const idToken = req.cookies['AUTH_ID_TOKEN'];
+  const idToken = req.cookies['AUTH_ID_TOKEN'] || '';
   res.send(idToken);
 });
 
-app.delete('/logged-in', (req, res) => {
-  res.clearCookie('LOGGED_IN').send();
-});
-
 app.delete('/auth-id-token', (req, res) => {
-  res.clearCookie('AUTH_ID_TOKEN').send();
+  res.clearCookie('AUTH_ID_TOKEN').send(true);
 });
 
 app.get('*', (req, res) => {
