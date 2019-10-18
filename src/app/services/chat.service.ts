@@ -1,18 +1,27 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, scheduled } from 'rxjs';
+import { Observable, scheduled, Subject } from 'rxjs';
 import { Message } from '../classes/Message';
 import { URLStore } from '../classes/url-store';
 import * as Stomp from 'stompjs';
 import * as SockJS from 'sockjs-client';
-import { tap, catchError } from 'rxjs/operators';
+import { tap, catchError, map } from 'rxjs/operators';
 import { asap } from 'rxjs/internal/scheduler/asap';
+import { WebsocketService } from './websocket.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ChatService {
-  constructor(readonly http: HttpClient) {}
+  constructor(readonly http: HttpClient, readonly wsSvc: WebsocketService) {}
+
+  connectToChat(): Observable<Message> {
+    return this.wsSvc.watch(URLStore.WS_WATCH_LOBBY_CHAT);
+  }
+
+  sendToChat(message: Message): void {
+    this.wsSvc.publish(URLStore.WS_SEND_LOBBY_CHAT, message);
+  }
 
   /**
    * getAllChat.

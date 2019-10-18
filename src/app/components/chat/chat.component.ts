@@ -7,16 +7,12 @@ import {
   ViewChild
 } from '@angular/core';
 import { AuthService, SocialUser } from 'angularx-social-login';
-import * as SockJS from 'sockjs-client';
 import { Message } from 'src/app/classes/Message';
 import { PartyrUser } from 'src/app/classes/PartyrUser';
-import { URLStore } from 'src/app/classes/url-store';
 import { UserService } from 'src/app/services/user.service';
 import * as Stomp from 'stompjs';
 import { ChatService } from 'src/app/services/chat.service';
-import { switchMap, tap, catchError, retryWhen } from 'rxjs/operators';
-import { scheduled } from 'rxjs';
-import { asap } from 'rxjs/internal/scheduler/asap';
+import { switchMap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-chat',
@@ -55,25 +51,12 @@ export class ChatComponent implements OnInit, AfterViewChecked {
         this.partyrUser = partyrUser;
         this.initializeNewMessage();
       });
-
-    this.stompClient = this.chatService.openSocket();
     this.chatService
-      .connectMsgQueue(this.stompClient, '/chat')
-      .pipe(
-        retryWhen((err: any) =>
-          err.pipe(
-            tap(() => (this.stompClient = this.chatService.openSocket()))
-          )
-        ),
-        catchError(() => {
-          console.log('catching');
-          return scheduled([[]], asap);
-        })
-      )
-      .subscribe((messages: Message[]) => {
-        this.messages = messages;
-        this.scrollChatToBottom();
-      });
+      .getAllChat()
+      .subscribe((messages: Message[]) => (this.messages = messages));
+    this.chatService.connectToChat().subscribe((msg: Message) => {
+      this.messages.push(msg);
+    });
   }
 
   /**
@@ -107,8 +90,7 @@ export class ChatComponent implements OnInit, AfterViewChecked {
     if (event.ctrlKey && event.key === 'Enter') {
       this.message.content += '\n';
     } else if (event.key === 'Enter') {
-      this.chatService.sendMessage(this.stompClient, this.message);
-      this.getChatMessages();
+      this.chatService.sendToChat(this.message);
       this.initializeNewMessage();
     }
   }

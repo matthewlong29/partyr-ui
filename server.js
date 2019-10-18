@@ -16,11 +16,11 @@ const env = process.env.NODE_ENV;
 /** LOCAL PROXY */
 
 const proxyPath = 'http://localhost:8080';
+const apiProxy = proxy(proxyPath, {
+  proxyReqPathResolver: req => url.parse(req.originalUrl).path
+});
 
 if (env && env.trim() === 'local') {
-  const apiProxy = proxy(proxyPath, {
-    proxyReqPathResolver: req => url.parse(req.originalUrl).path
-  });
   app.use('/api/*', apiProxy);
 }
 

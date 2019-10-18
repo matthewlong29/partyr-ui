@@ -15,6 +15,8 @@ export class URLStore {
   static GOOGLE_SIGN_IN_URL = '/api/google-authenticate';
   static CHECK_AUTH_URL = 'api/check-auth';
 
-  /*****  *****/
-  static WEBSOCKET_URL = 'http://localhost:8080/socket';
+  /***** WEBSOCKET *****/
+  static WEBSOCKET_URL = 'http://localhost:8080/ws/socket';
+  static WS_WATCH_LOBBY_CHAT = '/chat/lobby';
+  static WS_SEND_LOBBY_CHAT = '/app/lobby-chat';
 }
