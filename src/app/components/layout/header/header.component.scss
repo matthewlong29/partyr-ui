@@ -1,23 +1,29 @@
 @import '~src/app/styles/variables.scss';
 
 .header {
+  position: fixed;
   display: flex;
-  justify-content: center;
   align-items: center;
-  color: white;
+  width: calc(100% - 17px);
   height: $header-height - 0.25rem;
-  width: 100vw;
-  background-color: $secondary;
+  padding: 0 1rem;
+  color: white;
   border-bottom: 0.25rem solid $primary;
-
+  background-color: $secondary;
+  box-shadow: 0 2px 5px #ec407a;
+  &__brand {
+    &:hover {
+      cursor: pointer;
+    }
+  }
   .header__white-space {
-    margin-right: auto;
     width: $offset-width;
+    margin-right: auto;
   }
 
   .header__settings {
-    margin-left: auto;
     width: $offset-width;
+    margin-left: auto;
     text-align: center;
   }
 }

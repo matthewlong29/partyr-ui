@@ -1,18 +1,39 @@
+@import '~src/app/styles/variables.scss';
+
+@mixin card($bg-color, $txt-color) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20rem;
+  height: 25rem;
+  color: $txt-color;
+  border: none;
+  border-radius: 5px;
+  background-color: $bg-color;
+  &:hover {
+    box-shadow: -5px 5px 5px lighten($bg-color, $amount: 75%);
+  }
+}
+
 .game-select {
   display: flex;
   justify-content: center;
-  &__card {
+  &__header {
+    font-size: 2rem;
     display: flex;
-    align-items: center;
     justify-content: center;
-    width: 20rem;
-    height: 70vh;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    background-color: black;
-    &:hover {
-      box-shadow: -5px 5px 5px gray;
+  }
+  &__widget {
+    width: 60rem;
+    margin: 1rem;
+    padding: 1rem;
+    border: 5px solid $secondary;
+    border-radius: 10px;
+  }
+
+  &__card {
+    &--black-hand {
+      @include card(black, white);
     }
   }
 }

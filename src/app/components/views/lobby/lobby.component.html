@@ -1,8 +1,21 @@
-<section>
+<div class="lobby">
+  <section>
+    <button>Create Room</button>
+    <h1>Rooms Available</h1>
+    <table class="lobby__table">
+      <thead>
+        <tr>
+          <th *ngFor="let col of availableRoomsCols">{{ col.header }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let room of availableRooms | async">
+          <td>{{ room.name }}</td>
+          <td>{{ room.members.length }}/{{ room.capacity }}</td>
+          <td><button>Join</button></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
   <app-chat chatPurposeName="Lobby"></app-chat>
-</section>
-<section>
-  <button>Create Room</button>
-  <h1>Rooms Available</h1>
-  <app-auto-table [columns]="availableRoomsCols" [dataSource]="dataSource | async"></app-auto-table>
-</section>
+</div>

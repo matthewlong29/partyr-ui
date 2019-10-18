@@ -1,0 +1,9 @@
+.lobby {
+  padding: 1rem;
+  &__table {
+    width: 100%;
+    th {
+      text-align: left;
+    }
+  }
+}
