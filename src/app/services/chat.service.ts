@@ -8,6 +8,7 @@ import * as SockJS from 'sockjs-client';
 import { tap, catchError, map } from 'rxjs/operators';
 import { asap } from 'rxjs/internal/scheduler/asap';
 import { WebsocketService } from './websocket.service';
+import { WsBrokerStore } from '../classes/ws-broker-store';
 
 @Injectable({
   providedIn: 'root'
@@ -16,11 +17,11 @@ export class ChatService {
   constructor(readonly http: HttpClient, readonly wsSvc: WebsocketService) {}
 
   connectToChat(): Observable<Message> {
-    return this.wsSvc.watch(URLStore.WS_WATCH_LOBBY_CHAT);
+    return this.wsSvc.watch(WsBrokerStore.LOBBY_CHAT_QUEUE);
   }
 
   sendToChat(message: Message): void {
-    this.wsSvc.publish(URLStore.WS_SEND_LOBBY_CHAT, message);
+    this.wsSvc.publish(WsBrokerStore.LOBBY_CHAT_MSG, message);
   }
 
   /**

@@ -17,6 +17,4 @@ export class URLStore {
 
   /***** WEBSOCKET *****/
   static WEBSOCKET_URL = '/ws/socket';
-  static WS_WATCH_LOBBY_CHAT = '/chat/lobby';
-  static WS_SEND_LOBBY_CHAT = '/app/lobby-chat';
 }
