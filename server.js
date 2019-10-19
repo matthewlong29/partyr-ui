@@ -4,6 +4,7 @@ const url = require('url');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const proxy = require('express-http-proxy');
+const httpProxy = require('http-proxy');
 
 const app = express();
 
@@ -15,13 +16,17 @@ const env = process.env.NODE_ENV;
 
 /** LOCAL PROXY */
 
-const proxyPath = 'http://localhost:8080';
-const apiProxy = proxy(proxyPath, {
-  proxyReqPathResolver: req => url.parse(req.originalUrl).path
-});
-
 if (env && env.trim() === 'local') {
+  const proxyPath = 'http://localhost:8080';
+  const apiProxy = proxy(proxyPath, {
+    proxyReqPathResolver: req => url.parse(req.originalUrl).path
+  });
+  const reverseProxy = httpProxy.createProxyServer();
+
   app.use('/api/*', apiProxy);
+  app.all('/ws/*', (req, res) => {
+    reverseProxy.web(req, res, { target: proxyPath });
+  });
 }
 
 /** APPLICATION */
