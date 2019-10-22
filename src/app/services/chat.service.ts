@@ -21,7 +21,7 @@ export class ChatService {
   }
 
   sendToChat(message: Message): void {
-    this.wsSvc.publish(WsBrokerStore.LOBBY_CHAT_MSG, message);
+    this.wsSvc.publish(WsBrokerStore.LOBBY_CHAT_SEND_MSG, message);
   }
 
   /**
