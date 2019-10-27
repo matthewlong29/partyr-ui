@@ -37,7 +37,6 @@ import { MainComponent } from './components/views/main/main.component';
 import { BlackHandRoomCreatorComponent } from './components/room-create/black-hand-room-creator/black-hand-room-creator.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MaterialModule } from './modules/material/material.module';
-import { WaitingRoomComponent } from './components/views/waiting-room/waiting-room.component';
 
 const GOOGLE_OAUTH_CLIENT_ID = '276174427953-o7q6mv623adttteep82an71rs4bgge0r';
 
@@ -65,8 +64,7 @@ export const provideConfig = () => config;
     GameSelectComponent,
     RoomCreatorComponent,
     MainComponent,
-    BlackHandRoomCreatorComponent,
-    WaitingRoomComponent
+    BlackHandRoomCreatorComponent
   ],
   imports: [
     BrowserModule,
