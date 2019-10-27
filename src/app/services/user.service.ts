@@ -16,7 +16,7 @@ export class UserService {
   /**
    * getPartyrUserByEmail.
    */
-  public getPartyrUserByEmail(email: string): Observable<PartyrUser> {
-    return this.http.get<PartyrUser>(URLStore.CURRENT_USER + email);
+  public getPartyrUserByEmail(partyrEmail: string): Observable<PartyrUser> {
+    return this.http.post<PartyrUser>(URLStore.CURRENT_USER, { partyrEmail });
   }
 }
