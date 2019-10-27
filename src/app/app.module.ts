@@ -32,6 +32,11 @@ import { AppAuthService } from './services/app-auth.service';
 import { UserService } from './services/user.service';
 import { GameSelectComponent } from './components/game-select/game-select.component';
 import { UtilsModule } from './modules/utils/utils.module';
+import { RoomCreatorComponent } from './components/views/lobby/room-creator/room-creator.component';
+import { MainComponent } from './components/views/main/main.component';
+import { BlackHandRoomCreatorComponent } from './components/room-create/black-hand-room-creator/black-hand-room-creator.component';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { MaterialModule } from './modules/material/material.module';
 
 const GOOGLE_OAUTH_CLIENT_ID = '276174427953-o7q6mv623adttteep82an71rs4bgge0r';
 
@@ -56,7 +61,10 @@ export const provideConfig = () => config;
     MenuItemDirective,
     ChatComponent,
     LobbyComponent,
-    GameSelectComponent
+    GameSelectComponent,
+    RoomCreatorComponent,
+    MainComponent,
+    BlackHandRoomCreatorComponent
   ],
   imports: [
     BrowserModule,
@@ -65,7 +73,9 @@ export const provideConfig = () => config;
     ReactiveFormsModule,
     SocialLoginModule,
     HttpClientModule,
-    UtilsModule
+    UtilsModule,
+    BrowserAnimationsModule,
+    MaterialModule
   ],
   providers: [
     AuthGuard,
@@ -93,6 +103,7 @@ export const provideConfig = () => config;
       deps: [InjectableRxStompConfig]
     }
   ],
+  entryComponents: [RoomCreatorComponent],
   bootstrap: [AppComponent]
 })
 export class AppModule {}

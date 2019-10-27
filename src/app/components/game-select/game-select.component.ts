@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { URLStore } from 'src/app/classes/url-store';
+import { GamesService } from 'src/app/services/games.service';
+import { GameObject } from 'src/app/classes/models/game-object';
 
 @Component({
   selector: 'app-game-select',
@@ -8,11 +10,17 @@ import { URLStore } from 'src/app/classes/url-store';
   styleUrls: ['./game-select.component.scss']
 })
 export class GameSelectComponent implements OnInit {
-  constructor(readonly router: Router) {}
+  gameList: GameObject[];
 
-  ngOnInit() {}
+  constructor(readonly router: Router, readonly gameSvc: GamesService) {}
 
-  enterBlackHandLobby(): void {
-    this.router.navigate([URLStore.LOBBY_URL]);
+  ngOnInit() {
+    this.gameSvc
+      .getAllGames()
+      .subscribe((games: GameObject[]) => (this.gameList = games));
+  }
+
+  enterLobby(gameName: string): void {
+    this.router.navigate([`${URLStore.LOBBY_URL}/${gameName}`]);
   }
 }

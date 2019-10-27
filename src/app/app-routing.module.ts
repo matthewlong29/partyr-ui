@@ -28,7 +28,7 @@ const routes: Routes = [
     component: GameSelectComponent
   },
   {
-    path: 'lobby',
+    path: 'lobby/:game',
     pathMatch: 'full',
     canActivate: [AuthGuard],
     component: LobbyComponent

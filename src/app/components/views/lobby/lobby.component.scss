@@ -1,9 +1,35 @@
 .lobby {
+  display: flex;
   padding: 1rem;
+  &__grid {
+    display: grid;
+    width: 100vw;
+    height: 85vh;
+    gap: 1rem;
+    grid-template-rows: 3fr 1fr;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  &__chat {
+    overflow: hidden;
+    grid-column: 1 / 2;
+    grid-row: 1 / 2;
+  }
+
+  &__room-list {
+    grid-column: 2 / 3;
+    grid-row: 1 / 2;
+  }
+
   &__table {
     width: 100%;
     th {
       text-align: left;
     }
+  }
+
+  &__role-display {
+    grid-column: 1 / 3;
+    grid-row: 2 / 3;
   }
 }

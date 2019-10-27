@@ -1,8 +1,8 @@
 <div class="game-select">
   <div class="game-select__widget">
     <div class="game-select__header">Select A Game</div>
-    <button class="game-select__card--black-hand" (click)="enterBlackHandLobby()">
-      <h1>Black Hand</h1>
+    <button *ngFor="let game of gameList" class="game-select__card--black-hand" (click)="enterLobby(game.gameName)">
+      <h1>{{ game.gameName }}</h1>
     </button>
   </div>
 </div>

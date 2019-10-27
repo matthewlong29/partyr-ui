@@ -9,7 +9,7 @@ import { tap, catchError, map } from 'rxjs/operators';
 import { asap } from 'rxjs/internal/scheduler/asap';
 import { WebsocketService } from './websocket.service';
 import { WsBrokerStore } from '../classes/ws-broker-store';
-
+import * as moment from 'moment';
 @Injectable({
   providedIn: 'root'
 })
@@ -27,8 +27,14 @@ export class ChatService {
   /**
    * getAllChat.
    */
-  public getAllChat(): Observable<Array<Message>> {
-    return this.http.get<Array<Message>>(URLStore.CHAT_MESSAGES);
+  public getAllChat(): Observable<Message[]> {
+    return this.http.get<Message[]>(URLStore.CHAT_MESSAGES).pipe(
+      map((msgs: Message[]) => {
+        return [...msgs].sort((msgA: Message, msgB: Message) =>
+          moment(msgA.timeOfMessage).diff(moment(msgB.timeOfMessage))
+        );
+      })
+    );
   }
 
   public openSocket(): Stomp {

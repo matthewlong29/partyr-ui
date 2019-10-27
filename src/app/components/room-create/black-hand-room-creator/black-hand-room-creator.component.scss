@@ -1,0 +1,53 @@
+.bhrc {
+  padding: 1rem;
+
+  &__section-header {
+    text-align: left;
+    &--sub {
+      margin: 0 0 1rem;
+      text-align: left;
+    }
+  }
+
+  &__card-list {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  &__card-container {
+    margin-right: 1rem;
+
+    &:last-of-type {
+      margin-right: 0;
+    }
+  }
+
+  &__card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 2.5rem;
+    text-align: center;
+  }
+
+  &__roles {
+    display: flex;
+  }
+
+  &__button-row {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 1rem;
+  }
+
+  &__divider {
+    margin: 0.5rem;
+  }
+
+  &__form-field {
+    margin-right: 1rem;
+    &:last-of-type {
+      margin-right: 0;
+    }
+  }
+}

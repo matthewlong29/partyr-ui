@@ -1,9 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import { AutoTableColumn } from 'src/app/classes/models/auto-table-column';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { LobbyRoom } from 'src/app/classes/models/lobby-room';
 import { LobbyService } from 'src/app/services/lobby.service';
-import { map } from 'rxjs/operators';
+import { tap } from 'rxjs/operators';
+import { ModalService } from 'src/app/services/modal.service';
+import { RoomCreatorComponent } from './room-creator/room-creator.component';
+import { ActivatedRoute } from '@angular/router';
+import { MatDialog } from '@angular/material';
+import { GameObject } from 'src/app/classes/models/game-object';
+import { GamesService } from 'src/app/services/games.service';
 
 const AVAILABLE_ROOMS_COLS: AutoTableColumn[] = [
   new AutoTableColumn('name', 'Room'),
@@ -17,14 +23,45 @@ const AVAILABLE_ROOMS_COLS: AutoTableColumn[] = [
   styleUrls: ['./lobby.component.scss']
 })
 export class LobbyComponent implements OnInit {
+  gameName = this.route.snapshot.paramMap.get('game');
+  maxPlayersPerGame = 0;
   availableRoomsCols: AutoTableColumn[] = AVAILABLE_ROOMS_COLS;
   availableRooms = new BehaviorSubject<any[]>([]);
 
-  constructor(readonly lobbySvc: LobbyService) {}
+  constructor(
+    readonly lobbySvc: LobbyService,
+    readonly gameSvc: GamesService,
+    readonly modal: ModalService,
+    readonly route: ActivatedRoute,
+    readonly dialog: MatDialog
+  ) {}
 
   ngOnInit() {
-    this.lobbySvc
-      .getAvailableRooms()
-      .subscribe((rooms: any[]) => this.availableRooms.next(rooms));
+    this.getGameDetails().subscribe();
+    this.getAvailableRooms().subscribe();
+    this.lobbySvc.connectToLobbies().subscribe(() => {
+      console.log('lobby rooms updated');
+    });
+  }
+  getAvailableRooms(): Observable<LobbyRoom[]> {
+    return this.lobbySvc
+      .getAvailableRooms(this.gameName)
+      .pipe(tap((rooms: LobbyRoom[]) => this.availableRooms.next(rooms)));
+  }
+
+  getGameDetails(): Observable<GameObject> {
+    return this.gameSvc.getGameDetails(this.gameName).pipe(
+      tap((gameDetails: GameObject) => {
+        this.maxPlayersPerGame = gameDetails.maxNumberOfPlayers;
+      })
+    );
+  }
+
+  openRoomCreator(): void {
+    if (this.gameName) {
+      this.dialog.open(RoomCreatorComponent, {
+        data: this.gameName
+      });
+    }
   }
 }

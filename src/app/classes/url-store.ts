@@ -7,7 +7,6 @@ export class URLStore {
 
   /***** NODE ENDPOINTS *****/
   // static LOGGED_IN_URL = '/logged-in';
-  static CURRENT_USER = 'api/users/current-user';
   static CHAT_MESSAGES = 'api/chat';
   static AUTH_ID_TOKEN_URL = '/auth-id-token';
 
@@ -17,6 +16,9 @@ export class URLStore {
 
   /***** WEBSOCKET *****/
   static WEBSOCKET_URL = '/ws/socket';
+
+  /***** USER SERVICE *****/
+  static CURRENT_USER = 'api/users/current-user';
 
   /***** GAMES SERVICE *****/
   static GET_ALL_GAMES_URL = 'api/games';
