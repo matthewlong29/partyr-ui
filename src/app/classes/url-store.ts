@@ -7,7 +7,7 @@ export class URLStore {
 
   /***** NODE ENDPOINTS *****/
   // static LOGGED_IN_URL = '/logged-in';
-  static CURRENT_USER = 'api/current-user/';
+  static CURRENT_USER = 'api/users/current-user';
   static CHAT_MESSAGES = 'api/chat';
   static AUTH_ID_TOKEN_URL = '/auth-id-token';
 
@@ -17,4 +17,14 @@ export class URLStore {
 
   /***** WEBSOCKET *****/
   static WEBSOCKET_URL = '/ws/socket';
+
+  /***** GAMES SERVICE *****/
+  static GET_ALL_GAMES_URL = 'api/games';
+  static GET_GAME_DETAILS_URL = 'api/game';
+
+  /***** LOBBY SERVICE *****/
+  static GET_AVAILABLE_ROOMS = 'api/lobby-rooms';
+
+  /***** BLACK HAND SERVICE *****/
+  static GET_BH_ROLES = 'api/game/details/black-hand/roles';
 }
