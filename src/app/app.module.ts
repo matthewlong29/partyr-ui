@@ -66,6 +66,8 @@ export const provideConfig = () => config;
     SocialLoginModule,
     HttpClientModule,
     UtilsModule
+    BrowserAnimationsModule,
+    MaterialModule
   ],
   providers: [
     AuthGuard,
