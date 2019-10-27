@@ -1,0 +1,33 @@
+@import '~src/app/styles/variables.scss';
+
+.router-outlet__wrapper {
+  padding-top: $header-height - 0.25rem;
+}
+
+#modal-container {
+  position: fixed;
+  z-index: 100;
+  top: 300px;
+  left: 50%;
+  width: 375px;
+  margin-left: -187.5px;
+  text-align: center;
+  background: white;
+  box-shadow: 0 0 2px 1px black;
+  &.hidden {
+    display: none;
+  }
+}
+
+#overlay {
+  position: absolute;
+  z-index: 99;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.8);
+  &.hidden {
+    display: none;
+  }
+}

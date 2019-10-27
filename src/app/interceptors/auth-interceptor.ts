@@ -3,15 +3,21 @@ import {
   HttpInterceptor,
   HttpRequest,
   HttpHandler,
-  HttpEvent
+  HttpEvent,
+  HttpResponse,
+  HttpErrorResponse
 } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
+import { Observable, scheduled, throwError } from 'rxjs';
+import { switchMap, catchError, tap, mergeMap } from 'rxjs/operators';
 import { AppAuthService } from '../services/app-auth.service';
+import { Router } from '@angular/router';
+import { URLStore } from '../classes/url-store';
+import { asap } from 'rxjs/internal/scheduler/asap';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
-  constructor(readonly appAuthSvc: AppAuthService) {}
+  constructor(readonly appAuthSvc: AppAuthService, readonly router: Router) {}
+
   intercept(
     request: HttpRequest<any>,
     next: HttpHandler

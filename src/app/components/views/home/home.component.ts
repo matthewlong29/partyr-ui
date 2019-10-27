@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ImagePaths } from 'src/app/classes/constants/image-paths';
 import { Router } from '@angular/router';
 import { AppAuthService } from 'src/app/services/app-auth.service';
+import { URLStore } from 'src/app/classes/url-store';
 
 @Component({
   selector: 'app-home',
@@ -17,5 +18,9 @@ export class HomeComponent implements OnInit {
 
   signOut(): void {
     this.appAuthSvc.signOut().subscribe();
+  }
+
+  enterGameSelect(): void {
+    this.router.navigate([URLStore.GAME_SELECT_URL]);
   }
 }

@@ -47,19 +47,13 @@ export class AppAuthService {
 
   signOut(): Observable<any> {
     return from(this.xAuthSvc.signOut()).pipe(
-      switchMap(() =>
-        combineLatest([this.deleteIsLoggedIn(), this.deleteAuthIdToken()])
-      ),
+      switchMap(() => this.deleteAuthIdToken()),
       tap(() => this.router.navigate([URLStore.LOGIN_URL]))
     );
   }
 
   getIsLoggedIn(): Observable<boolean> {
-    return this.http.get<boolean>(URLStore.LOGGED_IN_URL);
-  }
-
-  deleteIsLoggedIn(): Observable<any> {
-    return this.http.delete(URLStore.LOGGED_IN_URL);
+    return this.http.get<boolean>(URLStore.CHECK_AUTH_URL);
   }
 
   getAuthIdToken(): Observable<string> {

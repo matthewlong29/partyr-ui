@@ -1,6 +1,5 @@
 <div class="header">
-  <div *ngIf="!isLoginPage()" class="header__white-space"></div>
-  <h1>Partyr</h1>
+  <h1 class="header__brand" (click)="navigateHome()">Partyr</h1>
   <div *ngIf="!isLoginPage()" class="header__settings">
     <app-menu triggerType="icon" label="settings" position="before">
       <a appMenuItem href="#" (click)="signOut()">

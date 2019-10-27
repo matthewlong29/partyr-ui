@@ -16,10 +16,9 @@ export class AuthGuard implements CanActivate {
 
   canActivate(): Observable<boolean | UrlTree> {
     return this.appAuthSvc.getIsLoggedIn().pipe(
-      map(
-        (loggedIn: boolean) =>
-          loggedIn || this.router.parseUrl(URLStore.LOGIN_URL)
-      ),
+      map((loggedIn: boolean) => {
+        return loggedIn || this.router.parseUrl(URLStore.LOGIN_URL);
+      }),
       catchError((err: any) => {
         console.error(err);
         return scheduled([this.router.parseUrl(URLStore.LOGIN_URL)], asap);
