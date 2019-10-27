@@ -1,21 +1,16 @@
-<section class="chat">
-  <h3>{{ chatPurposeName }}</h3>
-  <ul #chatWindow>
-    <li
-      *ngFor="let receivedMessage of messages"
-      [ngClass]="
-        receivedMessage.author === partyrUser.email ? 'you' : 'someone-else'
-      "
-    >
-      <span>{{ receivedMessage.author }}</span>
-      <span>{{ receivedMessage.content }}</span>
-    </li>
-  </ul>
-  <div class="input-text">
-    <textarea
-      type="text"
-      [(ngModel)]="message.content"
-      (keydown)="sendMessage($event)"
-    ></textarea>
-  </div>
-</section>
+<mat-card class="chat">
+  <mat-card-title class="chat__title">{{ chatPurposeName }}</mat-card-title>
+  <mat-card-content #chatWindow class="chat__content">
+    <ul class="chat__msg-list">
+      <li *ngFor="let msg of messages"
+        class="mat-elevation-z1 chat__msg{{ msg.author === partyrUser.email ? '--self' : ''}}">
+        <span *ngIf="msg.author !== partyrUser.email" class="chat__msg-author">{{ msg.author }}</span>
+        <span class="chat__msg-text">{{ msg.content }}</span>
+      </li>
+    </ul>
+  </mat-card-content>
+  <mat-card-actions class="chat__actions">
+    <textarea [formControl]="newMsgCtrl" class="chat__type-box" placeholder="Type a message"
+      (keypress)="sendMessage($event)"></textarea>
+  </mat-card-actions>
+</mat-card>
