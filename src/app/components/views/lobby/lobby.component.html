@@ -1,21 +1,26 @@
 <div class="lobby">
-  <section>
-    <button>Create Room</button>
-    <h1>Rooms Available</h1>
-    <table class="lobby__table">
-      <thead>
-        <tr>
-          <th *ngFor="let col of availableRoomsCols">{{ col.header }}</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let room of availableRooms | async">
-          <td>{{ room.name }}</td>
-          <td>{{ room.members.length }}/{{ room.capacity }}</td>
-          <td><button>Join</button></td>
-        </tr>
-      </tbody>
-    </table>
-  </section>
-  <app-chat chatPurposeName="Lobby"></app-chat>
+  <div class="lobby__grid">
+    <section class="lobby__chat">
+      <app-chat chatPurposeName="Lobby"></app-chat>
+    </section>
+    <section class="lobby__room-list">
+      <button mat-raised-button color="primary" (click)="openRoomCreator()">Create Room</button>
+      <h1>Rooms Available</h1>
+      <table class="lobby__table">
+        <thead>
+          <tr>
+            <th *ngFor="let col of availableRoomsCols">{{ col.header }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let room of availableRooms | async">
+            <td>{{ room.name }}</td>
+            <td>{{ room.numberOfPlayers }}/{{ maxPlayersPerGame }}</td>
+            <td><button mat-raised-button color="primary">Join</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+    <section class="lobby__role-display">Roles</section>
+  </div>
 </div>

@@ -1,5 +1,6 @@
 export interface LobbyRoom {
+  numberOfPlayers: number;
   name: string;
-  capacity: number;
+  host: string;
   members: string[];
 }
