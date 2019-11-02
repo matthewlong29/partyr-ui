@@ -4,7 +4,6 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { LobbyRoom } from 'src/app/classes/models/lobby-room';
 import { LobbyService } from 'src/app/services/lobby.service';
 import { tap } from 'rxjs/operators';
-import { ModalService } from 'src/app/services/modal.service';
 import { RoomCreatorComponent } from './room-creator/room-creator.component';
 import { ActivatedRoute } from '@angular/router';
 import { MatDialog } from '@angular/material';
@@ -31,7 +30,6 @@ export class LobbyComponent implements OnInit {
   constructor(
     readonly lobbySvc: LobbyService,
     readonly gameSvc: GamesService,
-    readonly modal: ModalService,
     readonly route: ActivatedRoute,
     readonly dialog: MatDialog
   ) {}
