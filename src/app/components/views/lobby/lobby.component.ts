@@ -37,13 +37,23 @@ export class LobbyComponent implements OnInit {
   ngOnInit() {
     this.getGameDetails().subscribe();
     this.getAvailableRooms().subscribe();
-    this.lobbySvc.connectToLobbies().subscribe(() => {
+    this.lobbySvc.watchAvailableRooms().subscribe(() => {
       console.log('lobby rooms updated');
     });
+    this.watchAvailableRooms().subscribe(() => {
+      console.log('updated lobby rooms from queue');
+    });
   }
+
+  watchAvailableRooms(): Observable<LobbyRoom[]> {
+    return this.lobbySvc
+      .watchAvailableRooms()
+      .pipe(tap((rooms: LobbyRoom[]) => this.availableRooms.next(rooms)));
+  }
+
   getAvailableRooms(): Observable<LobbyRoom[]> {
     return this.lobbySvc
-      .getAvailableRooms(this.gameName)
+      .getAvailableRooms()
       .pipe(tap((rooms: LobbyRoom[]) => this.availableRooms.next(rooms)));
   }
 

@@ -1,5 +1,5 @@
 import { InjectableRxStompConfig } from "@stomp/ng2-stompjs";
-import { URLStore } from './classes/url-store';
+import { URLStore } from './classes/constants/url-store';
 
 
 export const myRxStompConfig: InjectableRxStompConfig = {

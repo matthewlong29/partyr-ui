@@ -7,10 +7,8 @@ import {
 } from '@angular/core';
 import { GamesService } from 'src/app/services/games.service';
 import { GameObject } from 'src/app/classes/models/game-object';
-import { FormBuilder } from '@angular/forms';
 import { MAT_DIALOG_DATA } from '@angular/material';
-
-const BLACK_HAND_NAME = 'BlackHand';
+import { GameStore } from 'src/app/classes/constants/game-store';
 
 @Component({
   selector: 'app-room-creator',
@@ -26,11 +24,9 @@ export class RoomCreatorComponent implements OnInit {
     readonly gameSvc: GamesService
   ) {}
 
-  ngOnInit() {
-    console.log(this.gameName);
-  }
+  ngOnInit() {}
 
   isBlackHand(): boolean {
-    return this.gameName === BLACK_HAND_NAME;
+    return this.gameName === GameStore.BLACK_HAND_NAME;
   }
 }

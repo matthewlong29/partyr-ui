@@ -8,8 +8,8 @@ import {
   HostBinding
 } from '@angular/core';
 import { AuthService, SocialUser } from 'angularx-social-login';
-import { Message } from 'src/app/classes/Message';
-import { PartyrUser } from 'src/app/classes/PartyrUser';
+import { Message } from 'src/app/classes/models/Message';
+import { PartyrUser } from 'src/app/classes/models/PartyrUser';
 import { UserService } from 'src/app/services/user.service';
 import * as Stomp from 'stompjs';
 import { ChatService } from 'src/app/services/chat.service';
@@ -40,33 +40,29 @@ export class ChatComponent implements OnInit, AfterViewChecked {
    */
   constructor(
     private userService: UserService,
-    private chatService: ChatService,
-    private authService: AuthService
+    private chatService: ChatService
   ) {}
 
   /**
    * ngOnInit.
    */
   ngOnInit() {
-    concat(
-      this.getCurrentUser(),
-      this.getChatMessages(),
-      this.connectToChat()
-    ).subscribe();
+    this.partyrUser = this.userService.currentUser;
+    concat(this.getChatMessages(), this.connectToChat()).subscribe();
   }
 
   /**
    * getCurrentUser
    */
-  getCurrentUser(): Observable<any> {
-    return this.authService.authState.pipe(
-      switchMap((currentUser: SocialUser) =>
-        this.userService.getPartyrUserByEmail(currentUser.email)
-      ),
-      tap((user: PartyrUser) => (this.partyrUser = user)),
-      first()
-    );
-  }
+  // getCurrentUser(): Observable<any> {
+  //   return this.authService.authState.pipe(
+  //     switchMap((currentUser: SocialUser) =>
+  //       this.userService.getPartyrUserByEmail(currentUser.email)
+  //     ),
+  //     tap((user: PartyrUser) => (this.partyrUser = user)),
+  //     first()
+  //   );
+  // }
 
   /**
    * getChatMessages

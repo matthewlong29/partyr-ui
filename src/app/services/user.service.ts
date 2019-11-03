@@ -2,14 +2,14 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { AuthService, SocialUser } from 'angularx-social-login';
 import { Observable } from 'rxjs';
-import { PartyrUser } from '../classes/PartyrUser';
-import { URLStore } from '../classes/url-store';
+import { PartyrUser } from '../classes/models/PartyrUser';
+import { URLStore } from '../classes/constants/url-store';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
-  private currentUser: SocialUser;
+  currentUser: PartyrUser;
 
   constructor(readonly authService: AuthService, readonly http: HttpClient) {}
 

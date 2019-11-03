@@ -4,7 +4,7 @@ import { Injectable } from '@angular/core';
 import { Observable, scheduled } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { AppAuthService } from './services/app-auth.service';
-import { URLStore } from './classes/url-store';
+import { URLStore } from './classes/constants/url-store';
 import { asap } from 'rxjs/internal/scheduler/asap';
 
 @Injectable()
