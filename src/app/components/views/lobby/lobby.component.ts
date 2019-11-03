@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { AutoTableColumn } from 'src/app/classes/models/auto-table-column';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, concat } from 'rxjs';
 import { LobbyRoom } from 'src/app/classes/models/lobby-room';
 import { LobbyService } from 'src/app/services/lobby.service';
-import { tap } from 'rxjs/operators';
+import { tap, switchMap } from 'rxjs/operators';
 import { RoomCreatorComponent } from './room-creator/room-creator.component';
 import { ActivatedRoute } from '@angular/router';
 import { MatDialog } from '@angular/material';
@@ -36,13 +36,7 @@ export class LobbyComponent implements OnInit {
 
   ngOnInit() {
     this.getGameDetails().subscribe();
-    this.getAvailableRooms().subscribe();
-    this.lobbySvc.watchAvailableRooms().subscribe(() => {
-      console.log('lobby rooms updated');
-    });
-    this.watchAvailableRooms().subscribe(() => {
-      console.log('updated lobby rooms from queue');
-    });
+    concat(this.getAvailableRooms(), this.watchAvailableRooms()).subscribe();
   }
 
   watchAvailableRooms(): Observable<LobbyRoom[]> {

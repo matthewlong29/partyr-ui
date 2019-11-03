@@ -1,13 +1,12 @@
 import {
   Component,
   OnInit,
-  Input,
   ChangeDetectionStrategy,
   Inject
 } from '@angular/core';
 import { GamesService } from 'src/app/services/games.service';
 import { GameObject } from 'src/app/classes/models/game-object';
-import { MAT_DIALOG_DATA } from '@angular/material';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material';
 import { GameStore } from 'src/app/classes/constants/game-store';
 
 @Component({
@@ -21,12 +20,17 @@ export class RoomCreatorComponent implements OnInit {
 
   constructor(
     @Inject(MAT_DIALOG_DATA) readonly gameName,
-    readonly gameSvc: GamesService
+    readonly gameSvc: GamesService,
+    readonly dialogRef: MatDialogRef<RoomCreatorComponent>
   ) {}
 
   ngOnInit() {}
 
   isBlackHand(): boolean {
     return this.gameName === GameStore.BLACK_HAND_NAME;
+  }
+
+  closeDialog() {
+    this.dialogRef.close();
   }
 }

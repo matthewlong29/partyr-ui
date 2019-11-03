@@ -2,7 +2,9 @@ import {
   Component,
   OnInit,
   ChangeDetectionStrategy,
-  ChangeDetectorRef
+  ChangeDetectorRef,
+  Output,
+  EventEmitter
 } from '@angular/core';
 import { BlackHandService } from 'src/app/services/black-hand.service';
 import { BlackHandRoleObject } from 'src/app/classes/models/black-hand/black-hand-role-object';
@@ -12,6 +14,7 @@ import { LobbyService } from 'src/app/services/lobby.service';
 import { GameStore } from 'src/app/classes/constants/game-store';
 import { UserService } from 'src/app/services/user.service';
 import { PartyrUser } from 'src/app/classes/models/PartyrUser';
+import { RoomCreator } from 'src/app/classes/component-interfaces/room-creator';
 
 interface RoomForm {
   nameCtrl: any;
@@ -25,7 +28,10 @@ interface RoomForm {
   styleUrls: ['./black-hand-room-creator.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class BlackHandRoomCreatorComponent implements OnInit {
+export class BlackHandRoomCreatorComponent implements OnInit, RoomCreator {
+  @Output()
+  closeRoomCreator = new EventEmitter<any>();
+
   blackHandRoles: BlackHandRoleObject[] = [];
   monsterRoles: BlackHandRoleObject[] = [];
   townieRoles: BlackHandRoleObject[] = [];
@@ -77,6 +83,7 @@ export class BlackHandRoomCreatorComponent implements OnInit {
           formVals.nameCtrl,
           currentUser.email
         );
+        this.closeRoomCreator.emit();
       });
     }
   }
