@@ -11,6 +11,7 @@ import { FormBuilder, Validators } from '@angular/forms';
 import { LobbyService } from 'src/app/services/lobby.service';
 import { GameStore } from 'src/app/classes/constants/game-store';
 import { UserService } from 'src/app/services/user.service';
+import { PartyrUser } from 'src/app/classes/models/PartyrUser';
 
 interface RoomForm {
   nameCtrl: any;
@@ -70,11 +71,13 @@ export class BlackHandRoomCreatorComponent implements OnInit {
   createRoom() {
     if (this.roomForm.valid) {
       const formVals: RoomForm = this.roomForm.value;
-      this.lobbySvc.createRoom(
-        GameStore.BLACK_HAND_NAME,
-        formVals.nameCtrl,
-        this.userSvc.currentUser.email
-      );
+      this.userSvc.getCurrentUser().subscribe((currentUser: PartyrUser) => {
+        this.lobbySvc.createRoom(
+          GameStore.BLACK_HAND_NAME,
+          formVals.nameCtrl,
+          currentUser.email
+        );
+      });
     }
   }
 }

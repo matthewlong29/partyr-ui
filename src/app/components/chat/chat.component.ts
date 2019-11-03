@@ -7,13 +7,11 @@ import {
   ViewChild,
   HostBinding
 } from '@angular/core';
-import { AuthService, SocialUser } from 'angularx-social-login';
 import { Message } from 'src/app/classes/models/Message';
 import { PartyrUser } from 'src/app/classes/models/PartyrUser';
 import { UserService } from 'src/app/services/user.service';
-import * as Stomp from 'stompjs';
 import { ChatService } from 'src/app/services/chat.service';
-import { switchMap, finalize, tap, first } from 'rxjs/operators';
+import { tap, first } from 'rxjs/operators';
 import { FormControl } from '@angular/forms';
 import { concat, Observable } from 'rxjs';
 
@@ -47,22 +45,18 @@ export class ChatComponent implements OnInit, AfterViewChecked {
    * ngOnInit.
    */
   ngOnInit() {
-    this.partyrUser = this.userService.currentUser;
+    this.getCurrentUser().subscribe();
     concat(this.getChatMessages(), this.connectToChat()).subscribe();
   }
 
   /**
    * getCurrentUser
    */
-  // getCurrentUser(): Observable<any> {
-  //   return this.authService.authState.pipe(
-  //     switchMap((currentUser: SocialUser) =>
-  //       this.userService.getPartyrUserByEmail(currentUser.email)
-  //     ),
-  //     tap((user: PartyrUser) => (this.partyrUser = user)),
-  //     first()
-  //   );
-  // }
+  getCurrentUser(): Observable<any> {
+    return this.userService
+      .getCurrentUser()
+      .pipe(tap((user: PartyrUser) => (this.partyrUser = user)));
+  }
 
   /**
    * getChatMessages

@@ -39,11 +39,8 @@ export class AppAuthService {
                 idToken: socialUser.idToken
               })
               .pipe(
-                tap((user: PartyrUser) => {
-                  if (user) {
-                    this.userSvc.currentUser = user;
-                    this.router.navigateByUrl('/');
-                  }
+                tap(() => {
+                  this.router.navigateByUrl('/');
                 })
               )
           : scheduled([null], asap)
