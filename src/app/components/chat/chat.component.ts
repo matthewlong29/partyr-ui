@@ -30,8 +30,7 @@ export class ChatComponent implements OnInit, AfterViewChecked {
   newMsgCtrl = new FormControl('');
 
   messages: Array<Message> = [];
-  message: Message = new Message();
-  private partyrUser: PartyrUser = new PartyrUser();
+  private currUser: PartyrUser = new PartyrUser();
 
   /**
    * constructor.
@@ -55,7 +54,7 @@ export class ChatComponent implements OnInit, AfterViewChecked {
   getCurrentUser(): Observable<any> {
     return this.userService
       .getCurrentUser()
-      .pipe(tap((user: PartyrUser) => (this.partyrUser = user)));
+      .pipe(tap((user: PartyrUser) => (this.currUser = user)));
   }
 
   /**
@@ -88,11 +87,11 @@ export class ChatComponent implements OnInit, AfterViewChecked {
    * getTypedMessage.
    */
   private getTypedMessage(): Message {
-    return {
-      author: this.partyrUser.email,
-      content: this.newMsgCtrl.value,
-      timeOfMessage: new Date().toISOString()
-    };
+    return new Message(
+      this.newMsgCtrl.value,
+      this.currUser.email,
+      new Date().toISOString()
+    );
   }
 
   /**
@@ -115,5 +114,12 @@ export class ChatComponent implements OnInit, AfterViewChecked {
     } catch (error) {
       console.error(error);
     }
+  }
+
+  /** isMessageFromUser
+   * @desc checks if the received message was authored by the current user
+   */
+  isMessageFromUser(msg: Message) {
+    return this.currUser && msg.email === this.currUser.email;
   }
 }

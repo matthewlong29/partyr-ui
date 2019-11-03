@@ -1,5 +1,7 @@
 export class Message {
-  author: string;
-  timeOfMessage: string;
-  content: string;
+  constructor(
+    public content: string,
+    public email: string,
+    public timeOfMessage: string
+  ) {}
 }
