@@ -84,24 +84,18 @@ export class ChatComponent implements OnInit, AfterViewChecked {
   }
 
   /**
-   * getTypedMessage.
-   */
-  private getTypedMessage(): Message {
-    return new Message(
-      this.newMsgCtrl.value,
-      this.currUser.email,
-      new Date().toISOString()
-    );
-  }
-
-  /**
    * sendMessage.
    */
   sendMessage(event: KeyboardEvent) {
     if (event.key === 'Enter') {
-      const msg: Message = this.getTypedMessage();
+      event.preventDefault();
+      const msg: Message = new Message(
+        this.newMsgCtrl.value,
+        this.currUser.email,
+        new Date().toISOString()
+      );
       this.chatService.sendToChat(msg);
-      this.newMsgCtrl.reset('');
+      this.newMsgCtrl.reset(null);
     }
   }
 

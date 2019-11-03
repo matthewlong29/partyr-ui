@@ -5,7 +5,7 @@
 
       <ng-container *ngFor="let msg of messages">
         <li *ngIf="!isMessageFromUser(msg); else selfAuthoredMsg" class="mat-elevation-z1 chat__msg">
-          <span class="chat__msg-author">{{ msg.author }}</span>
+          <span class="chat__msg-author">{{ msg.email }}</span>
           <span class="chat__msg-text">{{ msg.content }}</span>
         </li>
         <ng-template #selfAuthoredMsg>
