@@ -1,6 +1,10 @@
 export interface LobbyRoom {
+  gameRoomName: string;
+  gameName: string;
+  hostEmail: string;
+  players: string[];
   numberOfPlayers: number;
-  name: string;
-  host: string;
-  members: string[];
+  gameStarted: boolean;
+  gameStartTime: string;
+  gameEndTime: string;
 }

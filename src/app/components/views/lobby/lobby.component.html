@@ -16,7 +16,7 @@
           <tr *ngFor="let room of availableRooms | async">
             <td>{{ room.gameRoomName }}</td>
             <td>{{ room.numberOfPlayers }}/{{ maxPlayersPerGame }}</td>
-            <td><button mat-raised-button color="primary">Join</button></td>
+            <td><button mat-raised-button color="primary" (click)="joinRoom(room)">Join</button></td>
           </tr>
         </tbody>
       </table>
