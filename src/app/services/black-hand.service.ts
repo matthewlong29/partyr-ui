@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-import { URLStore } from '../classes/url-store';
+import { URLStore } from '../classes/constants/url-store';
 import { BlackHandRoleRespObject } from '../classes/models/black-hand/black-hand-role-resp-object';
 import { LobbyRoom } from '../classes/models/lobby-room';
 

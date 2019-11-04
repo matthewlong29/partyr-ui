@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { URLStore } from 'src/app/classes/url-store';
+import { URLStore } from 'src/app/classes/constants/url-store';
 import { GamesService } from 'src/app/services/games.service';
 import { GameObject } from 'src/app/classes/models/game-object';
 

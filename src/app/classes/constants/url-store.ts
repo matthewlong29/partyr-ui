@@ -25,8 +25,8 @@ export class URLStore {
   static GET_GAME_DETAILS_URL = 'api/game';
 
   /***** LOBBY SERVICE *****/
-  static GET_AVAILABLE_ROOMS = 'api/lobby-rooms';
+  static GET_AVAILABLE_ROOMS = 'api/game/rooms';
 
   /***** BLACK HAND SERVICE *****/
-  static GET_BH_ROLES = 'api/game/details/black-hand/roles';
+  static GET_BH_ROLES = 'api/game/black-hand/roles';
 }

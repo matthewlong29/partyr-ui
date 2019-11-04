@@ -4,7 +4,7 @@ import { AuthGuard } from './auth-guard';
 import { LoginGuard } from './login-guard';
 import { LoginComponent } from './components/login/login.component';
 import { HomeComponent } from './components/views/home/home.component';
-import { URLStore } from './classes/url-store';
+import { URLStore } from './classes/constants/url-store';
 import { LobbyComponent } from './components/views/lobby/lobby.component';
 import { GameSelectComponent } from './components/game-select/game-select.component';
 

@@ -4,21 +4,27 @@ import { Injectable } from '@angular/core';
 import { Observable, scheduled } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { AppAuthService } from './services/app-auth.service';
-import { URLStore } from './classes/url-store';
+import { URLStore } from './classes/constants/url-store';
 import { asap } from 'rxjs/internal/scheduler/asap';
+import { UserService } from './services/user.service';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
   path: ActivatedRouteSnapshot[];
   route: ActivatedRouteSnapshot;
 
-  constructor(readonly router: Router, readonly appAuthSvc: AppAuthService) {}
+  constructor(
+    readonly router: Router,
+    readonly appAuthSvc: AppAuthService,
+    readonly userSvc: UserService
+  ) {}
 
   canActivate(): Observable<boolean | UrlTree> {
     return this.appAuthSvc.getIsLoggedIn().pipe(
-      map((loggedIn: boolean) => {
-        return loggedIn || this.router.parseUrl(URLStore.LOGIN_URL);
-      }),
+      map(
+        (loggedIn: boolean) =>
+          loggedIn || this.router.parseUrl(URLStore.LOGIN_URL)
+      ),
       catchError((err: any) => {
         console.error(err);
         return scheduled([this.router.parseUrl(URLStore.LOGIN_URL)], asap);

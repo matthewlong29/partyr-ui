@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ImagePaths } from 'src/app/classes/constants/image-paths';
 import { Router } from '@angular/router';
 import { AppAuthService } from 'src/app/services/app-auth.service';
-import { URLStore } from 'src/app/classes/url-store';
+import { URLStore } from 'src/app/classes/constants/url-store';
 
 @Component({
   selector: 'app-home',
