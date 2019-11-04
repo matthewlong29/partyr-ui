@@ -18,7 +18,7 @@ import { AuthGuard } from './auth-guard';
 import { ChatComponent } from './components/chat/chat.component';
 import { JumbotronComponent } from './components/jumbotron/jumbotron.component';
 import { HeaderComponent } from './components/layout/header/header.component';
-import { LoginComponent } from './components/login/login.component';
+import { LoginComponent } from './components/views/login/login.component';
 import { GSignInComponent } from './components/utils/g-sign-in/g-sign-in.component';
 import { MenuItemDirective } from './components/utils/menu/menu-item.directive';
 import { MenuComponent } from './components/utils/menu/menu.component';
@@ -30,13 +30,14 @@ import { LoginGuard } from './login-guard';
 import { myRxStompConfig } from './rx-stomp.config';
 import { AppAuthService } from './services/app-auth.service';
 import { UserService } from './services/user.service';
-import { GameSelectComponent } from './components/game-select/game-select.component';
+import { GameSelectComponent } from './components/views/game-select/game-select.component';
 import { UtilsModule } from './modules/utils/utils.module';
 import { RoomCreatorComponent } from './components/views/lobby/room-creator/room-creator.component';
 import { MainComponent } from './components/views/main/main.component';
 import { BlackHandRoomCreatorComponent } from './components/room-create/black-hand-room-creator/black-hand-room-creator.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MaterialModule } from './modules/material/material.module';
+import { NewUserPromptComponent } from './components/modals/new-user-prompt/new-user-prompt.component';
 
 const GOOGLE_OAUTH_CLIENT_ID = '276174427953-o7q6mv623adttteep82an71rs4bgge0r';
 
@@ -64,7 +65,8 @@ export const provideConfig = () => config;
     GameSelectComponent,
     RoomCreatorComponent,
     MainComponent,
-    BlackHandRoomCreatorComponent
+    BlackHandRoomCreatorComponent,
+    NewUserPromptComponent
   ],
   imports: [
     BrowserModule,
@@ -103,7 +105,7 @@ export const provideConfig = () => config;
       deps: [InjectableRxStompConfig]
     }
   ],
-  entryComponents: [RoomCreatorComponent],
+  entryComponents: [RoomCreatorComponent, NewUserPromptComponent],
   bootstrap: [AppComponent]
 })
 export class AppModule {}
