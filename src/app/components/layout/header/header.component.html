@@ -1,10 +1,16 @@
-<div class="header">
+<mat-toolbar class="header">
   <h1 class="header__brand" (click)="navigateHome()">Partyr</h1>
   <div *ngIf="!isLoginPage()" class="header__settings">
-    <app-menu triggerType="icon" label="settings" position="before">
-      <a appMenuItem href="#" (click)="signOut()">
-        <i class="material-icons">exit_to_app</i>&nbsp;&nbsp;&nbsp;Sign out
-      </a>
-    </app-menu>
+    <button mat-icon-button [matMenuTriggerFor]="headerMenu">
+      <mat-icon>settings</mat-icon>
+    </button>
+    <mat-menu #headerMenu="matMenu">
+      <button mat-menu-item>
+        <mat-icon>settings</mat-icon>Settings
+      </button>
+      <button mat-menu-item>
+        <mat-icon>exit_to_app</mat-icon>Sign Out
+      </button>
+    </mat-menu>
   </div>
-</div>
+</mat-toolbar>
