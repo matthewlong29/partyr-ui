@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
 import { Subject, Observer, Observable, scheduled, Subscription } from 'rxjs';
-import { URLStore } from '../classes/url-store';
+import { URLStore } from '../classes/constants/url-store';
 import * as SockJS from 'sockjs-client';
 import { Stomp, IMessage } from '@stomp/stompjs';
 import { RxStomp } from '@stomp/rx-stomp';
 import { asap } from 'rxjs/internal/scheduler/asap';
 import { map } from 'rxjs/operators';
-import { Message } from '../classes/Message';
+import { Message } from '../classes/models/Message';
 
 @Injectable({
   providedIn: 'root'
@@ -29,7 +29,7 @@ export class WebsocketService {
     });
   }
 
-  public watch(url: string): Observable<any> {
+  public watch<T>(url: string): Observable<T> {
     if (!this.rxStomp) {
       this.connect();
     }

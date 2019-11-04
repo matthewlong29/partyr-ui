@@ -4,57 +4,42 @@
       <mat-label>Room Name</mat-label>
       <input matInput formControlName="nameCtrl" />
     </mat-form-field>
-    <mat-form-field class="bhrc__form-field">
+    <!-- <mat-form-field class="bhrc__form-field">
       <mat-label>Room Key (Optional)</mat-label>
       <input matInput formControlName="pwCtrl">
-    </mat-form-field>
+    </mat-form-field> -->
     <div formGroupName="rolesForm">
       <h1 class="bhrc__section-header">Available Roles</h1>
       <div class="bhrc__roles">
         <section>
           <h2 class="bhrc__section-header--sub">Black Hand</h2>
-          <div class="bhrc__card-list">
-            <div *ngFor="let role of blackHandRoles" class="bhrc__card-container">
-              <mat-card>
-                <mat-card-content class="bhrc__card">
-                  <mat-checkbox [formControlName]="role.name" value="true"></mat-checkbox>
-                  {{ role.name }}
-                </mat-card-content>
-              </mat-card>
-            </div>
-          </div>
+          <mat-list>
+            <mat-list-item *ngFor="let role of blackHandRoles">
+              <mat-checkbox [formControlName]="role.name">{{ role.name }}</mat-checkbox>
+            </mat-list-item>
+          </mat-list>
         </section>
 
         <mat-divider vertical class="bhrc__divider"></mat-divider>
 
         <section>
           <h2 class="bhrc__section-header--sub">Monster</h2>
-          <div class="bhrc__card-list">
-            <div *ngFor="let role of monsterRoles" class="bhrc__card-container">
-              <mat-card>
-                <mat-card-content class="bhrc__card">
-                  <mat-checkbox [formControlName]="role.name" value="true"></mat-checkbox>
-                  {{ role.name }}
-                </mat-card-content>
-              </mat-card>
-            </div>
-          </div>
+          <mat-list>
+            <mat-list-item *ngFor="let role of monsterRoles">
+              <mat-checkbox [formControlName]="role.name">{{ role.name }}</mat-checkbox>
+            </mat-list-item>
+          </mat-list>
         </section>
 
         <mat-divider vertical class="bhrc__divider"></mat-divider>
 
         <section>
           <h2 class="bhrc__section-header--sub">Townie</h2>
-          <div class="bhrc__card-list">
-            <div *ngFor="let role of townieRoles" class="bhrc__card-container">
-              <mat-card>
-                <mat-card-content class="bhrc__card">
-                  <mat-checkbox [formControlName]="role.name"></mat-checkbox>
-                  {{ role.name }}
-                </mat-card-content>
-              </mat-card>
-            </div>
-          </div>
+          <mat-list>
+            <mat-list-item *ngFor="let role of townieRoles">
+              <mat-checkbox [formControlName]="role.name">{{ role.name }}</mat-checkbox>
+            </mat-list-item>
+          </mat-list>
         </section>
       </div>
     </div>

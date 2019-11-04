@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AppAuthService } from 'src/app/services/app-auth.service';
 import { Router } from '@angular/router';
-import { URLStore } from 'src/app/classes/url-store';
+import { URLStore } from 'src/app/classes/constants/url-store';
 
 @Component({
   selector: 'app-header',

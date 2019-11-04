@@ -9,7 +9,9 @@ import {
 import { combineLatest, from, Observable, scheduled } from 'rxjs';
 import { asap } from 'rxjs/internal/scheduler/asap';
 import { switchMap, tap } from 'rxjs/operators';
-import { URLStore } from '../classes/url-store';
+import { URLStore } from '../classes/constants/url-store';
+import { UserService } from './user.service';
+import { PartyrUser } from '../classes/models/PartyrUser';
 
 @Injectable({
   providedIn: 'root'
@@ -20,6 +22,7 @@ export class AppAuthService {
   constructor(
     readonly http: HttpClient,
     readonly xAuthSvc: AuthService,
+    readonly userSvc: UserService,
     readonly router: Router
   ) {}
 
@@ -27,21 +30,21 @@ export class AppAuthService {
     this.xAuthSvc.signIn(GoogleLoginProvider.PROVIDER_ID);
   }
 
-  signIn(): Observable<boolean> {
+  signIn(): Observable<PartyrUser> {
     return from(this.xAuthSvc.signIn(GoogleLoginProvider.PROVIDER_ID)).pipe(
-      switchMap(() => {
-        return this.xAuthSvc.authState.pipe(
-          switchMap((socialUser?: SocialUser) => {
-            if (!socialUser) {
-              return scheduled([false], asap);
-            }
-            return this.http.post<boolean>(URLStore.GOOGLE_SIGN_IN_URL, {
-              idToken: socialUser.idToken
-            });
-          }),
-          tap((loggedIn: boolean) => !loggedIn || this.router.navigate(['/']))
-        );
-      })
+      switchMap((socialUser: SocialUser) =>
+        socialUser
+          ? this.http
+              .post<PartyrUser>(URLStore.GOOGLE_SIGN_IN_URL, {
+                idToken: socialUser.idToken
+              })
+              .pipe(
+                tap(() => {
+                  this.router.navigateByUrl('/');
+                })
+              )
+          : scheduled([null], asap)
+      )
     );
   }
 

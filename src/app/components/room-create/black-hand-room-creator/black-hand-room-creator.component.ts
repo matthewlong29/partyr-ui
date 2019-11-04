@@ -2,12 +2,25 @@ import {
   Component,
   OnInit,
   ChangeDetectionStrategy,
-  ChangeDetectorRef
+  ChangeDetectorRef,
+  Output,
+  EventEmitter
 } from '@angular/core';
 import { BlackHandService } from 'src/app/services/black-hand.service';
 import { BlackHandRoleObject } from 'src/app/classes/models/black-hand/black-hand-role-object';
 import { BlackHandRoleRespObject } from 'src/app/classes/models/black-hand/black-hand-role-resp-object';
-import { FormBuilder, FormArray, Validators } from '@angular/forms';
+import { FormBuilder, Validators } from '@angular/forms';
+import { LobbyService } from 'src/app/services/lobby.service';
+import { GameStore } from 'src/app/classes/constants/game-store';
+import { UserService } from 'src/app/services/user.service';
+import { PartyrUser } from 'src/app/classes/models/PartyrUser';
+import { RoomCreator } from 'src/app/classes/component-interfaces/room-creator';
+
+interface RoomForm {
+  nameCtrl: any;
+  pwCtrl: any;
+  rolesForm: any;
+}
 
 @Component({
   selector: 'app-black-hand-room-creator',
@@ -15,7 +28,10 @@ import { FormBuilder, FormArray, Validators } from '@angular/forms';
   styleUrls: ['./black-hand-room-creator.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class BlackHandRoomCreatorComponent implements OnInit {
+export class BlackHandRoomCreatorComponent implements OnInit, RoomCreator {
+  @Output()
+  closeRoomCreator = new EventEmitter<any>();
+
   blackHandRoles: BlackHandRoleObject[] = [];
   monsterRoles: BlackHandRoleObject[] = [];
   townieRoles: BlackHandRoleObject[] = [];
@@ -26,12 +42,14 @@ export class BlackHandRoomCreatorComponent implements OnInit {
     nameCtrl: this.fb.control('', [Validators.required]),
     pwCtrl: this.fb.control(''),
     rolesForm: this.rolesForm
-  });
+  } as RoomForm);
 
   constructor(
     readonly bhSvc: BlackHandService,
-    readonly fb: FormBuilder,
-    readonly cdRef: ChangeDetectorRef
+    readonly cdRef: ChangeDetectorRef,
+    readonly lobbySvc: LobbyService,
+    readonly userSvc: UserService,
+    readonly fb: FormBuilder
   ) {}
 
   ngOnInit() {
@@ -58,7 +76,15 @@ export class BlackHandRoomCreatorComponent implements OnInit {
 
   createRoom() {
     if (this.roomForm.valid) {
-      console.log(this.roomForm.value);
+      const formVals: RoomForm = this.roomForm.value;
+      this.userSvc.getCurrentUser().subscribe((currentUser: PartyrUser) => {
+        this.lobbySvc.createRoom(
+          GameStore.BLACK_HAND_NAME,
+          formVals.nameCtrl,
+          currentUser.email
+        );
+        this.closeRoomCreator.emit();
+      });
     }
   }
 }

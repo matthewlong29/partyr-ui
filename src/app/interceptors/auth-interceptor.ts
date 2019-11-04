@@ -11,7 +11,7 @@ import { Observable, scheduled, throwError } from 'rxjs';
 import { switchMap, catchError, tap, mergeMap } from 'rxjs/operators';
 import { AppAuthService } from '../services/app-auth.service';
 import { Router } from '@angular/router';
-import { URLStore } from '../classes/url-store';
+import { URLStore } from '../classes/constants/url-store';
 import { asap } from 'rxjs/internal/scheduler/asap';
 
 @Injectable()

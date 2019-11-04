@@ -7,13 +7,11 @@ import {
   ViewChild,
   HostBinding
 } from '@angular/core';
-import { AuthService, SocialUser } from 'angularx-social-login';
-import { Message } from 'src/app/classes/Message';
-import { PartyrUser } from 'src/app/classes/PartyrUser';
+import { Message } from 'src/app/classes/models/Message';
+import { PartyrUser } from 'src/app/classes/models/PartyrUser';
 import { UserService } from 'src/app/services/user.service';
-import * as Stomp from 'stompjs';
 import { ChatService } from 'src/app/services/chat.service';
-import { switchMap, finalize, tap, first } from 'rxjs/operators';
+import { tap, first } from 'rxjs/operators';
 import { FormControl } from '@angular/forms';
 import { concat, Observable } from 'rxjs';
 
@@ -32,40 +30,31 @@ export class ChatComponent implements OnInit, AfterViewChecked {
   newMsgCtrl = new FormControl('');
 
   messages: Array<Message> = [];
-  message: Message = new Message();
-  private partyrUser: PartyrUser = new PartyrUser();
+  private currUser: PartyrUser = new PartyrUser();
 
   /**
    * constructor.
    */
   constructor(
     private userService: UserService,
-    private chatService: ChatService,
-    private authService: AuthService
+    private chatService: ChatService
   ) {}
 
   /**
    * ngOnInit.
    */
   ngOnInit() {
-    concat(
-      this.getCurrentUser(),
-      this.getChatMessages(),
-      this.connectToChat()
-    ).subscribe();
+    this.getCurrentUser().subscribe();
+    concat(this.getChatMessages(), this.connectToChat()).subscribe();
   }
 
   /**
    * getCurrentUser
    */
   getCurrentUser(): Observable<any> {
-    return this.authService.authState.pipe(
-      switchMap((currentUser: SocialUser) =>
-        this.userService.getPartyrUserByEmail(currentUser.email)
-      ),
-      tap((user: PartyrUser) => (this.partyrUser = user)),
-      first()
-    );
+    return this.userService
+      .getCurrentUser()
+      .pipe(tap((user: PartyrUser) => (this.currUser = user)));
   }
 
   /**
@@ -95,24 +84,18 @@ export class ChatComponent implements OnInit, AfterViewChecked {
   }
 
   /**
-   * getTypedMessage.
-   */
-  private getTypedMessage(): Message {
-    return {
-      author: this.partyrUser.email,
-      content: this.newMsgCtrl.value,
-      timeOfMessage: new Date().toISOString()
-    };
-  }
-
-  /**
    * sendMessage.
    */
   sendMessage(event: KeyboardEvent) {
     if (event.key === 'Enter') {
-      const msg: Message = this.getTypedMessage();
+      event.preventDefault();
+      const msg: Message = new Message(
+        this.newMsgCtrl.value,
+        this.currUser.email,
+        new Date().toISOString()
+      );
       this.chatService.sendToChat(msg);
-      this.newMsgCtrl.reset('');
+      this.newMsgCtrl.reset(null);
     }
   }
 
@@ -125,5 +108,12 @@ export class ChatComponent implements OnInit, AfterViewChecked {
     } catch (error) {
       console.error(error);
     }
+  }
+
+  /** isMessageFromUser
+   * @desc checks if the received message was authored by the current user
+   */
+  isMessageFromUser(msg: Message) {
+    return this.currUser && msg.email === this.currUser.email;
   }
 }

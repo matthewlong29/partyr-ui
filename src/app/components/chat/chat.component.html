@@ -2,11 +2,19 @@
   <mat-card-title class="chat__title">{{ chatPurposeName }}</mat-card-title>
   <mat-card-content #chatWindow class="chat__content">
     <ul class="chat__msg-list">
-      <li *ngFor="let msg of messages"
-        class="mat-elevation-z1 chat__msg{{ msg.author === partyrUser.email ? '--self' : ''}}">
-        <span *ngIf="msg.author !== partyrUser.email" class="chat__msg-author">{{ msg.author }}</span>
-        <span class="chat__msg-text">{{ msg.content }}</span>
-      </li>
+
+      <ng-container *ngFor="let msg of messages">
+        <li *ngIf="!isMessageFromUser(msg); else selfAuthoredMsg" class="mat-elevation-z1 chat__msg">
+          <span class="chat__msg-author">{{ msg.email }}</span>
+          <span class="chat__msg-text">{{ msg.content }}</span>
+        </li>
+        <ng-template #selfAuthoredMsg>
+          <li class="mat-elevation-z1 chat__msg--self">
+            <span class="chat__msg-text">{{ msg.content }}</span>
+          </li>
+        </ng-template>
+      </ng-container>
+
     </ul>
   </mat-card-content>
   <mat-card-actions class="chat__actions">

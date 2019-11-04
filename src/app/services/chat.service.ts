@@ -1,14 +1,14 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, scheduled, Subject } from 'rxjs';
-import { Message } from '../classes/Message';
-import { URLStore } from '../classes/url-store';
+import { Message } from '../classes/models/Message';
+import { URLStore } from '../classes/constants/url-store';
 import * as Stomp from 'stompjs';
 import * as SockJS from 'sockjs-client';
 import { tap, catchError, map } from 'rxjs/operators';
 import { asap } from 'rxjs/internal/scheduler/asap';
 import { WebsocketService } from './websocket.service';
-import { WsBrokerStore } from '../classes/ws-broker-store';
+import { WsBrokerStore } from '../classes/constants/ws-broker-store';
 import * as moment from 'moment';
 @Injectable({
   providedIn: 'root'

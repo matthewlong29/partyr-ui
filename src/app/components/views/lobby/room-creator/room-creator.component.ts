@@ -1,16 +1,13 @@
 import {
   Component,
   OnInit,
-  Input,
   ChangeDetectionStrategy,
   Inject
 } from '@angular/core';
 import { GamesService } from 'src/app/services/games.service';
 import { GameObject } from 'src/app/classes/models/game-object';
-import { FormBuilder } from '@angular/forms';
-import { MAT_DIALOG_DATA } from '@angular/material';
-
-const BLACK_HAND_NAME = 'BlackHand';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material';
+import { GameStore } from 'src/app/classes/constants/game-store';
 
 @Component({
   selector: 'app-room-creator',
@@ -23,14 +20,17 @@ export class RoomCreatorComponent implements OnInit {
 
   constructor(
     @Inject(MAT_DIALOG_DATA) readonly gameName,
-    readonly gameSvc: GamesService
+    readonly gameSvc: GamesService,
+    readonly dialogRef: MatDialogRef<RoomCreatorComponent>
   ) {}
 
-  ngOnInit() {
-    console.log(this.gameName);
-  }
+  ngOnInit() {}
 
   isBlackHand(): boolean {
-    return this.gameName === BLACK_HAND_NAME;
+    return this.gameName === GameStore.BLACK_HAND_NAME;
+  }
+
+  closeDialog() {
+    this.dialogRef.close();
   }
 }
