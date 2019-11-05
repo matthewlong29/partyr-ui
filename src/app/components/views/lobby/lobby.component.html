@@ -16,7 +16,13 @@
           <tr *ngFor="let room of availableRooms | async">
             <td>{{ room.gameRoomName }}</td>
             <td>{{ room.numberOfPlayers }}/{{ maxPlayersPerGame }}</td>
-            <td><button mat-raised-button color="primary" (click)="joinRoom(room)">Join</button></td>
+            <td>
+              <button *ngIf="!isPlayerInRoom(room); else leaveRoomButton" mat-raised-button color="primary"
+                (click)="joinRoom(room)">Join</button>
+              <ng-template #leaveRoomButton>
+                <button mat-raised-button color="secondary" (click)="leaveRoom(room)">Leave</button>
+              </ng-template>
+            </td>
           </tr>
         </tbody>
       </table>

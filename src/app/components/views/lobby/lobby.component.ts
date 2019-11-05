@@ -108,6 +108,29 @@ export class LobbyComponent implements OnInit {
     this.lobbySvc.joinRoom(this.currUser.email, room.gameRoomName);
   }
 
+  /** leaveRoom
+   * @desc leave the specified room
+   */
+  leaveRoom(room: LobbyRoom): void {
+    if (this.currUser) {
+      this.lobbySvc.leaveRoom(this.currUser.email, room.gameRoomName);
+    } else {
+      console.error('Current user not found');
+    }
+  }
+
+  /** isPlayerInRoom
+   * @desc returns if a player is a member of the given room
+   */
+  isPlayerInRoom(room: LobbyRoom): boolean {
+    if (this.currUser) {
+      return room.players.some(
+        (playerEmail: string) => playerEmail === this.currUser.email
+      );
+    }
+    return false;
+  }
+
   /** currentlyOccupiedRoom
    * @desc returns the room the user is currently in if any
    */
