@@ -26,10 +26,24 @@ export class LobbyService {
   }
 
   /** joinRoom
-   * @desc join a specified room
+   * @desc join a specified lobby room
    */
   joinRoom(email: string, roomName: string): void {
     this.wsSvc.publish(WsBrokerStore.LOBBY_ROOMS_JOIN, { email, roomName });
+  }
+
+  /** leaveRoom
+   * @desc leave a specified lobby room
+   */
+  leaveRoom(email: string, roomName: string): void {
+    this.wsSvc.publish(WsBrokerStore.LOBBY_ROOMS_LEAVE, { email, roomName });
+  }
+
+  /** deleteRoom
+   * @desc delete a specified lobby room
+   */
+  deleteRoom(roomName: string): void {
+    this.wsSvc.publish(WsBrokerStore.LOBBY_ROOMS_LEAVE, { roomName });
   }
 
   /** watchAvailableRooms

@@ -7,4 +7,6 @@ export class WsBrokerStore {
   static LOBBY_CHAT_SEND_MSG = '/app/send-chat';
   static LOBBY_ROOMS_CREATE = '/app/create-room';
   static LOBBY_ROOMS_JOIN = '/app/join-room';
+  static LOBBY_ROOMS_LEAVE = '/app/leave-room';
+  static LOBBY_ROOMS_DELETE = '/app/delete-room';
 }
