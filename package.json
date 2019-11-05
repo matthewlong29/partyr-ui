@@ -28,7 +28,7 @@
     "aws-serverless-express": "^3.3.6",
     "body-parser": "^1.19.0",
     "cookie-parser": "^1.4.4",
-    "cookies": "^0.7.3",
+    "cookies": "^0.8.0",
     "core-js": "^2.5.4",
     "cors": "^2.8.5",
     "express-http-proxy": "^1.6.0",
