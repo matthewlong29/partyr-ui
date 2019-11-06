@@ -38,6 +38,7 @@ import { BlackHandRoomCreatorComponent } from './components/room-create/black-ha
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MaterialModule } from './modules/material/material.module';
 import { NewUserPromptComponent } from './components/modals/new-user-prompt/new-user-prompt.component';
+import { SettingsComponent } from './components/views/settings/settings.component';
 
 const GOOGLE_OAUTH_CLIENT_ID = '276174427953-o7q6mv623adttteep82an71rs4bgge0r';
 
@@ -66,7 +67,8 @@ export const provideConfig = () => config;
     RoomCreatorComponent,
     MainComponent,
     BlackHandRoomCreatorComponent,
-    NewUserPromptComponent
+    NewUserPromptComponent,
+    SettingsComponent
   ],
   imports: [
     BrowserModule,
