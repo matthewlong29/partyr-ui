@@ -5,26 +5,30 @@
     </section>
     <section class="lobby__room-list">
       <button mat-raised-button color="primary" (click)="openRoomCreator()">Create Room</button>
+      <button *ngIf="selectedRoom | async" mat-raised-button color="accent">View Room</button>
       <h1>Rooms Available</h1>
-      <table class="lobby__table">
-        <thead>
-          <tr>
-            <th *ngFor="let col of availableRoomsCols">{{ col.header }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let room of availableRooms | async">
-            <td>{{ room.gameRoomName }}</td>
-            <td>{{ room.numberOfPlayers }}/{{ maxPlayersPerGame }}</td>
-            <td>
+      <table mat-table [dataSource]="availableRooms | async" class="lobby__table">
+        <ng-container *ngFor="let col of availableRoomsCols" [matColumnDef]="col.id">
+          <th mat-header-cell *matHeaderCellDef>{{ col.header }}</th>
+          <td mat-cell *matCellDef="let room" [ngSwitch]="col.id">
+            <ng-container *ngSwitchCase="'numberOfPlayers'">
+              {{ room.numberOfPlayers }}/{{ maxPlayersPerGame }}
+            </ng-container>
+            <ng-container *ngSwitchCase="'join'">
               <button *ngIf="!isPlayerInRoom(room); else leaveRoomButton" mat-raised-button color="primary"
-                (click)="joinRoom(room)">Join</button>
+                (click)="joinRoom(room, $event)">Join</button>
               <ng-template #leaveRoomButton>
-                <button mat-raised-button color="secondary" (click)="leaveRoom(room)">Leave</button>
+                <button mat-raised-button color="secondary" (click)="leaveRoom(room, $event)">Leave</button>
               </ng-template>
-            </td>
-          </tr>
-        </tbody>
+            </ng-container>
+            <ng-container *ngSwitchDefault>
+              {{ room[col.id] }}
+            </ng-container>
+          </td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="availableRoomsHeaderDefs"></tr>
+        <tr mat-row *matRowDef="let room; columns: availableRoomsHeaderDefs;" class="lobby__select-row"
+          [class.lobby__select-row--active]="isRoomSelected(room)" (click)="selectRoom(room, $event)"></tr>
       </table>
     </section>
     <section class="lobby__role-display">Roles</section>

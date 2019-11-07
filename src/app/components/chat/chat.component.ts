@@ -13,7 +13,7 @@ import { UserService } from 'src/app/services/user.service';
 import { ChatService } from 'src/app/services/chat.service';
 import { tap, first } from 'rxjs/operators';
 import { FormControl } from '@angular/forms';
-import { concat, Observable } from 'rxjs';
+import { concat, Observable, BehaviorSubject } from 'rxjs';
 
 @Component({
   selector: 'app-chat',
@@ -29,8 +29,9 @@ export class ChatComponent implements OnInit, AfterViewChecked {
 
   newMsgCtrl = new FormControl('');
 
-  messages: Array<Message> = [];
-  private currUser: PartyrUser = new PartyrUser();
+  messages = new BehaviorSubject<Message[]>([]);
+  showMessages = new BehaviorSubject<boolean>(false);
+  private currUser = new BehaviorSubject<PartyrUser>(undefined);
 
   /**
    * constructor.
@@ -44,7 +45,7 @@ export class ChatComponent implements OnInit, AfterViewChecked {
    * ngOnInit.
    */
   ngOnInit() {
-    this.getCurrentUser().subscribe();
+    this.getCurrentUser().subscribe(() => this.showMessages.next(true));
     concat(this.getChatMessages(), this.connectToChat()).subscribe();
   }
 
@@ -54,7 +55,7 @@ export class ChatComponent implements OnInit, AfterViewChecked {
   getCurrentUser(): Observable<any> {
     return this.userService
       .getCurrentUser()
-      .pipe(tap((user: PartyrUser) => (this.currUser = user)));
+      .pipe(tap((user: PartyrUser) => this.currUser.next(user)));
   }
 
   /**
@@ -62,7 +63,7 @@ export class ChatComponent implements OnInit, AfterViewChecked {
    */
   getChatMessages(): Observable<any> {
     return this.chatService.getAllChat().pipe(
-      tap((msgs: Message[]) => (this.messages = msgs)),
+      tap((msgs: Message[]) => this.messages.next(msgs)),
       first()
     );
   }
@@ -71,9 +72,13 @@ export class ChatComponent implements OnInit, AfterViewChecked {
    * connectToChat
    */
   connectToChat(): Observable<any> {
-    return this.chatService
-      .connectToChat()
-      .pipe(tap((msg: Message) => this.messages.push(msg)));
+    return this.chatService.connectToChat().pipe(
+      tap((msg: Message) => {
+        const currMsgs: Message[] = this.messages.getValue();
+        currMsgs.push(msg);
+        this.messages.next(currMsgs);
+      })
+    );
   }
 
   /**
@@ -91,7 +96,7 @@ export class ChatComponent implements OnInit, AfterViewChecked {
       event.preventDefault();
       const msg: Message = new Message(
         this.newMsgCtrl.value,
-        this.currUser.email,
+        this.currUser.getValue().email,
         new Date().toISOString()
       );
       this.chatService.sendToChat(msg);
@@ -114,6 +119,10 @@ export class ChatComponent implements OnInit, AfterViewChecked {
    * @desc checks if the received message was authored by the current user
    */
   isMessageFromUser(msg: Message) {
-    return this.currUser && msg.email === this.currUser.email;
+    const currUser: PartyrUser = this.currUser.getValue();
+    if (currUser) {
+      return this.currUser && msg.email === currUser.email;
+    }
+    return false;
   }
 }
