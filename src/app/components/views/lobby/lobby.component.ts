@@ -1,9 +1,14 @@
-import { Component, OnInit } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  ChangeDetectionStrategy,
+  HostListener
+} from '@angular/core';
 import { AutoTableColumn } from 'src/app/classes/models/auto-table-column';
 import { BehaviorSubject, Observable, concat } from 'rxjs';
 import { LobbyRoom } from 'src/app/classes/models/lobby-room';
 import { LobbyService } from 'src/app/services/lobby.service';
-import { tap, switchMap, map } from 'rxjs/operators';
+import { tap } from 'rxjs/operators';
 import { RoomCreatorComponent } from './room-creator/room-creator.component';
 import { ActivatedRoute } from '@angular/router';
 import { MatDialog, MatSnackBar } from '@angular/material';
@@ -13,22 +18,32 @@ import { UserService } from 'src/app/services/user.service';
 import { PartyrUser } from 'src/app/classes/models/PartyrUser';
 
 const AVAILABLE_ROOMS_COLS: AutoTableColumn[] = [
-  new AutoTableColumn('name', 'Room'),
-  new AutoTableColumn('fillRatio', 'Players'),
+  new AutoTableColumn('gameRoomName', 'Room'),
+  new AutoTableColumn('numberOfPlayers', 'Players'),
   new AutoTableColumn('join', 'Join')
 ];
 
 @Component({
   selector: 'app-lobby',
   templateUrl: './lobby.component.html',
-  styleUrls: ['./lobby.component.scss']
+  styleUrls: ['./lobby.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LobbyComponent implements OnInit {
   gameName = this.route.snapshot.paramMap.get('game');
   maxPlayersPerGame = 0;
   availableRoomsCols: AutoTableColumn[] = AVAILABLE_ROOMS_COLS;
+  availableRoomsHeaderDefs: string[] = AVAILABLE_ROOMS_COLS.map(
+    (col: AutoTableColumn) => col.id
+  );
   availableRooms = new BehaviorSubject<LobbyRoom[]>([]);
-  currUser: PartyrUser;
+  currUser = new BehaviorSubject<PartyrUser>(undefined);
+  selectedRoom = new BehaviorSubject<LobbyRoom>(undefined);
+
+  @HostListener('click')
+  deselectRow(): void {
+    this.selectedRoom = undefined;
+  }
 
   constructor(
     readonly lobbySvc: LobbyService,
@@ -42,7 +57,7 @@ export class LobbyComponent implements OnInit {
   ngOnInit() {
     this.userSvc
       .getCurrentUser()
-      .subscribe((currUser: PartyrUser) => (this.currUser = currUser));
+      .subscribe((currUser: PartyrUser) => this.currUser.next(currUser));
     this.getGameDetails().subscribe();
     concat(this.getAvailableRooms(), this.watchAvailableRooms()).subscribe();
   }
@@ -90,7 +105,8 @@ export class LobbyComponent implements OnInit {
   /** joinRoom
    * @desc attempt to join a room if not already currently a part of one and the room isn't full
    */
-  joinRoom(room: LobbyRoom): void {
+  joinRoom(room: LobbyRoom, event: Event): void {
+    event.stopPropagation();
     const currRoom: LobbyRoom | undefined = this.currentlyOccupiedRoom();
     const snackBarOptions: any = { duration: 2000 };
     if (currRoom) {
@@ -105,7 +121,41 @@ export class LobbyComponent implements OnInit {
       return;
     }
 
-    this.lobbySvc.joinRoom(this.currUser.email, room.gameRoomName);
+    this.lobbySvc.joinRoom(this.currUser.getValue().email, room.gameRoomName);
+  }
+
+  /** leaveRoom
+   * @desc leave the specified room
+   */
+  leaveRoom(room: LobbyRoom, event: Event): void {
+    event.stopPropagation();
+    const currUser: PartyrUser | undefined = this.currUser.getValue();
+    if (currUser) {
+      this.lobbySvc.leaveRoom(currUser.email, room.gameRoomName);
+    } else {
+      console.error('Current user not found');
+    }
+  }
+
+  /** isPlayerInRoom
+   * @desc returns if a player is a member of the given room
+   */
+  isPlayerInRoom(room: LobbyRoom): boolean {
+    const currUser: PartyrUser | undefined = this.currUser.getValue();
+    if (currUser) {
+      return room.players.some(
+        (playerEmail: string) => playerEmail === currUser.email
+      );
+    }
+    return false;
+  }
+
+  /** selectRoom
+   * @desc select a room to highlight and give the option to enter
+   */
+  selectRoom(room: LobbyRoom, event: Event): void {
+    event.stopPropagation();
+    this.selectedRoom.next(room);
   }
 
   /** currentlyOccupiedRoom
@@ -115,7 +165,15 @@ export class LobbyComponent implements OnInit {
     return this.availableRooms.getValue().find((room: LobbyRoom) => {
       return room.players
         .map((player: string) => player.toLowerCase())
-        .includes(this.currUser.email.toLowerCase());
+        .includes(this.currUser.getValue().email.toLowerCase());
     });
+  }
+
+  /** isRoomSelected
+   * @desc determines if the input room is the one currently active
+   */
+  isRoomSelected(room: LobbyRoom) {
+    const selectedRoom = this.selectedRoom.getValue();
+    return JSON.stringify(room) === JSON.stringify(selectedRoom);
   }
 }
