@@ -19,6 +19,7 @@ export class URLStore {
 
   /***** USER SERVICE *****/
   static CURRENT_USER = 'api/users/current-user';
+  static SET_USER_NAME = 'api/users/select-username';
 
   /***** GAMES SERVICE *****/
   static GET_ALL_GAMES_URL = 'api/games';

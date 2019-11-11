@@ -11,6 +11,9 @@ import {
   MatListModule,
   MatGridListModule,
   MatSnackBarModule,
+  MatMenuModule,
+  MatIconModule,
+  MatToolbarModule
   MatTableModule
 } from '@angular/material';
 
@@ -25,6 +28,9 @@ const MAT_MODULES = [
   MatGridListModule,
   MatDialogModule,
   MatSnackBarModule,
+  MatMenuModule,
+  MatIconModule,
+  MatToolbarModule
   MatTableModule
 ];
 
