@@ -1,0 +1,7 @@
+<button mat-raised-button>Back to Lobby</button>
+<h1>{{ roomName }}</h1>
+<div class="waiting-room__player-list">
+  <mat-card *ngFor="let player of getPlayersInRoom()">
+    {{ player }}
+  </mat-card>
+</div>

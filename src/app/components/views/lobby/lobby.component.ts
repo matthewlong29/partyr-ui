@@ -10,7 +10,7 @@ import { LobbyRoom } from 'src/app/classes/models/lobby-room';
 import { LobbyService } from 'src/app/services/lobby.service';
 import { tap } from 'rxjs/operators';
 import { RoomCreatorComponent } from './room-creator/room-creator.component';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router, UrlTree } from '@angular/router';
 import { MatDialog, MatSnackBar } from '@angular/material';
 import { GameObject } from 'src/app/classes/models/game-object';
 import { GamesService } from 'src/app/services/games.service';
@@ -50,6 +50,7 @@ export class LobbyComponent implements OnInit {
     readonly gameSvc: GamesService,
     readonly userSvc: UserService,
     readonly route: ActivatedRoute,
+    readonly router: Router,
     readonly dialog: MatDialog,
     readonly snackBar: MatSnackBar
   ) {}
@@ -182,6 +183,18 @@ export class LobbyComponent implements OnInit {
    */
   isRoomSelected(room: LobbyRoom) {
     const selectedRoom = this.selectedRoom.getValue();
-    return JSON.stringify(room) === JSON.stringify(selectedRoom);
+    return JSON.stringify(room) === JSON.stringify(selectedRoom || '');
+  }
+
+  /** goToWaitingRoom
+   * @desc go to the detailed waiting room for the selected lobby room
+   */
+  goToWaitingRoom() {
+    const selectedRoom: LobbyRoom | undefined = this.selectedRoom.getValue();
+    if (selectedRoom) {
+      this.router.navigate([`${selectedRoom.gameRoomName}`], {
+        relativeTo: this.route
+      });
+    }
   }
 }

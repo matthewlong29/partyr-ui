@@ -37,6 +37,7 @@ import { MainComponent } from './components/views/main/main.component';
 import { BlackHandRoomCreatorComponent } from './components/room-create/black-hand-room-creator/black-hand-room-creator.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MaterialModule } from './modules/material/material.module';
+import { WaitingRoomComponent } from './components/views/waiting-room/waiting-room.component';
 import { NewUserPromptComponent } from './components/modals/new-user-prompt/new-user-prompt.component';
 import { SettingsComponent } from './components/views/settings/settings.component';
 
@@ -68,7 +69,8 @@ export const provideConfig = () => config;
     MainComponent,
     BlackHandRoomCreatorComponent,
     NewUserPromptComponent,
-    SettingsComponent
+    SettingsComponent,
+    WaitingRoomComponent
   ],
   imports: [
     BrowserModule,
