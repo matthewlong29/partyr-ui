@@ -13,7 +13,7 @@ import {
   MatSnackBarModule,
   MatMenuModule,
   MatIconModule,
-  MatToolbarModule
+  MatToolbarModule,
   MatTableModule
 } from '@angular/material';
 
@@ -30,7 +30,7 @@ const MAT_MODULES = [
   MatSnackBarModule,
   MatMenuModule,
   MatIconModule,
-  MatToolbarModule
+  MatToolbarModule,
   MatTableModule
 ];
 
