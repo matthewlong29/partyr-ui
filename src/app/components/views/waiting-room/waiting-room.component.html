@@ -1,7 +1,10 @@
-<button mat-raised-button>Back to Lobby</button>
+<div class="waiting-room__button-row">
+  <button mat-raised-button (click)="backToLobby()">Back to Lobby</button>
+  <button mat-raised-button color="warn" (click)="deleteRoom()">Delete Room</button>
+</div>
 <h1>{{ roomName }}</h1>
 <div class="waiting-room__player-list">
-  <mat-card *ngFor="let player of getPlayersInRoom()">
-    {{ player }}
+  <mat-card *ngFor="let player of getPlayersInRoom()" class="waiting-room__player-card">
+    {{ player }}<span *ngIf="isUserHost(player)">&nbsp;&nbsp;<mat-icon>star</mat-icon></span>
   </mat-card>
 </div>

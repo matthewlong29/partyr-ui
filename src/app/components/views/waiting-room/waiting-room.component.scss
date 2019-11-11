@@ -3,4 +3,15 @@
     display: flex;
     justify-content: center;
   }
+
+  &__player-card {
+    display: flex;
+    align-items: center;
+  }
+
+  &__button-row {
+    button {
+      margin-right: 0.5rem;
+    }
+  }
 }
