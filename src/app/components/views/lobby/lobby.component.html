@@ -4,8 +4,11 @@
       <app-chat chatPurposeName="Lobby"></app-chat>
     </section>
     <section class="lobby__room-list">
-      <button mat-raised-button color="primary" (click)="openRoomCreator()">Create Room</button>
-      <button *ngIf="selectedRoom | async" mat-raised-button color="accent" (click)="goToWaitingRoom()">View Room</button>
+      <div class="lobby__button-row">
+        <button mat-raised-button color="primary" (click)="openRoomCreator()">Create Room</button>
+        <button *ngIf="selectedRoom | async" mat-raised-button color="accent" (click)="goToWaitingRoom()">View
+          Room</button>
+      </div>
       <h1>Rooms Available</h1>
       <table mat-table [dataSource]="availableRooms | async" class="lobby__table">
         <ng-container *ngFor="let col of availableRoomsCols" [matColumnDef]="col.id">

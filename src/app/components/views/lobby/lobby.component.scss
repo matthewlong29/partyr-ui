@@ -14,6 +14,12 @@
     grid-template-columns: 1fr 1fr;
   }
 
+  &__button-row {
+    button {
+      margin-right: 0.5rem;
+    }
+  }
+
   &__chat {
     overflow: hidden;
     grid-column: 1 / 2;
