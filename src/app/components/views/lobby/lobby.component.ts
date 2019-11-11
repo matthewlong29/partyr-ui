@@ -42,7 +42,7 @@ export class LobbyComponent implements OnInit {
 
   @HostListener('click')
   deselectRow(): void {
-    this.selectedRoom = undefined;
+    this.selectedRoom.next(undefined);
   }
 
   constructor(
@@ -143,7 +143,11 @@ export class LobbyComponent implements OnInit {
   isPlayerInRoom(room: LobbyRoom): boolean {
     const currUser: PartyrUser | undefined = this.currUser.getValue();
     if (currUser) {
-      return room.players.some(
+      const allPlayers: string[] = [
+        ...room.playersReady,
+        ...room.playersNotReady
+      ];
+      return allPlayers.some(
         (playerEmail: string) => playerEmail === currUser.email
       );
     }
@@ -163,7 +167,11 @@ export class LobbyComponent implements OnInit {
    */
   currentlyOccupiedRoom(): LobbyRoom | undefined {
     return this.availableRooms.getValue().find((room: LobbyRoom) => {
-      return room.players
+      const allPlayers: string[] = [
+        ...room.playersReady,
+        ...room.playersNotReady
+      ];
+      return allPlayers
         .map((player: string) => player.toLowerCase())
         .includes(this.currUser.getValue().email.toLowerCase());
     });

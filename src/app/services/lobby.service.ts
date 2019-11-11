@@ -1,12 +1,11 @@
 import { Injectable } from '@angular/core';
-import { Observable, scheduled } from 'rxjs';
-import { LobbyRoom } from '../classes/models/lobby-room';
-import { asap } from 'rxjs/internal/scheduler/asap';
+import { Observable } from 'rxjs';
+import { LobbyRoom, lobbyRoomGuard } from '../classes/models/lobby-room';
 import { WebsocketService } from './websocket.service';
 import { WsBrokerStore } from '../classes/constants/ws-broker-store';
 import { URLStore } from '../classes/constants/url-store';
 import { HttpClient } from '@angular/common/http';
-import { catchError } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -50,7 +49,14 @@ export class LobbyService {
    * @desc listen to changes in available lobby rooms with websocket
    */
   watchAvailableRooms(): Observable<LobbyRoom[]> {
-    return this.wsSvc.watch<LobbyRoom[]>(WsBrokerStore.LOBBY_ROOMS_QUEUE);
+    return this.wsSvc.watch<LobbyRoom[]>(WsBrokerStore.LOBBY_ROOMS_QUEUE).pipe(
+      map((rooms: LobbyRoom[]) => {
+        if (rooms.every((room: LobbyRoom) => lobbyRoomGuard(room))) {
+          return rooms;
+        }
+        throw Error('Type guard failed for watchAvailableRooms()');
+      })
+    );
   }
 
   /** getAvailableRooms
@@ -58,9 +64,11 @@ export class LobbyService {
    */
   getAvailableRooms(): Observable<LobbyRoom[]> {
     return this.http.get<LobbyRoom[]>(URLStore.GET_AVAILABLE_ROOMS).pipe(
-      catchError((err: any) => {
-        console.error(err);
-        return scheduled([[]], asap);
+      map((rooms: LobbyRoom[]) => {
+        if (rooms.every((room: LobbyRoom) => lobbyRoomGuard(room))) {
+          return rooms;
+        }
+        throw Error('Type guard failed for getAvailableRooms()');
       })
     );
   }
