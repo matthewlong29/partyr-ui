@@ -1,43 +1,71 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { ActivatedRoute, Router, UrlSegment } from '@angular/router';
-import { LobbyService } from 'src/app/services/lobby.service';
-import { BehaviorSubject, concat, Subscription } from 'rxjs';
-import { LobbyRoom } from 'src/app/classes/models/lobby-room';
-import { map } from 'rxjs/operators';
-import { PartyrUser } from 'src/app/classes/models/PartyrUser';
-import { UserService } from 'src/app/services/user.service';
-import { MatDialog } from '@angular/material';
-import { ConfirmationDialogComponent } from '../../utils/confirmation-dialog/confirmation-dialog.component';
+import { Component, OnInit, OnDestroy } from "@angular/core";
+import { ActivatedRoute, Router, UrlSegment } from "@angular/router";
+import { LobbyService } from "src/app/services/lobby.service";
+import { BehaviorSubject, concat, Subscription } from "rxjs";
+import { LobbyRoom } from "src/app/classes/models/lobby-room";
+import { map } from "rxjs/operators";
+import { PartyrUser } from "src/app/classes/models/PartyrUser";
+import { UserService } from "src/app/services/user.service";
+import { MatDialog } from "@angular/material";
+import { ConfirmationDialogComponent } from "../../utils/confirmation-dialog/confirmation-dialog.component";
+import { AppFns } from "src/app/classes/utils/app-fns";
+import { FormBuilder } from "@angular/forms";
+import { GamesService } from "src/app/services/games.service";
+import { GameStore } from "src/app/classes/constants/game-store";
+import { BlackHandRoleObject } from "src/app/classes/models/black-hand/black-hand-role-object";
+import { BlackHandService } from "src/app/services/black-hand.service";
+import { BlackHandRoleRespObject } from "src/app/classes/models/black-hand/black-hand-role-resp-object";
+
+interface RoomPlayerContext {
+  isHost: boolean;
+  isCurrUser: boolean;
+  isReady: boolean;
+  isInRoom: boolean;
+}
 
 @Component({
-  selector: 'app-waiting-room',
-  templateUrl: './waiting-room.component.html',
-  styleUrls: ['./waiting-room.component.scss']
+  selector: "app-waiting-room",
+  templateUrl: "./waiting-room.component.html",
+  styleUrls: ["./waiting-room.component.scss"]
 })
 export class WaitingRoomComponent implements OnInit, OnDestroy {
-  roomName = this.route.snapshot.paramMap.get('roomName');
+  roomName = this.route.snapshot.paramMap.get("roomName");
   roomDetails = new BehaviorSubject<LobbyRoom>(undefined);
   currUser = new BehaviorSubject<PartyrUser>(undefined);
+  durationOpts = new Array(5).fill(0).map((_, index: number) => index + 3);
+  roles = new BehaviorSubject<BlackHandRoleObject[]>([]);
 
-  subscriptions: Subscription[] = [];
+  settingsForm = this.fb.group({
+    allowPref: this.fb.control(true),
+    dayDurationCtrl: this.fb.control(5),
+    nightDurationCtrl: this.fb.control(3)
+  });
+
+  subs: Subscription[] = [];
 
   constructor(
     readonly route: ActivatedRoute,
     readonly router: Router,
     readonly lobbySvc: LobbyService,
     readonly userSvc: UserService,
-    readonly dialog: MatDialog
+    readonly dialog: MatDialog,
+    readonly fb: FormBuilder,
+    readonly bhSvc: BlackHandService
   ) {}
 
   ngOnInit() {
-    this.subscriptions.push(this.subToRoomChanges());
-    this.subscriptions.push(this.getCurrUser());
+    this.subs.push(this.getCurrUser());
+    this.subs.push(this.subToRoomChanges());
+    this.subs.push(this.getRoles());
   }
 
   ngOnDestroy() {
-    this.subscriptions.forEach((sub: Subscription) => sub.unsubscribe());
+    this.subs.forEach((sub: Subscription) => sub.unsubscribe());
   }
 
+  /** subToRoomChanges
+   * @desc get history of and watch changes to the state of available rooms
+   */
   subToRoomChanges(): Subscription {
     return concat(
       this.lobbySvc.getAvailableRooms(),
@@ -53,17 +81,6 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
       });
   }
 
-  /** getPlayersInRoom
-   * @desc return an array of the players in the room
-   */
-  getPlayersInRoom(): string[] {
-    const room: LobbyRoom = this.roomDetails.getValue();
-    if (room) {
-      return [...room.playersReady, ...room.playersNotReady];
-    }
-    return [];
-  }
-
   /** backToLobby
    * @desc navigate to the page with all the available rooms
    */
@@ -72,6 +89,13 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
       (segment: UrlSegment) => segment.path
     );
     this.router.navigateByUrl(`/${paths[0]}/${paths[1]}`);
+  }
+
+  /** getPlayersInRoom
+   * @desc return joined list of ready and unready players in room
+   */
+  getPlayersInRoom(): string[] {
+    return AppFns.getAllPlayersInRoom(this.roomDetails.getValue());
   }
 
   /** getCurrUser
@@ -83,14 +107,32 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
       .subscribe((user: PartyrUser) => this.currUser.next(user));
   }
 
-  /** isUserHost
-   * @desc determine if this room is hosted by the user and show/hide certain display parts if so
+  getRoles(): Subscription {
+    return this.bhSvc
+      .getBlackHandRoles()
+      .subscribe((rolesResp: BlackHandRoleRespObject) => {
+        const roles: BlackHandRoleObject[] = [
+          ...rolesResp.BlackHand,
+          ...rolesResp.Monster,
+          ...rolesResp.Townie
+        ];
+
+        this.roles.next(roles);
+      });
+  }
+
+  /** getPlayerContext
+   * @desc returns object containing info about the username in the context of this room
    */
-  isUserHost(userName?: string): boolean {
+  getPlayerContext(username: string): RoomPlayerContext {
     const currUser: PartyrUser | undefined = this.currUser.getValue();
-    const user = userName || (currUser && currUser.username);
     const room: LobbyRoom | undefined = this.roomDetails.getValue();
-    return currUser && room && user === room.hostUsername;
+    const isHost = room && username === room.hostUsername;
+    const isCurrUser = currUser && username === currUser.username;
+    const isReady = room && room.playersReady.includes(username);
+    const isInRoom =
+      room && AppFns.getAllPlayersInRoom(room).includes(username);
+    return { isHost, isCurrUser, isReady, isInRoom };
   }
 
   /** deleteRoom
@@ -101,7 +143,7 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
     if (room) {
       this.dialog
         .open(ConfirmationDialogComponent, {
-          data: 'Are you sure you want to delete this room?'
+          data: "Are you sure you want to delete this room?"
         })
         .afterClosed()
         .subscribe((confirm: boolean) => {
@@ -111,5 +153,15 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
           }
         });
     }
+  }
+
+  /** toggleReady
+   * @desc toggle a user's ready state to start the game
+   */
+  toggleReady() {
+    this.lobbySvc.toggleReadyStatus(
+      this.currUser.getValue(),
+      this.roomDetails.getValue()
+    );
   }
 }

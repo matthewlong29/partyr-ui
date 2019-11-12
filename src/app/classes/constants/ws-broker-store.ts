@@ -4,9 +4,10 @@ export class WsBrokerStore {
   static LOBBY_ROOMS_QUEUE = '/lobby/rooms';
 
   /***** MessageMaps *****/
-  static LOBBY_CHAT_SEND_MSG = '/app/send-chat';
-  static LOBBY_ROOMS_CREATE = '/app/create-room';
-  static LOBBY_ROOMS_JOIN = '/app/join-room';
-  static LOBBY_ROOMS_LEAVE = '/app/leave-room';
-  static LOBBY_ROOMS_DELETE = '/app/delete-room';
+  static SEND_LOBBY_CHAT_MSG = '/app/send-chat';
+  static CREATE_LOBBY_ROOM = '/app/create-room';
+  static JOIN_LOBBY_ROOM = '/app/join-room';
+  static LEAVE_LOBBY_ROOM = '/app/leave-room';
+  static DELETE_LOBBY_ROOM = '/app/delete-room';
+  static TOGGLE_READY_STATUS = '/app/toggle-ready-status';
 }

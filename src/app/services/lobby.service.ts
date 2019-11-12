@@ -6,6 +6,8 @@ import { WsBrokerStore } from '../classes/constants/ws-broker-store';
 import { URLStore } from '../classes/constants/url-store';
 import { HttpClient } from '@angular/common/http';
 import { map } from 'rxjs/operators';
+import { PartyrUser } from '../classes/models/PartyrUser';
+import { AppFns } from '../classes/utils/app-fns';
 
 @Injectable({
   providedIn: 'root'
@@ -17,7 +19,7 @@ export class LobbyService {
    * @desc create a new lobby room and become the host
    */
   createRoom(game: string, roomName: string, hostName: string): void {
-    this.wsSvc.publish(WsBrokerStore.LOBBY_ROOMS_CREATE, {
+    this.wsSvc.publish(WsBrokerStore.CREATE_LOBBY_ROOM, {
       roomName,
       gameName: game,
       username: hostName
@@ -28,21 +30,21 @@ export class LobbyService {
    * @desc join a specified lobby room
    */
   joinRoom(username: string, roomName: string): void {
-    this.wsSvc.publish(WsBrokerStore.LOBBY_ROOMS_JOIN, { username, roomName });
+    this.wsSvc.publish(WsBrokerStore.JOIN_LOBBY_ROOM, { username, roomName });
   }
 
   /** leaveRoom
    * @desc leave a specified lobby room
    */
   leaveRoom(username: string, roomName: string): void {
-    this.wsSvc.publish(WsBrokerStore.LOBBY_ROOMS_LEAVE, { username, roomName });
+    this.wsSvc.publish(WsBrokerStore.LEAVE_LOBBY_ROOM, { username, roomName });
   }
 
   /** deleteRoom
    * @desc delete a specified lobby room
    */
   deleteRoom(roomName: string): void {
-    this.wsSvc.publish(WsBrokerStore.LOBBY_ROOMS_DELETE, { roomName });
+    this.wsSvc.publish(WsBrokerStore.DELETE_LOBBY_ROOM, { roomName });
   }
 
   /** watchAvailableRooms
@@ -73,5 +75,21 @@ export class LobbyService {
         return [];
       })
     );
+  }
+
+  /** toggleReadyStatus
+   * @desc toggle ready status for the currently logged in user in the lobby room
+   */
+  toggleReadyStatus(user?: PartyrUser, room?: LobbyRoom) {
+    if (user && room) {
+      const username = user.username;
+      const roomName = room.gameRoomName;
+      if (AppFns.getAllPlayersInRoom(room).includes(username)) {
+        this.wsSvc.publish(WsBrokerStore.TOGGLE_READY_STATUS, {
+          username,
+          roomName
+        });
+      }
+    }
   }
 }

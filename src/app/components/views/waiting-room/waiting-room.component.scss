@@ -1,7 +1,7 @@
 .waiting-room {
-  &__player-list {
-    display: flex;
-    justify-content: center;
+  &__header {
+    margin-top: 0;
+    text-align: center;
   }
 
   &__player-card {
@@ -10,8 +10,55 @@
   }
 
   &__button-row {
-    button {
-      margin-right: 0.5rem;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  &__button {
+    &--ready {
+      font-size: 2rem;
+      width: 8rem;
+      height: 4rem;
+    }
+  }
+
+  @mixin row() {
+    display: flex;
+    margin-top: 1rem;
+  }
+
+  &__row {
+    @include row;
+    &--roles {
+      justify-content: space-around;
+
+      @include row;
+    }
+  }
+
+  &__section {
+    &--main {
+      display: flex;
+      align-items: center;
+      flex: 1;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    &--settings {
+      display: inline-flex;
+      flex-direction: column;
+      padding: 1rem;
+      border: 1px solid black;
+    }
+  }
+
+  &__status-icon {
+    &--ready {
+      color: #ffc107;
+    }
+    &--not-ready {
+      color: #607d8b;
     }
   }
 }
