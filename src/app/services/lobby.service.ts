@@ -42,7 +42,7 @@ export class LobbyService {
    * @desc delete a specified lobby room
    */
   deleteRoom(roomName: string): void {
-    this.wsSvc.publish(WsBrokerStore.LOBBY_ROOMS_LEAVE, { roomName });
+    this.wsSvc.publish(WsBrokerStore.LOBBY_ROOMS_DELETE, { roomName });
   }
 
   /** watchAvailableRooms

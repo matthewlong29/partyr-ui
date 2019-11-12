@@ -6,6 +6,8 @@ import { LobbyRoom } from 'src/app/classes/models/lobby-room';
 import { map } from 'rxjs/operators';
 import { PartyrUser } from 'src/app/classes/models/PartyrUser';
 import { UserService } from 'src/app/services/user.service';
+import { MatDialog } from '@angular/material';
+import { ConfirmationDialogComponent } from '../../utils/confirmation-dialog/confirmation-dialog.component';
 
 @Component({
   selector: 'app-waiting-room',
@@ -23,7 +25,8 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
     readonly route: ActivatedRoute,
     readonly router: Router,
     readonly lobbySvc: LobbyService,
-    readonly userSvc: UserService
+    readonly userSvc: UserService,
+    readonly dialog: MatDialog
   ) {}
 
   ngOnInit() {
@@ -87,7 +90,6 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
     const currUser: PartyrUser | undefined = this.currUser.getValue();
     const user = userName || (currUser && currUser.username);
     const room: LobbyRoom | undefined = this.roomDetails.getValue();
-    console.log(room.hostUsername);
     return currUser && room && user === room.hostUsername;
   }
 
@@ -97,7 +99,17 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
   deleteRoom(): void {
     const room: LobbyRoom | undefined = this.roomDetails.getValue();
     if (room) {
-      this.lobbySvc.deleteRoom(room.gameRoomName);
+      this.dialog
+        .open(ConfirmationDialogComponent, {
+          data: 'Are you sure you want to delete this room?'
+        })
+        .afterClosed()
+        .subscribe((confirm: boolean) => {
+          if (confirm) {
+            this.lobbySvc.deleteRoom(room.gameRoomName);
+            this.backToLobby();
+          }
+        });
     }
   }
 }

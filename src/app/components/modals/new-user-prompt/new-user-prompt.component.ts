@@ -36,7 +36,6 @@ export class NewUserPromptComponent implements OnInit {
             });
           }
         });
-      console.log(this.screenNameCtrl.value);
     }
   }
 }
