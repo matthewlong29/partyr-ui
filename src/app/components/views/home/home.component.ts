@@ -32,7 +32,7 @@ export class HomeComponent implements OnInit {
       .getCurrentUser()
       .pipe(
         switchMap((user: PartyrUser) =>
-          !user || !user.userName
+          !user || !user.username
             ? this.dialog
                 .open(NewUserPromptComponent, {
                   data: user.email,

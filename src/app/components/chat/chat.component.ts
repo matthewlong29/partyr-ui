@@ -96,7 +96,7 @@ export class ChatComponent implements OnInit, AfterViewChecked {
       event.preventDefault();
       const msg: Message = new Message(
         this.newMsgCtrl.value,
-        this.currUser.getValue().email,
+        this.currUser.getValue().username,
         new Date().toISOString()
       );
       this.chatService.sendToChat(msg);
@@ -121,7 +121,7 @@ export class ChatComponent implements OnInit, AfterViewChecked {
   isMessageFromUser(msg: Message) {
     const currUser: PartyrUser = this.currUser.getValue();
     if (currUser) {
-      return this.currUser && msg.email === currUser.email;
+      return this.currUser && msg.username === currUser.username;
     }
     return false;
   }

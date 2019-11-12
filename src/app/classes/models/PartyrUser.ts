@@ -1,5 +1,5 @@
 export class PartyrUser {
-  userName: string;
+  username: string;
   email: string;
   firstName: string;
   lastName: string;

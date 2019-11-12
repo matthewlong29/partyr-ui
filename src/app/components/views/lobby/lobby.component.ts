@@ -2,7 +2,8 @@ import {
   Component,
   OnInit,
   ChangeDetectionStrategy,
-  HostListener
+  HostListener,
+  ChangeDetectorRef
 } from '@angular/core';
 import { AutoTableColumn } from 'src/app/classes/models/auto-table-column';
 import { BehaviorSubject, Observable, concat } from 'rxjs';
@@ -16,6 +17,7 @@ import { GameObject } from 'src/app/classes/models/game-object';
 import { GamesService } from 'src/app/services/games.service';
 import { UserService } from 'src/app/services/user.service';
 import { PartyrUser } from 'src/app/classes/models/PartyrUser';
+import { ConfirmationDialogComponent } from '../../utils/confirmation-dialog/confirmation-dialog.component';
 
 const AVAILABLE_ROOMS_COLS: AutoTableColumn[] = [
   new AutoTableColumn('gameRoomName', 'Room'),
@@ -52,13 +54,15 @@ export class LobbyComponent implements OnInit {
     readonly route: ActivatedRoute,
     readonly router: Router,
     readonly dialog: MatDialog,
-    readonly snackBar: MatSnackBar
+    readonly snackBar: MatSnackBar,
+    readonly cdRef: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
-    this.userSvc
-      .getCurrentUser()
-      .subscribe((currUser: PartyrUser) => this.currUser.next(currUser));
+    this.userSvc.getCurrentUser().subscribe((currUser: PartyrUser) => {
+      this.currUser.next(currUser);
+      this.cdRef.markForCheck();
+    });
     this.getGameDetails().subscribe();
     concat(this.getAvailableRooms(), this.watchAvailableRooms()).subscribe();
   }
@@ -122,7 +126,10 @@ export class LobbyComponent implements OnInit {
       return;
     }
 
-    this.lobbySvc.joinRoom(this.currUser.getValue().email, room.gameRoomName);
+    this.lobbySvc.joinRoom(
+      this.currUser.getValue().username,
+      room.gameRoomName
+    );
   }
 
   /** leaveRoom
@@ -131,11 +138,30 @@ export class LobbyComponent implements OnInit {
   leaveRoom(room: LobbyRoom, event: Event): void {
     event.stopPropagation();
     const currUser: PartyrUser | undefined = this.currUser.getValue();
-    if (currUser) {
-      this.lobbySvc.leaveRoom(currUser.email, room.gameRoomName);
-    } else {
+
+    if (!currUser) {
       console.error('Current user not found');
+      return;
     }
+
+    const leave = () =>
+      this.lobbySvc.leaveRoom(currUser.username, room.gameRoomName);
+
+    if (room.hostUsername !== currUser.username) {
+      leave();
+      return;
+    }
+
+    this.dialog
+      .open(ConfirmationDialogComponent, {
+        data: 'Leaving will delete this room, do you want to proceed?'
+      })
+      .afterClosed()
+      .subscribe((confirm: boolean) => {
+        if (confirm) {
+          leave();
+        }
+      });
   }
 
   /** isPlayerInRoom
@@ -149,7 +175,7 @@ export class LobbyComponent implements OnInit {
         ...room.playersNotReady
       ];
       return allPlayers.some(
-        (playerEmail: string) => playerEmail === currUser.email
+        (userName: string) => userName === currUser.username
       );
     }
     return false;
@@ -174,7 +200,7 @@ export class LobbyComponent implements OnInit {
       ];
       return allPlayers
         .map((player: string) => player.toLowerCase())
-        .includes(this.currUser.getValue().email.toLowerCase());
+        .includes(this.currUser.getValue().username.toLowerCase());
     });
   }
 

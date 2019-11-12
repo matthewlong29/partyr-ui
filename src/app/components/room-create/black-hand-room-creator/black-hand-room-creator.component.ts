@@ -81,7 +81,7 @@ export class BlackHandRoomCreatorComponent implements OnInit, RoomCreator {
         this.lobbySvc.createRoom(
           GameStore.BLACK_HAND_NAME,
           formVals.nameCtrl,
-          currentUser.email
+          currentUser.username
         );
         this.closeRoomCreator.emit();
       });

@@ -40,6 +40,7 @@ import { MaterialModule } from './modules/material/material.module';
 import { WaitingRoomComponent } from './components/views/waiting-room/waiting-room.component';
 import { NewUserPromptComponent } from './components/modals/new-user-prompt/new-user-prompt.component';
 import { SettingsComponent } from './components/views/settings/settings.component';
+import { ConfirmationDialogComponent } from './components/utils/confirmation-dialog/confirmation-dialog.component';
 
 const GOOGLE_OAUTH_CLIENT_ID = '276174427953-o7q6mv623adttteep82an71rs4bgge0r';
 
@@ -70,7 +71,8 @@ export const provideConfig = () => config;
     BlackHandRoomCreatorComponent,
     NewUserPromptComponent,
     SettingsComponent,
-    WaitingRoomComponent
+    WaitingRoomComponent,
+    ConfirmationDialogComponent
   ],
   imports: [
     BrowserModule,
@@ -109,7 +111,11 @@ export const provideConfig = () => config;
       deps: [InjectableRxStompConfig]
     }
   ],
-  entryComponents: [RoomCreatorComponent, NewUserPromptComponent],
+  entryComponents: [
+    RoomCreatorComponent,
+    NewUserPromptComponent,
+    ConfirmationDialogComponent
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule {}

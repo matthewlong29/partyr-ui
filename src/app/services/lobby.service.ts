@@ -20,22 +20,22 @@ export class LobbyService {
     this.wsSvc.publish(WsBrokerStore.LOBBY_ROOMS_CREATE, {
       roomName,
       gameName: game,
-      email: hostName
+      username: hostName
     });
   }
 
   /** joinRoom
    * @desc join a specified lobby room
    */
-  joinRoom(email: string, roomName: string): void {
-    this.wsSvc.publish(WsBrokerStore.LOBBY_ROOMS_JOIN, { email, roomName });
+  joinRoom(username: string, roomName: string): void {
+    this.wsSvc.publish(WsBrokerStore.LOBBY_ROOMS_JOIN, { username, roomName });
   }
 
   /** leaveRoom
    * @desc leave a specified lobby room
    */
-  leaveRoom(email: string, roomName: string): void {
-    this.wsSvc.publish(WsBrokerStore.LOBBY_ROOMS_LEAVE, { email, roomName });
+  leaveRoom(username: string, roomName: string): void {
+    this.wsSvc.publish(WsBrokerStore.LOBBY_ROOMS_LEAVE, { username, roomName });
   }
 
   /** deleteRoom
@@ -54,7 +54,8 @@ export class LobbyService {
         if (rooms.every((room: LobbyRoom) => lobbyRoomGuard(room))) {
           return rooms;
         }
-        throw Error('Type guard failed for watchAvailableRooms()');
+        console.error('ERROR: Type guard failed for watchAvailableRooms()');
+        return [];
       })
     );
   }
@@ -68,7 +69,8 @@ export class LobbyService {
         if (rooms.every((room: LobbyRoom) => lobbyRoomGuard(room))) {
           return rooms;
         }
-        throw Error('Type guard failed for getAvailableRooms()');
+        console.error('ERROR: Type guard failed for getAvailableRooms()');
+        return [];
       })
     );
   }

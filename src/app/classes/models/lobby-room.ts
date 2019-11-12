@@ -3,7 +3,7 @@ import { AppFns } from '../utils/app-fns';
 export interface LobbyRoom {
   gameRoomName: string;
   gameName: string;
-  hostEmail: string;
+  hostUsername: string;
   playersReady: string[];
   playersNotReady: string[];
   numberOfPlayers: number;
@@ -16,7 +16,7 @@ export const lobbyRoomGuard = (obj: any): boolean => {
   return AppFns.typeGuard(obj, [
     'gameRoomName',
     'gameName',
-    'hostEmail',
+    'hostUsername',
     'playersReady',
     'playersNotReady',
     'numberOfPlayers',

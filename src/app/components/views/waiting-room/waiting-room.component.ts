@@ -85,10 +85,10 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
    */
   isUserHost(userName?: string): boolean {
     const currUser: PartyrUser | undefined = this.currUser.getValue();
-    const user = userName || (currUser && currUser.userName);
+    const user = userName || (currUser && currUser.username);
     const room: LobbyRoom | undefined = this.roomDetails.getValue();
-    console.log(room.hostEmail);
-    return currUser && room && user === room.hostEmail;
+    console.log(room.hostUsername);
+    return currUser && room && user === room.hostUsername;
   }
 
   /** deleteRoom

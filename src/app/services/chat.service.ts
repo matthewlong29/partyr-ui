@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, scheduled, Subject } from 'rxjs';
-import { Message } from '../classes/models/Message';
+import { Message, messageTypeGuard } from '../classes/models/Message';
 import { URLStore } from '../classes/constants/url-store';
 import * as Stomp from 'stompjs';
 import * as SockJS from 'sockjs-client';
@@ -30,9 +30,14 @@ export class ChatService {
   public getAllChat(): Observable<Message[]> {
     return this.http.get<Message[]>(URLStore.CHAT_MESSAGES).pipe(
       map((msgs: Message[]) => {
-        return [...msgs].sort((msgA: Message, msgB: Message) =>
-          moment(msgA.timeOfMessage).diff(moment(msgB.timeOfMessage))
-        );
+        const typeCheck = msgs.every((msg: Message) => messageTypeGuard(msg));
+        if (typeCheck) {
+          return [...msgs].sort((msgA: Message, msgB: Message) =>
+            moment(msgA.timeOfMessage).diff(moment(msgB.timeOfMessage))
+          );
+        }
+        console.error('ERROR: Type check failed for getAllChat()');
+        return [];
       })
     );
   }
