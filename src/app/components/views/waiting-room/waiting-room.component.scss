@@ -61,4 +61,15 @@
       color: #607d8b;
     }
   }
+
+  &__role-card {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  &__sprite-container {
+    
+  }
 }

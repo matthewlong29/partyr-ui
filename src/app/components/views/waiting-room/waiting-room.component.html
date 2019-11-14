@@ -65,7 +65,11 @@
 </div>
 
 <div class="waiting-room__row--roles">
-  <div *ngFor="let role of (roles | async)">{{ role.name }}</div>
+  <div *ngFor="let role of (roles | async)" class="waiting-room__role-card">{{ role.name }}
+    <div class="waiting-room__sprite-container">
+      <img [src]="spriteMap.get(role.name)">
+    </div>
+  </div>
 </div>
 <!-- <div class="waiting-room__player-list">
   <mat-card *ngFor="let player of getPlayersInRoom()" class="waiting-room__player-card">

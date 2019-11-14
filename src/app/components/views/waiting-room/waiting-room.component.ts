@@ -1,20 +1,19 @@
-import { Component, OnInit, OnDestroy } from "@angular/core";
-import { ActivatedRoute, Router, UrlSegment } from "@angular/router";
-import { LobbyService } from "src/app/services/lobby.service";
-import { BehaviorSubject, concat, Subscription } from "rxjs";
-import { LobbyRoom } from "src/app/classes/models/lobby-room";
-import { map } from "rxjs/operators";
-import { PartyrUser } from "src/app/classes/models/PartyrUser";
-import { UserService } from "src/app/services/user.service";
-import { MatDialog } from "@angular/material";
-import { ConfirmationDialogComponent } from "../../utils/confirmation-dialog/confirmation-dialog.component";
-import { AppFns } from "src/app/classes/utils/app-fns";
-import { FormBuilder } from "@angular/forms";
-import { GamesService } from "src/app/services/games.service";
-import { GameStore } from "src/app/classes/constants/game-store";
-import { BlackHandRoleObject } from "src/app/classes/models/black-hand/black-hand-role-object";
-import { BlackHandService } from "src/app/services/black-hand.service";
-import { BlackHandRoleRespObject } from "src/app/classes/models/black-hand/black-hand-role-resp-object";
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { ActivatedRoute, Router, UrlSegment } from '@angular/router';
+import { LobbyService } from 'src/app/services/lobby.service';
+import { BehaviorSubject, concat, Subscription } from 'rxjs';
+import { LobbyRoom } from 'src/app/classes/models/lobby-room';
+import { map } from 'rxjs/operators';
+import { PartyrUser } from 'src/app/classes/models/PartyrUser';
+import { UserService } from 'src/app/services/user.service';
+import { MatDialog } from '@angular/material';
+import { ConfirmationDialogComponent } from '../../utils/confirmation-dialog/confirmation-dialog.component';
+import { AppFns } from 'src/app/classes/utils/app-fns';
+import { FormBuilder } from '@angular/forms';
+import { BlackHandRoleObject } from 'src/app/classes/models/black-hand/black-hand-role-object';
+import { BlackHandService } from 'src/app/services/black-hand.service';
+import { BlackHandRoleRespObject } from 'src/app/classes/models/black-hand/black-hand-role-resp-object';
+import { SPRITE_MAP } from 'src/app/classes/constants/sprite-map';
 
 interface RoomPlayerContext {
   isHost: boolean;
@@ -24,16 +23,17 @@ interface RoomPlayerContext {
 }
 
 @Component({
-  selector: "app-waiting-room",
-  templateUrl: "./waiting-room.component.html",
-  styleUrls: ["./waiting-room.component.scss"]
+  selector: 'app-waiting-room',
+  templateUrl: './waiting-room.component.html',
+  styleUrls: ['./waiting-room.component.scss']
 })
 export class WaitingRoomComponent implements OnInit, OnDestroy {
-  roomName = this.route.snapshot.paramMap.get("roomName");
+  roomName = this.route.snapshot.paramMap.get('roomName');
   roomDetails = new BehaviorSubject<LobbyRoom>(undefined);
   currUser = new BehaviorSubject<PartyrUser>(undefined);
   durationOpts = new Array(5).fill(0).map((_, index: number) => index + 3);
   roles = new BehaviorSubject<BlackHandRoleObject[]>([]);
+  spriteMap = SPRITE_MAP;
 
   settingsForm = this.fb.group({
     allowPref: this.fb.control(true),
@@ -143,7 +143,7 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
     if (room) {
       this.dialog
         .open(ConfirmationDialogComponent, {
-          data: "Are you sure you want to delete this room?"
+          data: 'Are you sure you want to delete this room?'
         })
         .afterClosed()
         .subscribe((confirm: boolean) => {
