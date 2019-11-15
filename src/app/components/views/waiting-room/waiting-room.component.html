@@ -45,23 +45,32 @@
         </span>
       </div>
       <div class="waiting-room__row--faction">
-        <button mat-stroked-button color="warn"
-          [class.waiting-room__button--active]="(factionPref | async) === 'Black Hand'"
-          (click)="toggleFactionPref('Black Hand')">
-          Black Hand
-        </button>
+        <div>
+          <span>{{ ((factionQuotas | async) || {}).blackHandTotal }}</span>
+          <button mat-stroked-button color="warn"
+            [class.waiting-room__button--active]="(factionPref | async) === 'Black Hand'"
+            (click)="toggleFactionPref('Black Hand')">
+            Black Hand
+          </button>
+        </div>
 
-        <button mat-stroked-button color="warn"
-          [class.waiting-room__button--active]="(factionPref | async) === 'Monster'"
-          (click)="toggleFactionPref('Monster')">
-          Monster
-        </button>
+        <div>
+          <span>{{ ((factionQuotas | async) || {}).monstersTotal }}</span>
+          <button mat-stroked-button color="warn"
+            [class.waiting-room__button--active]="(factionPref | async) === 'Monster'"
+            (click)="toggleFactionPref('Monster')">
+            Monster
+          </button>
+        </div>
 
-        <button mat-stroked-button color="warn"
-          [class.waiting-room__button--active]="(factionPref | async) === 'Townie'"
-          (click)="toggleFactionPref('Townie')">
-          Townie
-        </button>
+        <div>
+          <span>{{ ((factionQuotas | async) || {}).towniesTotal }}</span>
+          <button mat-stroked-button color="warn"
+            [class.waiting-room__button--active]="(factionPref | async) === 'Townie'"
+            (click)="toggleFactionPref('Townie')">
+            Townie
+          </button>
+        </div>
       </div>
     </section>
 

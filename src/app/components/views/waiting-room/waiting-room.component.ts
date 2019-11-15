@@ -6,10 +6,11 @@ import {
   concat,
   Subscription,
   combineLatest,
-  Observable
+  Observable,
+  scheduled
 } from 'rxjs';
 import { LobbyRoom } from 'src/app/classes/models/shared/lobby-room';
-import { map } from 'rxjs/operators';
+import { map, switchMap, catchError } from 'rxjs/operators';
 import { PartyrUser } from 'src/app/classes/models/shared/PartyrUser';
 import { UserService } from 'src/app/services/user.service';
 import { MatDialog } from '@angular/material';
@@ -24,6 +25,8 @@ import { RoomPlayerContext } from 'src/app/classes/models/frontend/room-player-c
 import { WaitingRoomSettingsForm } from 'src/app/classes/models/frontend/forms/waiting-room-settings-form';
 import { Faction } from 'src/app/classes/constants/type-aliases';
 import { AppRegex } from 'src/app/classes/constants/app-regex';
+import { BlackHandNumberOfPlayers } from 'src/app/classes/models/shared/black-hand/black-hand-number-of-players';
+import { asap } from 'rxjs/internal/scheduler/asap';
 
 @Component({
   selector: 'app-waiting-room',
@@ -38,6 +41,7 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
   roles = new BehaviorSubject<BlackHandRoleObject[]>([]);
   spriteMap = SPRITE_MAP;
   factionPref = new BehaviorSubject<Faction>(undefined);
+  factionQuotas = new BehaviorSubject<BlackHandNumberOfPlayers>(undefined);
 
   displayNameCtrl = this.fb.control('', [
     Validators.pattern(AppRegex.DISPLAY_NAME)
@@ -63,7 +67,11 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    this.subs.push(this.watchContextUpdates(), this.getRoles());
+    this.subs.push(
+      this.watchForPlayerQuotas(),
+      this.watchContextUpdates(),
+      this.getRoles()
+    );
   }
 
   ngOnDestroy() {
@@ -134,12 +142,39 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
     return combineLatest([
       this.userSvc.getCurrentUser(),
       watchRoomUpdates()
-    ]).subscribe(([currUser, foundRoom]: [PartyrUser, LobbyRoom]) => {
+    ]).subscribe(([newCurrUser, foundRoom]: [PartyrUser, LobbyRoom]) => {
       this.roomDetails.next(foundRoom);
-      this.currUser.next(currUser);
-      this.displayNameCtrl.setValue(currUser.username);
+      const currUser = this.currUser.getValue();
+      this.currUser.next(newCurrUser);
+      if (JSON.stringify(currUser) !== JSON.stringify(newCurrUser)) {
+        this.displayNameCtrl.setValue(newCurrUser.username);
+      }
       this.grantPrivileges();
     });
+  }
+
+  /** watchForPlayerQuotas
+   * @desc update the faction quota every time the room details change
+   */
+  watchForPlayerQuotas(): Subscription {
+    return this.roomDetails
+      .pipe(
+        switchMap((room: LobbyRoom) => {
+          const totalPlayers = AppFns.getAllPlayersInRoom(room).length;
+          if (totalPlayers) {
+            return this.bhSvc.getBlackHandRoleTotals(totalPlayers);
+          }
+          return scheduled([undefined], asap);
+        }),
+        catchError((err: any) => {
+          console.error(err);
+          return scheduled([undefined], asap);
+        })
+      )
+      .subscribe((quotas: BlackHandNumberOfPlayers) => {
+        this.factionQuotas.next(quotas);
+        console.log(quotas);
+      });
   }
 
   /** getRoles
@@ -162,7 +197,7 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
   /** getPlayerContext
    * @desc returns object containing info about the username in the context of this room
    */
-  private getPlayerContext(username: string): RoomPlayerContext {
+  getPlayerContext(username: string): RoomPlayerContext {
     const currUser: PartyrUser | undefined = this.currUser.getValue();
     const room: LobbyRoom | undefined = this.roomDetails.getValue();
     const isHost = room && username === room.hostUsername;
