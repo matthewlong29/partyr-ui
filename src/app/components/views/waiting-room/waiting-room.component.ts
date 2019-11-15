@@ -27,6 +27,9 @@ import { Faction } from 'src/app/classes/constants/type-aliases';
 import { AppRegex } from 'src/app/classes/constants/app-regex';
 import { BlackHandNumberOfPlayers } from 'src/app/classes/models/shared/black-hand/black-hand-number-of-players';
 import { asap } from 'rxjs/internal/scheduler/asap';
+import { GamesService } from 'src/app/services/games.service';
+import { GameObject } from 'src/app/classes/models/shared/game-object';
+import { GameStore } from 'src/app/classes/constants/game-store';
 
 @Component({
   selector: 'app-waiting-room',
@@ -42,7 +45,8 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
   spriteMap = SPRITE_MAP;
   factionPref = new BehaviorSubject<Faction>(undefined);
   factionQuotas = new BehaviorSubject<BlackHandNumberOfPlayers>(undefined);
-
+  gameDetails = new BehaviorSubject<GameObject>(undefined);
+  showStartButton = new BehaviorSubject<boolean>(false);
   displayNameCtrl = this.fb.control('', [
     Validators.pattern(AppRegex.DISPLAY_NAME)
   ]);
@@ -63,7 +67,8 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
     readonly userSvc: UserService,
     readonly dialog: MatDialog,
     readonly fb: FormBuilder,
-    readonly bhSvc: BlackHandService
+    readonly bhSvc: BlackHandService,
+    readonly gameSvc: GamesService
   ) {}
 
   ngOnInit() {
@@ -141,16 +146,25 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
 
     return combineLatest([
       this.userSvc.getCurrentUser(),
-      watchRoomUpdates()
-    ]).subscribe(([newCurrUser, foundRoom]: [PartyrUser, LobbyRoom]) => {
-      this.roomDetails.next(foundRoom);
-      const currUser = this.currUser.getValue();
-      this.currUser.next(newCurrUser);
-      if (JSON.stringify(currUser) !== JSON.stringify(newCurrUser)) {
-        this.displayNameCtrl.setValue(newCurrUser.username);
+      watchRoomUpdates(),
+      this.gameSvc.getGameDetails(GameStore.BLACK_HAND_NAME)
+    ]).subscribe(
+      ([newCurrUser, foundRoom, gameDetails]: [
+        PartyrUser,
+        LobbyRoom,
+        GameObject
+      ]) => {
+        this.roomDetails.next(foundRoom);
+        this.currUser.next(newCurrUser);
+        this.gameDetails.next(gameDetails);
+        const currUser = this.currUser.getValue();
+        if (JSON.stringify(currUser) !== JSON.stringify(newCurrUser)) {
+          this.displayNameCtrl.setValue(newCurrUser.username);
+        }
+        this.grantPrivileges();
+        this.showHideStartButton();
       }
-      this.grantPrivileges();
-    });
+    );
   }
 
   /** watchForPlayerQuotas
@@ -243,5 +257,30 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
    */
   toggleFactionPref(faction?: Faction) {
     this.factionPref.next(faction);
+  }
+
+  /** showHideStartButton
+   * @desc show button to start game if all players ready and the user is host
+   */
+  showHideStartButton(): void {
+    // Cached objects
+    const currUser: PartyrUser = this.currUser.getValue();
+    const room: LobbyRoom = this.roomDetails.getValue();
+    const gameDetails: GameObject = this.gameDetails.getValue();
+
+    // Intermediary values used for calculations
+    const minPlayers: number = gameDetails.minNumberOfPlayers;
+    const maxPlayers: number = gameDetails.maxNumberOfPlayers;
+    const notReadyCount: number = room.playersNotReady.length;
+    const readyCount: number = room.playersReady.length;
+    const totalPlayers: number = notReadyCount + readyCount;
+
+    // Conditional variables used to determine if view should show start button
+    const isHost: boolean = currUser.username === room.hostUsername;
+    const overMin: boolean = totalPlayers >= minPlayers;
+    const underMax: boolean = totalPlayers <= maxPlayers;
+    const allReady: boolean = !notReadyCount && !!readyCount;
+
+    this.showStartButton.next(isHost && overMin && underMax && allReady);
   }
 }

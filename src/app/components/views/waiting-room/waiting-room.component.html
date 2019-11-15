@@ -36,13 +36,32 @@
     <section class="waiting-room__section--main">
       <h1 class="waiting-room__header">{{ roomName }}</h1>
       <div *ngIf="currUser | async as thisUser">
-        <span *ngIf="getPlayerContext(thisUser.username).isInRoom">
-          <button mat-flat-button *ngIf="getPlayerContext(thisUser.username).isReady; else notReadyButton"
-            color="primary" class="waiting-room__button--ready" (click)="toggleReady()">Ready</button>
-          <ng-template #notReadyButton>
-            <button mat-stroked-button class="waiting-room__button--ready" (click)="toggleReady()">Ready</button>
-          </ng-template>
-        </span>
+        <button *ngIf="showStartButton | async; else readyButtons" mat-raised-button color="primary"
+          class="waiting-room__button--main">
+          <span>
+            Start&nbsp;
+            <mat-icon>play_circle_outline</mat-icon>
+          </span>
+        </button>
+        <ng-template #readyButtons>
+          <span *ngIf="getPlayerContext(thisUser.username).isInRoom">
+            <button mat-flat-button *ngIf="getPlayerContext(thisUser.username).isReady; else notReadyButton"
+              color="primary" class="waiting-room__button--main" (click)="toggleReady()">
+              <span>
+                Ready&nbsp;
+                <mat-icon>verified_user</mat-icon>
+              </span>
+            </button>
+            <ng-template #notReadyButton>
+              <button mat-stroked-button class="waiting-room__button--main" (click)="toggleReady()">
+                <span>
+                  Ready&nbsp;
+                  <mat-icon>help_outline</mat-icon>
+                </span>
+              </button>
+            </ng-template>
+          </span>
+        </ng-template>
       </div>
       <div class="waiting-room__row--faction">
         <div>
