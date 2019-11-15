@@ -46,30 +46,30 @@
       </div>
       <div class="waiting-room__row--faction">
         <div>
-          <span>{{ ((factionQuotas | async) || {}).blackHandTotal }}</span>
           <button mat-stroked-button color="warn"
             [class.waiting-room__button--active]="(factionPref | async) === 'Black Hand'"
             (click)="toggleFactionPref('Black Hand')">
             Black Hand
           </button>
+          <span>Req:&nbsp;{{ ((factionQuotas | async) || {}).blackHandTotal || 0 }}</span>
         </div>
 
         <div>
-          <span>{{ ((factionQuotas | async) || {}).monstersTotal }}</span>
           <button mat-stroked-button color="warn"
             [class.waiting-room__button--active]="(factionPref | async) === 'Monster'"
             (click)="toggleFactionPref('Monster')">
             Monster
           </button>
+          <span>Req:&nbsp;{{ ((factionQuotas | async) || {}).monstersTotal || 0 }}</span>
         </div>
 
         <div>
-          <span>{{ ((factionQuotas | async) || {}).towniesTotal }}</span>
           <button mat-stroked-button color="warn"
             [class.waiting-room__button--active]="(factionPref | async) === 'Townie'"
             (click)="toggleFactionPref('Townie')">
             Townie
           </button>
+          <span>Req:&nbsp;{{ ((factionQuotas | async) || {}).towniesTotal || 0 }}</span>
         </div>
       </div>
     </section>

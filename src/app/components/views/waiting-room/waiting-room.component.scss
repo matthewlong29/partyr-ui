@@ -44,6 +44,12 @@
 
     &--faction {
       @include row;
+      div {
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+      }
+
       button {
         margin: 0 0.5rem;
       }
