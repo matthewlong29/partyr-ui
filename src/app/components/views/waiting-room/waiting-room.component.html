@@ -1,77 +1,75 @@
-<div class="waiting-room__button-row">
-  <button mat-raised-button (click)="backToLobby()">
-    <mat-icon>arrow_back</mat-icon>&nbsp;Back to Lobby
-  </button>
-  <button mat-raised-button color="warn" (click)="deleteRoom()">Delete Room</button>
-</div>
-<div class="waiting-room__row">
+  <div class="waiting-room__button-row">
+    <button mat-raised-button (click)="backToLobby()">
+      <mat-icon>arrow_back</mat-icon>&nbsp;Back to Lobby
+    </button>
+    <button mat-raised-button color="warn" (click)="deleteRoom()">Delete Room</button>
+  </div>
+  <div class="waiting-room__row">
 
-  <section>
-    <mat-card>
-      <mat-list>
-        <mat-list-item *ngFor="let player of getPlayersInRoom()">
-          <span>
-            <mat-icon *ngIf="getPlayerContext(player).isReady; else notReadyIcon"
-              class="waiting-room__status-icon--ready">check_box
-            </mat-icon>
-            <ng-template #notReadyIcon>
-              <mat-icon class="waiting-room__status-icon--not-ready">indeterminate_check_box</mat-icon>
-            </ng-template>
-            &nbsp;
-          </span>
-          <span>{{ player }}</span>
-          <span *ngIf="getPlayerContext(player).isCurrUser">&nbsp;(You)</span>
-          <span *ngIf="getPlayerContext(player).isHost">
-            &nbsp;<mat-icon>star</mat-icon>
-          </span>
-        </mat-list-item>
-      </mat-list>
-    </mat-card>
-  </section>
+    <section>
+      <mat-card>
+        <mat-list>
+          <mat-list-item *ngFor="let player of getPlayersInRoom()">
+            <span>
+              <mat-icon *ngIf="getPlayerContext(player).isReady; else notReadyIcon"
+                class="waiting-room__status-icon--ready">check_box
+              </mat-icon>
+              <ng-template #notReadyIcon>
+                <mat-icon class="waiting-room__status-icon--not-ready">indeterminate_check_box</mat-icon>
+              </ng-template>
+              &nbsp;
+            </span>
+            <span>{{ player }}</span>
+            <span *ngIf="getPlayerContext(player).isCurrUser">&nbsp;(You)</span>
+            <span *ngIf="getPlayerContext(player).isHost">
+              &nbsp;<mat-icon>star</mat-icon>
+            </span>
+          </mat-list-item>
+        </mat-list>
+      </mat-card>
+    </section>
 
-  <section class="waiting-room__section--main">
-    <h1 class="waiting-room__header">{{ roomName }}</h1>
-    <div *ngIf="currUser | async as thisUser">
-      <span *ngIf="getPlayerContext(thisUser.username).isInRoom">
-        <button mat-raised-button *ngIf="getPlayerContext(thisUser.username).isReady; else notReadyButton"
-          color="primary" class="waiting-room__button--ready" (click)="toggleReady()">Ready</button>
-        <ng-template #notReadyButton>
-          <button mat-stroked-button class="waiting-room__button--ready" (click)="toggleReady()">Ready</button>
-        </ng-template>
-      </span>
-    </div>
-  </section>
+    <section class="waiting-room__section--main">
+      <h1 class="waiting-room__header">{{ roomName }}</h1>
+      <div *ngIf="currUser | async as thisUser">
+        <span *ngIf="getPlayerContext(thisUser.username).isInRoom">
+          <button mat-flat-button *ngIf="getPlayerContext(thisUser.username).isReady; else notReadyButton"
+            color="primary" class="waiting-room__button--ready" (click)="toggleReady()">Ready</button>
+          <ng-template #notReadyButton>
+            <button mat-stroked-button class="waiting-room__button--ready" (click)="toggleReady()">Ready</button>
+          </ng-template>
+        </span>
+      </div>
+    </section>
 
-  <section>
-    <form [formGroup]="settingsForm" class="waiting-room__section--settings">
-      <mat-form-field>
-        <mat-label>Day Duration (mins)</mat-label>
-        <mat-select formControlName="dayDurationCtrl">
-          <mat-option *ngFor="let opt of durationOpts" [value]="opt">{{ opt }}</mat-option>
-        </mat-select>
-      </mat-form-field>
-      <mat-form-field>
-        <mat-label>Night Duration (mins)</mat-label>
-        <mat-select formControlName="nightDurationCtrl">
-          <mat-option *ngFor="let opt of durationOpts" [value]="opt">{{ opt }}</mat-option>
-        </mat-select>
-      </mat-form-field>
-      <!-- <mat-form-field> -->
-      <mat-checkbox formControlName="allowPref">Allow Faction Preference</mat-checkbox>
-      <!-- </mat-form-field> -->
-    </form>
-  </section>
+    <section>
+      <form [formGroup]="settingsForm" class="waiting-room__section--settings">
+        <mat-form-field>
+          <mat-label>Day Duration (mins)</mat-label>
+          <mat-select formControlName="dayDurationCtrl">
+            <mat-option *ngFor="let opt of durationOpts" [value]="opt">{{ opt }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>Night Duration (mins)</mat-label>
+          <mat-select formControlName="nightDurationCtrl">
+            <mat-option *ngFor="let opt of durationOpts" [value]="opt">{{ opt }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <!-- <mat-form-field> -->
+        <mat-checkbox formControlName="allowPref">Allow Faction Preference</mat-checkbox>
+        <!-- </mat-form-field> -->
+      </form>
+    </section>
 
-</div>
+  </div>
 
-<div class="waiting-room__row--roles">
-  <div *ngFor="let role of (roles | async)" class="waiting-room__role-card">{{ role.name }}
-    <div class="waiting-room__sprite-container">
+  <div class="waiting-room__row--roles">
+    <div *ngFor="let role of (roles | async)" class="waiting-room__role-card">{{ role.name }}
       <img [src]="spriteMap.get(role.name)">
     </div>
   </div>
-</div>
-<!-- <div class="waiting-room__player-list">
+  <!-- <div class="waiting-room__player-list">
   <mat-card *ngFor="let player of getPlayersInRoom()" class="waiting-room__player-card">
     {{ player }}<span *ngIf="isUserHost(player)">&nbsp;&nbsp;<mat-icon>star</mat-icon></span>
   </mat-card>

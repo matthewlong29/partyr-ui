@@ -1,7 +1,13 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router, UrlSegment } from '@angular/router';
 import { LobbyService } from 'src/app/services/lobby.service';
-import { BehaviorSubject, concat, Subscription } from 'rxjs';
+import {
+  BehaviorSubject,
+  concat,
+  Subscription,
+  combineLatest,
+  Observable
+} from 'rxjs';
 import { LobbyRoom } from 'src/app/classes/models/lobby-room';
 import { map } from 'rxjs/operators';
 import { PartyrUser } from 'src/app/classes/models/PartyrUser';
@@ -14,8 +20,10 @@ import { BlackHandRoleObject } from 'src/app/classes/models/black-hand/black-han
 import { BlackHandService } from 'src/app/services/black-hand.service';
 import { BlackHandRoleRespObject } from 'src/app/classes/models/black-hand/black-hand-role-resp-object';
 import { SPRITE_MAP } from 'src/app/classes/constants/sprite-map';
+import { PlayerContext } from '@angular/core/src/render3/interfaces/player';
 
 interface RoomPlayerContext {
+  username: string;
   isHost: boolean;
   isCurrUser: boolean;
   isReady: boolean;
@@ -30,6 +38,7 @@ interface RoomPlayerContext {
 export class WaitingRoomComponent implements OnInit, OnDestroy {
   roomName = this.route.snapshot.paramMap.get('roomName');
   roomDetails = new BehaviorSubject<LobbyRoom>(undefined);
+  allPlayerContexts = new BehaviorSubject<RoomPlayerContext[]>([]);
   currUser = new BehaviorSubject<PartyrUser>(undefined);
   durationOpts = new Array(5).fill(0).map((_, index: number) => index + 3);
   roles = new BehaviorSubject<BlackHandRoleObject[]>([]);
@@ -54,31 +63,21 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    this.subs.push(this.getCurrUser());
-    this.subs.push(this.subToRoomChanges());
-    this.subs.push(this.getRoles());
+    this.subs.push(this.watchContextUpdates(), this.getRoles());
   }
 
   ngOnDestroy() {
     this.subs.forEach((sub: Subscription) => sub.unsubscribe());
   }
 
-  /** subToRoomChanges
-   * @desc get history of and watch changes to the state of available rooms
+  /** grantPrivileges
+   * @desc grant specific room privileges depending on if the user is the host
    */
-  subToRoomChanges(): Subscription {
-    return concat(
-      this.lobbySvc.getAvailableRooms(),
-      this.lobbySvc.watchAvailableRooms()
-    )
-      .pipe(
-        map((rooms: LobbyRoom[]) =>
-          rooms.find((room: LobbyRoom) => room.gameRoomName === this.roomName)
-        )
-      )
-      .subscribe((foundRoom?: LobbyRoom) => {
-        this.roomDetails.next(foundRoom);
-      });
+  grantPrivileges(): void {
+    const currUser: PartyrUser = this.currUser.getValue();
+    const room: LobbyRoom = this.roomDetails.getValue();
+    const userIsHost = currUser.username === room.hostUsername;
+    this.settingsForm[userIsHost ? 'enable' : 'disable']();
   }
 
   /** backToLobby
@@ -98,15 +97,39 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
     return AppFns.getAllPlayersInRoom(this.roomDetails.getValue());
   }
 
-  /** getCurrUser
-   * @desc get and set the class variable to the current user
+  /** watchContextUpdates
+   * @desc updates the player contexts and privileges for any room or current user change
    */
-  getCurrUser(): Subscription {
-    return this.userSvc
-      .getCurrentUser()
-      .subscribe((user: PartyrUser) => this.currUser.next(user));
+  watchContextUpdates(): Subscription {
+    // Observable that monitors any changes to the Lobby Room
+    const watchRoomUpdates: () => Observable<LobbyRoom> = () =>
+      concat(
+        this.lobbySvc.getAvailableRooms(),
+        this.lobbySvc.watchAvailableRooms()
+      ).pipe(
+        map((rooms: LobbyRoom[]) =>
+          rooms.find((room: LobbyRoom) => room.gameRoomName === this.roomName)
+        )
+      );
+
+    return combineLatest([
+      this.userSvc.getCurrentUser(),
+      watchRoomUpdates()
+    ]).subscribe(([currUser, foundRoom]: [PartyrUser, LobbyRoom]) => {
+      this.roomDetails.next(foundRoom);
+      this.currUser.next(currUser);
+      const allPlayerContexts: RoomPlayerContext[] = this.getPlayersInRoom().map(
+        (playerName: string): RoomPlayerContext =>
+          this.getPlayerContext(playerName)
+      );
+      this.allPlayerContexts.next(allPlayerContexts);
+      this.grantPrivileges();
+    });
   }
 
+  /** getRoles
+   * @desc get all the roles included in the Black Hand game
+   */
   getRoles(): Subscription {
     return this.bhSvc
       .getBlackHandRoles()
@@ -132,7 +155,7 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
     const isReady = room && room.playersReady.includes(username);
     const isInRoom =
       room && AppFns.getAllPlayersInRoom(room).includes(username);
-    return { isHost, isCurrUser, isReady, isInRoom };
+    return { username, isHost, isCurrUser, isReady, isInRoom };
   }
 
   /** deleteRoom
