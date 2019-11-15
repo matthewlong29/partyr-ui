@@ -8,27 +8,19 @@ import {
   combineLatest,
   Observable
 } from 'rxjs';
-import { LobbyRoom } from 'src/app/classes/models/lobby-room';
+import { LobbyRoom } from 'src/app/classes/models/shared/lobby-room';
 import { map } from 'rxjs/operators';
-import { PartyrUser } from 'src/app/classes/models/PartyrUser';
+import { PartyrUser } from 'src/app/classes/models/shared/PartyrUser';
 import { UserService } from 'src/app/services/user.service';
 import { MatDialog } from '@angular/material';
 import { ConfirmationDialogComponent } from '../../utils/confirmation-dialog/confirmation-dialog.component';
 import { AppFns } from 'src/app/classes/utils/app-fns';
 import { FormBuilder } from '@angular/forms';
-import { BlackHandRoleObject } from 'src/app/classes/models/black-hand/black-hand-role-object';
+import { BlackHandRoleObject } from 'src/app/classes/models/shared/black-hand/black-hand-role-object';
 import { BlackHandService } from 'src/app/services/black-hand.service';
-import { BlackHandRoleRespObject } from 'src/app/classes/models/black-hand/black-hand-role-resp-object';
+import { BlackHandRoleRespObject } from 'src/app/classes/models/shared/black-hand/black-hand-role-resp-object';
 import { SPRITE_MAP } from 'src/app/classes/constants/sprite-map';
-import { PlayerContext } from '@angular/core/src/render3/interfaces/player';
-
-interface RoomPlayerContext {
-  username: string;
-  isHost: boolean;
-  isCurrUser: boolean;
-  isReady: boolean;
-  isInRoom: boolean;
-}
+import { RoomPlayerContext } from 'src/app/classes/models/frontend/room-player-context';
 
 @Component({
   selector: 'app-waiting-room',
@@ -68,6 +60,13 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.subs.forEach((sub: Subscription) => sub.unsubscribe());
+  }
+
+  /** subToSettingsForm
+   * @desc subscribe to form changes and push to the websocket accordingly
+   */
+  subToSettingsForm(): Subscription {
+    return this.settingsForm.valueChanges.subscribe((formVals: any) => {});
   }
 
   /** grantPrivileges

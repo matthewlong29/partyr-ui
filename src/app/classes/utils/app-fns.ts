@@ -1,4 +1,4 @@
-import { LobbyRoom } from '../models/lobby-room';
+import { LobbyRoom } from '../models/shared/lobby-room';
 
 export class AppFns {
   /** typeGuard

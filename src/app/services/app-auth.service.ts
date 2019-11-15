@@ -11,7 +11,7 @@ import { asap } from 'rxjs/internal/scheduler/asap';
 import { switchMap, tap } from 'rxjs/operators';
 import { URLStore } from '../classes/constants/url-store';
 import { UserService } from './user.service';
-import { PartyrUser } from '../classes/models/PartyrUser';
+import { PartyrUser } from '../classes/models/shared/PartyrUser';
 
 @Injectable({
   providedIn: 'root'

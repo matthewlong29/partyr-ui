@@ -1,4 +1,4 @@
-import { AppFns } from '../utils/app-fns';
+import { AppFns } from 'src/app/classes/utils/app-fns';
 
 export class Message {
   constructor(

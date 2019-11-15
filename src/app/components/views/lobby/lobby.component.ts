@@ -5,18 +5,18 @@ import {
   HostListener,
   ChangeDetectorRef
 } from '@angular/core';
-import { AutoTableColumn } from 'src/app/classes/models/auto-table-column';
+import { AutoTableColumn } from 'src/app/classes/models/frontend/auto-table-column';
 import { BehaviorSubject, Observable, concat } from 'rxjs';
-import { LobbyRoom } from 'src/app/classes/models/lobby-room';
+import { LobbyRoom } from 'src/app/classes/models/shared/lobby-room';
 import { LobbyService } from 'src/app/services/lobby.service';
 import { tap } from 'rxjs/operators';
 import { RoomCreatorComponent } from './room-creator/room-creator.component';
 import { ActivatedRoute, Router, UrlTree } from '@angular/router';
 import { MatDialog, MatSnackBar } from '@angular/material';
-import { GameObject } from 'src/app/classes/models/game-object';
+import { GameObject } from 'src/app/classes/models/shared/game-object';
 import { GamesService } from 'src/app/services/games.service';
 import { UserService } from 'src/app/services/user.service';
-import { PartyrUser } from 'src/app/classes/models/PartyrUser';
+import { PartyrUser } from 'src/app/classes/models/shared/PartyrUser';
 import { ConfirmationDialogComponent } from '../../utils/confirmation-dialog/confirmation-dialog.component';
 
 const AVAILABLE_ROOMS_COLS: AutoTableColumn[] = [

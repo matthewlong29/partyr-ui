@@ -2,8 +2,8 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { URLStore } from '../classes/constants/url-store';
-import { BlackHandRoleRespObject } from '../classes/models/black-hand/black-hand-role-resp-object';
-import { LobbyRoom } from '../classes/models/lobby-room';
+import { BlackHandRoleRespObject } from '../classes/models/shared/black-hand/black-hand-role-resp-object';
+import { LobbyRoom } from '../classes/models/shared/lobby-room';
 
 @Injectable({
   providedIn: 'root'

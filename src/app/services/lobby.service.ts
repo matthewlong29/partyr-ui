@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { LobbyRoom, lobbyRoomGuard } from '../classes/models/lobby-room';
+import { LobbyRoom, lobbyRoomGuard } from '../classes/models/shared/lobby-room';
 import { WebsocketService } from './websocket.service';
 import { WsBrokerStore } from '../classes/constants/ws-broker-store';
 import { URLStore } from '../classes/constants/url-store';
 import { HttpClient } from '@angular/common/http';
 import { map } from 'rxjs/operators';
-import { PartyrUser } from '../classes/models/PartyrUser';
+import { PartyrUser } from '../classes/models/shared/PartyrUser';
 import { AppFns } from '../classes/utils/app-fns';
 
 @Injectable({

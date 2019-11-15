@@ -7,8 +7,8 @@ import {
   ViewChild,
   HostBinding
 } from '@angular/core';
-import { Message } from 'src/app/classes/models/Message';
-import { PartyrUser } from 'src/app/classes/models/PartyrUser';
+import { Message } from 'src/app/classes/models/shared/Message';
+import { PartyrUser } from 'src/app/classes/models/shared/PartyrUser';
 import { UserService } from 'src/app/services/user.service';
 import { ChatService } from 'src/app/services/chat.service';
 import { tap, first } from 'rxjs/operators';

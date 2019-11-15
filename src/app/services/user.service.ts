@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { AuthService, SocialUser } from 'angularx-social-login';
 import { Observable, scheduled, throwError } from 'rxjs';
-import { PartyrUser } from '../classes/models/PartyrUser';
+import { PartyrUser } from '../classes/models/shared/PartyrUser';
 import { URLStore } from '../classes/constants/url-store';
 import { switchMap, first, tap, catchError, map } from 'rxjs/operators';
 import { asap } from 'rxjs/internal/scheduler/asap';

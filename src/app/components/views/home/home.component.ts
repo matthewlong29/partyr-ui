@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { AppAuthService } from 'src/app/services/app-auth.service';
 import { URLStore } from 'src/app/classes/constants/url-store';
 import { UserService } from 'src/app/services/user.service';
-import { PartyrUser } from 'src/app/classes/models/PartyrUser';
+import { PartyrUser } from 'src/app/classes/models/shared/PartyrUser';
 import { MatDialog } from '@angular/material';
 import { NewUserPromptComponent } from '../../modals/new-user-prompt/new-user-prompt.component';
 import { switchMap } from 'rxjs/operators';

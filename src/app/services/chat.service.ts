@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, scheduled, Subject } from 'rxjs';
-import { Message, messageTypeGuard } from '../classes/models/Message';
+import { Message, messageTypeGuard } from '../classes/models/shared/Message';
 import { URLStore } from '../classes/constants/url-store';
 import * as Stomp from 'stompjs';
 import * as SockJS from 'sockjs-client';
