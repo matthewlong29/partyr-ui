@@ -21,6 +21,7 @@ import { BlackHandService } from 'src/app/services/black-hand.service';
 import { BlackHandRoleRespObject } from 'src/app/classes/models/shared/black-hand/black-hand-role-resp-object';
 import { SPRITE_MAP } from 'src/app/classes/constants/sprite-map';
 import { RoomPlayerContext } from 'src/app/classes/models/frontend/room-player-context';
+import { WaitingRoomSettingsForm } from 'src/app/classes/models/frontend/forms/waiting-room-settings-form';
 
 @Component({
   selector: 'app-waiting-room',
@@ -30,17 +31,17 @@ import { RoomPlayerContext } from 'src/app/classes/models/frontend/room-player-c
 export class WaitingRoomComponent implements OnInit, OnDestroy {
   roomName = this.route.snapshot.paramMap.get('roomName');
   roomDetails = new BehaviorSubject<LobbyRoom>(undefined);
-  allPlayerContexts = new BehaviorSubject<RoomPlayerContext[]>([]);
   currUser = new BehaviorSubject<PartyrUser>(undefined);
   durationOpts = new Array(5).fill(0).map((_, index: number) => index + 3);
   roles = new BehaviorSubject<BlackHandRoleObject[]>([]);
   spriteMap = SPRITE_MAP;
 
   settingsForm = this.fb.group({
-    allowPref: this.fb.control(true),
+    allowFactionPrefCtrl: this.fb.control(true),
     dayDurationCtrl: this.fb.control(5),
-    nightDurationCtrl: this.fb.control(3)
-  });
+    nightDurationCtrl: this.fb.control(5),
+    allowMediaCtrl: this.fb.control(true)
+  } as WaitingRoomSettingsForm);
 
   subs: Subscription[] = [];
 
@@ -66,7 +67,19 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
    * @desc subscribe to form changes and push to the websocket accordingly
    */
   subToSettingsForm(): Subscription {
-    return this.settingsForm.valueChanges.subscribe((formVals: any) => {});
+    return this.settingsForm.valueChanges.subscribe(
+      (formVals: WaitingRoomSettingsForm) => {
+        const currUser: PartyrUser | undefined = this.currUser.getValue();
+        const roomDetails: LobbyRoom | undefined = this.roomDetails.getValue();
+        if (
+          currUser &&
+          roomDetails &&
+          currUser.username === roomDetails.hostUsername
+        ) {
+          console.log(formVals);
+        }
+      }
+    );
   }
 
   /** grantPrivileges
@@ -121,7 +134,6 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
         (playerName: string): RoomPlayerContext =>
           this.getPlayerContext(playerName)
       );
-      this.allPlayerContexts.next(allPlayerContexts);
       this.grantPrivileges();
     });
   }
@@ -146,7 +158,7 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
   /** getPlayerContext
    * @desc returns object containing info about the username in the context of this room
    */
-  getPlayerContext(username: string): RoomPlayerContext {
+  private getPlayerContext(username: string): RoomPlayerContext {
     const currUser: PartyrUser | undefined = this.currUser.getValue();
     const room: LobbyRoom | undefined = this.roomDetails.getValue();
     const isHost = room && username === room.hostUsername;
