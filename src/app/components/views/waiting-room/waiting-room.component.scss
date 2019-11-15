@@ -20,6 +20,12 @@
       width: 8rem;
       height: 4rem;
     }
+
+    &--active {
+      color: white;
+      border: none;
+      background: #f44336;
+    }
   }
 
   @mixin row() {
@@ -34,6 +40,13 @@
       margin-bottom: 1rem;
 
       @include row;
+    }
+
+    &--faction {
+      @include row;
+      button {
+        margin: 0 0.5rem;
+      }
     }
   }
 

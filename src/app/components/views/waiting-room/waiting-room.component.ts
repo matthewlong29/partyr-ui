@@ -15,13 +15,15 @@ import { UserService } from 'src/app/services/user.service';
 import { MatDialog } from '@angular/material';
 import { ConfirmationDialogComponent } from '../../utils/confirmation-dialog/confirmation-dialog.component';
 import { AppFns } from 'src/app/classes/utils/app-fns';
-import { FormBuilder } from '@angular/forms';
+import { FormBuilder, Validators } from '@angular/forms';
 import { BlackHandRoleObject } from 'src/app/classes/models/shared/black-hand/black-hand-role-object';
 import { BlackHandService } from 'src/app/services/black-hand.service';
 import { BlackHandRoleRespObject } from 'src/app/classes/models/shared/black-hand/black-hand-role-resp-object';
 import { SPRITE_MAP } from 'src/app/classes/constants/sprite-map';
 import { RoomPlayerContext } from 'src/app/classes/models/frontend/room-player-context';
 import { WaitingRoomSettingsForm } from 'src/app/classes/models/frontend/forms/waiting-room-settings-form';
+import { Faction } from 'src/app/classes/constants/type-aliases';
+import { AppRegex } from 'src/app/classes/constants/app-regex';
 
 @Component({
   selector: 'app-waiting-room',
@@ -35,6 +37,11 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
   durationOpts = new Array(5).fill(0).map((_, index: number) => index + 3);
   roles = new BehaviorSubject<BlackHandRoleObject[]>([]);
   spriteMap = SPRITE_MAP;
+  factionPref = new BehaviorSubject<Faction>(undefined);
+
+  displayNameCtrl = this.fb.control('', [
+    Validators.pattern(AppRegex.DISPLAY_NAME)
+  ]);
 
   settingsForm = this.fb.group({
     allowFactionPrefCtrl: this.fb.control(true),
@@ -110,7 +117,7 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
   }
 
   /** watchContextUpdates
-   * @desc updates the player contexts and privileges for any room or current user change
+   * @desc updates the player privileges and settings for any room or current user change
    */
   watchContextUpdates(): Subscription {
     // Observable that monitors any changes to the Lobby Room
@@ -130,10 +137,7 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
     ]).subscribe(([currUser, foundRoom]: [PartyrUser, LobbyRoom]) => {
       this.roomDetails.next(foundRoom);
       this.currUser.next(currUser);
-      const allPlayerContexts: RoomPlayerContext[] = this.getPlayersInRoom().map(
-        (playerName: string): RoomPlayerContext =>
-          this.getPlayerContext(playerName)
-      );
+      this.displayNameCtrl.setValue(currUser.username);
       this.grantPrivileges();
     });
   }
@@ -197,5 +201,12 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
       this.currUser.getValue(),
       this.roomDetails.getValue()
     );
+  }
+
+  /** toggleFactionPref
+   * @desc change the user's preferred faction to play
+   */
+  toggleFactionPref(faction?: Faction) {
+    this.factionPref.next(faction);
   }
 }

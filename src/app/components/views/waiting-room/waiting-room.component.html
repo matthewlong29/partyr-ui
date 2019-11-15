@@ -7,6 +7,10 @@
   <div class="waiting-room__row">
 
     <section>
+      <mat-form-field *ngIf="getPlayerContext(((currUser | async) || {}).username).isInRoom" appearance="fill">
+        <mat-label>Display Name</mat-label>
+        <input matInput [formControl]="displayNameCtrl">
+      </mat-form-field>
       <mat-card>
         <mat-list>
           <mat-list-item *ngFor="let player of getPlayersInRoom()">
@@ -39,6 +43,25 @@
             <button mat-stroked-button class="waiting-room__button--ready" (click)="toggleReady()">Ready</button>
           </ng-template>
         </span>
+      </div>
+      <div class="waiting-room__row--faction">
+        <button mat-stroked-button color="warn"
+          [class.waiting-room__button--active]="(factionPref | async) === 'Black Hand'"
+          (click)="toggleFactionPref('Black Hand')">
+          Black Hand
+        </button>
+
+        <button mat-stroked-button color="warn"
+          [class.waiting-room__button--active]="(factionPref | async) === 'Monster'"
+          (click)="toggleFactionPref('Monster')">
+          Monster
+        </button>
+
+        <button mat-stroked-button color="warn"
+          [class.waiting-room__button--active]="(factionPref | async) === 'Townie'"
+          (click)="toggleFactionPref('Townie')">
+          Townie
+        </button>
       </div>
     </section>
 
