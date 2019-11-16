@@ -1,0 +1,16 @@
+.bh-game {
+  &__video {
+    max-height: 25vh;
+  }
+  &__media-container {
+    border: 1px solid black;
+    border-radius: 0.5rem;
+  }
+  &__row {
+    &--media {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-evenly;
+    }
+  }
+}
