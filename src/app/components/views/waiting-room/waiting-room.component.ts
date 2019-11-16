@@ -20,7 +20,6 @@ import { FormBuilder, Validators } from '@angular/forms';
 import { BlackHandRoleObject } from 'src/app/classes/models/shared/black-hand/black-hand-role-object';
 import { BlackHandService } from 'src/app/services/black-hand.service';
 import { BlackHandRoleRespObject } from 'src/app/classes/models/shared/black-hand/black-hand-role-resp-object';
-import { SPRITE_MAP } from 'src/app/classes/constants/sprite-map';
 import { RoomPlayerContext } from 'src/app/classes/models/frontend/room-player-context';
 import { WaitingRoomSettingsForm } from 'src/app/classes/models/frontend/forms/waiting-room-settings-form';
 import { Faction } from 'src/app/classes/constants/type-aliases';
@@ -42,7 +41,6 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
   currUser = new BehaviorSubject<PartyrUser>(undefined);
   durationOpts = new Array(5).fill(0).map((_, index: number) => index + 3);
   roles = new BehaviorSubject<BlackHandRoleObject[]>([]);
-  spriteMap = SPRITE_MAP;
   factionPref = new BehaviorSubject<Faction>(undefined);
   factionQuotas = new BehaviorSubject<BlackHandNumberOfPlayers>(undefined);
   gameDetails = new BehaviorSubject<GameObject>(undefined);
@@ -155,12 +153,12 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
         GameObject
       ]) => {
         this.roomDetails.next(foundRoom);
-        this.currUser.next(newCurrUser);
         this.gameDetails.next(gameDetails);
         const currUser = this.currUser.getValue();
         if (JSON.stringify(currUser) !== JSON.stringify(newCurrUser)) {
           this.displayNameCtrl.setValue(newCurrUser.username);
         }
+        this.currUser.next(newCurrUser);
         this.grantPrivileges();
         this.showHideStartButton();
       }
@@ -281,6 +279,19 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
     const underMax: boolean = totalPlayers <= maxPlayers;
     const allReady: boolean = !notReadyCount && !!readyCount;
 
-    this.showStartButton.next(isHost && overMin && underMax && allReady);
+    // TODO: Re-enable these conditionals once the game is ready
+    // this.showStartButton.next(isHost && overMin && underMax && allReady);
+    this.showStartButton.next(true);
+  }
+
+  /** startGame
+   * @desc send the start game signal to the backend and navigate to the game page
+   */
+  startGame(): void {
+    this.router.navigateByUrl(
+      `session/${this.gameDetails.getValue().gameName}/${
+        this.roomDetails.getValue().gameRoomName
+      }`
+    );
   }
 }

@@ -37,7 +37,7 @@
       <h1 class="waiting-room__header">{{ roomName }}</h1>
       <div *ngIf="currUser | async as thisUser">
         <button *ngIf="showStartButton | async; else readyButtons" mat-raised-button color="primary"
-          class="waiting-room__button--main">
+          class="waiting-room__button--main" (click)="startGame()">
           <span>
             Start&nbsp;
             <mat-icon>play_circle_outline</mat-icon>
@@ -118,7 +118,7 @@
 
   <div class="waiting-room__row--roles">
     <div *ngFor="let role of (roles | async)" class="waiting-room__role-card">{{ role.name }}
-      <img [src]="spriteMap.get(role.name)">
+      <img [src]="role.spritePath">
     </div>
   </div>
   <!-- <div class="waiting-room__player-list">
