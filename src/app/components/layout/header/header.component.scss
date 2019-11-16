@@ -1,11 +1,11 @@
 @import '~src/app/styles/variables.scss';
 
 .header {
-  position: fixed;
-  z-index: 9999;
+  // position: fixed;
+  // z-index: 9999;
   display: flex;
   align-items: center;
-  width: calc(100% - 17px);
+  width: 100vw;
   height: $header-height - 0.25rem;
   padding: 0 1rem;
   color: white;
@@ -23,8 +23,8 @@
   }
 
   .header__settings {
-    width: $offset-width;
+    // width: $offset-width;
     margin-left: auto;
-    text-align: center;
+    text-align: right;
   }
 }

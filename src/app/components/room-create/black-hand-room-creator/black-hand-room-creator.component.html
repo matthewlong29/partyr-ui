@@ -8,7 +8,7 @@
       <mat-label>Room Key (Optional)</mat-label>
       <input matInput formControlName="pwCtrl">
     </mat-form-field> -->
-    <div formGroupName="rolesForm">
+    <!-- <div formGroupName="rolesForm">
       <h1 class="bhrc__section-header">Available Roles</h1>
       <div class="bhrc__roles">
         <section>
@@ -42,9 +42,9 @@
           </mat-list>
         </section>
       </div>
+    </div> -->
+    <div class="bhrc__button-row">
+      <button mat-raised-button color="primary" type="submit" (click)="createRoom()">Create Room</button>
     </div>
   </form>
-  <div class="bhrc__button-row">
-    <button mat-raised-button color="primary" (click)="createRoom()">Create Room</button>
-  </div>
 </div>

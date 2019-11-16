@@ -19,6 +19,7 @@ export class URLStore {
 
   /***** USER SERVICE *****/
   static CURRENT_USER = 'api/users/current-user';
+  static SET_USER_NAME = 'api/users/select-username';
 
   /***** GAMES SERVICE *****/
   static GET_ALL_GAMES_URL = 'api/games';
@@ -29,4 +30,5 @@ export class URLStore {
 
   /***** BLACK HAND SERVICE *****/
   static GET_BH_ROLES = 'api/game/black-hand/roles';
+  static GET_BH_FACTION_QUOTA = 'api/game/black-hand/player-total';
 }

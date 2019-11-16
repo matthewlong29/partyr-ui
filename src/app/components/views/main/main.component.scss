@@ -1,7 +1,7 @@
 @import '~src/app/styles/variables.scss';
 
 .router-outlet__wrapper {
-  padding-top: $header-height - 0.25rem;
+  padding: $header-height - 0.25rem 0.5rem 0 0.5rem;
 }
 
 #modal-container {

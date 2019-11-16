@@ -2,9 +2,9 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { AuthService, SocialUser } from 'angularx-social-login';
 import { Observable, scheduled, throwError } from 'rxjs';
-import { PartyrUser } from '../classes/models/PartyrUser';
+import { PartyrUser } from '../classes/models/shared/PartyrUser';
 import { URLStore } from '../classes/constants/url-store';
-import { switchMap, first, tap, catchError } from 'rxjs/operators';
+import { switchMap, first, tap, catchError, map } from 'rxjs/operators';
 import { asap } from 'rxjs/internal/scheduler/asap';
 
 @Injectable({
@@ -15,8 +15,8 @@ export class UserService {
 
   constructor(readonly authService: AuthService, readonly http: HttpClient) {}
 
-  /**
-   * @desc getCurrentUser
+  /** getCurrentUser
+   * @desc get the PartyrUser object for the currently logged in user
    */
   public getCurrentUser(): Observable<PartyrUser> {
     return this.currentUser && this.currentUser.email
@@ -41,8 +41,9 @@ export class UserService {
           })
         );
   }
-  /**
-   * getPartyrUserByEmail.
+
+  /** getPartyrUserByEmail
+   * @desc look up a PartyrUser object from the user's email
    */
   public getPartyrUserByEmail(email: string): Observable<PartyrUser> {
     return this.http.post<PartyrUser>(URLStore.CURRENT_USER, { email }).pipe(
@@ -51,5 +52,14 @@ export class UserService {
         return scheduled([new PartyrUser()], asap);
       })
     );
+  }
+
+  /** setUserName
+   * @desc attempt to set the username for the currently logged in user
+   */
+  setUserName(username: string, email: string): Observable<boolean> {
+    return this.http
+      .post<number>(URLStore.SET_USER_NAME, { email, username })
+      .pipe(map((success: number) => !!success));
   }
 }

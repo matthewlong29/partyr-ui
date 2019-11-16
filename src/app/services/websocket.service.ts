@@ -6,7 +6,7 @@ import { Stomp, IMessage } from '@stomp/stompjs';
 import { RxStomp } from '@stomp/rx-stomp';
 import { asap } from 'rxjs/internal/scheduler/asap';
 import { map } from 'rxjs/operators';
-import { Message } from '../classes/models/Message';
+import { Message } from '../classes/models/shared/Message';
 
 @Injectable({
   providedIn: 'root'

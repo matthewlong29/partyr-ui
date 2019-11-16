@@ -1,5 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { AutoTableColumn } from 'src/app/classes/models/auto-table-column';
+import { AutoTableColumn } from 'src/app/classes/models/frontend/auto-table-column';
 
 @Component({
   selector: 'app-auto-table',

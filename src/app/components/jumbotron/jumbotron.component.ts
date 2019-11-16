@@ -21,7 +21,6 @@ export class JumbotronComponent implements OnInit {
   constructor() {}
 
   ngOnInit() {
-    console.log(this.imageSrcs);
     if (this.imageSrcs && this.imageSrcs.length) {
       this.activeImgSrc.next(this.imageSrcs[0]);
     }

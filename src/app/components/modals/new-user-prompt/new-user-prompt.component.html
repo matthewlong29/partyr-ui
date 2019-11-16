@@ -1,0 +1,11 @@
+<h2 mat-dialog-title>Looks like you're new around here!</h2>
+<mat-dialog-content class="new-user__content">
+  <span>Choose a name to display to other users</span>
+  <mat-form-field>
+    <mat-label>Username</mat-label>
+    <input matInput [formControl]="screenNameCtrl">
+  </mat-form-field>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-raised-button color="primary" type="submit" (click)="submit()">Submit</button>
+</mat-dialog-actions>

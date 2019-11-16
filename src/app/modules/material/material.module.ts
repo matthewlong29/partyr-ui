@@ -10,7 +10,12 @@ import {
   MatButtonModule,
   MatListModule,
   MatGridListModule,
-  MatSnackBarModule
+  MatSnackBarModule,
+  MatMenuModule,
+  MatIconModule,
+  MatToolbarModule,
+  MatTableModule,
+  MatSelectModule
 } from '@angular/material';
 
 const MAT_MODULES = [
@@ -23,7 +28,12 @@ const MAT_MODULES = [
   MatListModule,
   MatGridListModule,
   MatDialogModule,
-  MatSnackBarModule
+  MatSnackBarModule,
+  MatMenuModule,
+  MatIconModule,
+  MatToolbarModule,
+  MatTableModule,
+  MatSelectModule
 ];
 
 @NgModule({

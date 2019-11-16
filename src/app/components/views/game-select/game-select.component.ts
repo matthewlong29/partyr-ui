@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { URLStore } from 'src/app/classes/constants/url-store';
 import { GamesService } from 'src/app/services/games.service';
-import { GameObject } from 'src/app/classes/models/game-object';
+import { GameObject } from 'src/app/classes/models/shared/game-object';
 
 @Component({
   selector: 'app-game-select',

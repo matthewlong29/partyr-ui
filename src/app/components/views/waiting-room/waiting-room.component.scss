@@ -1,0 +1,91 @@
+.waiting-room {
+  &__header {
+    margin-top: 0;
+    text-align: center;
+  }
+
+  &__player-card {
+    display: flex;
+    align-items: center;
+  }
+
+  &__button-row {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  &__button {
+    &--ready {
+      font-size: 2rem;
+      width: 8rem;
+      height: 4rem;
+    }
+
+    &--active {
+      color: white;
+      border: none;
+      background: #f44336;
+    }
+  }
+
+  @mixin row() {
+    display: flex;
+    margin-top: 1rem;
+  }
+
+  &__row {
+    @include row;
+    &--roles {
+      justify-content: space-around;
+      margin-bottom: 1rem;
+
+      @include row;
+    }
+
+    &--faction {
+      @include row;
+      div {
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+      }
+
+      button {
+        margin: 0 0.5rem;
+      }
+    }
+  }
+
+  &__section {
+    &--main {
+      display: flex;
+      align-items: center;
+      flex: 1;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    &--settings {
+      display: inline-flex;
+      flex-direction: column;
+      padding: 1rem;
+      border: 1px solid black;
+    }
+  }
+
+  &__status-icon {
+    &--ready {
+      color: #ffc107;
+    }
+    &--not-ready {
+      color: #607d8b;
+    }
+  }
+
+  &__role-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    text-align: center;
+  }
+}

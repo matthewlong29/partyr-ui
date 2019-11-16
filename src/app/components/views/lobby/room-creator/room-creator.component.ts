@@ -5,7 +5,7 @@ import {
   Inject
 } from '@angular/core';
 import { GamesService } from 'src/app/services/games.service';
-import { GameObject } from 'src/app/classes/models/game-object';
+import { GameObject } from 'src/app/classes/models/shared/game-object';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material';
 import { GameStore } from 'src/app/classes/constants/game-store';
 

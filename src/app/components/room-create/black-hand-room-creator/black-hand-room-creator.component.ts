@@ -7,13 +7,13 @@ import {
   EventEmitter
 } from '@angular/core';
 import { BlackHandService } from 'src/app/services/black-hand.service';
-import { BlackHandRoleObject } from 'src/app/classes/models/black-hand/black-hand-role-object';
-import { BlackHandRoleRespObject } from 'src/app/classes/models/black-hand/black-hand-role-resp-object';
+import { BlackHandRoleObject } from 'src/app/classes/models/shared/black-hand/black-hand-role-object';
+import { BlackHandRoleRespObject } from 'src/app/classes/models/shared/black-hand/black-hand-role-resp-object';
 import { FormBuilder, Validators } from '@angular/forms';
 import { LobbyService } from 'src/app/services/lobby.service';
 import { GameStore } from 'src/app/classes/constants/game-store';
 import { UserService } from 'src/app/services/user.service';
-import { PartyrUser } from 'src/app/classes/models/PartyrUser';
+import { PartyrUser } from 'src/app/classes/models/shared/PartyrUser';
 import { RoomCreator } from 'src/app/classes/component-interfaces/room-creator';
 
 interface RoomForm {
@@ -81,7 +81,7 @@ export class BlackHandRoomCreatorComponent implements OnInit, RoomCreator {
         this.lobbySvc.createRoom(
           GameStore.BLACK_HAND_NAME,
           formVals.nameCtrl,
-          currentUser.email
+          currentUser.username
         );
         this.closeRoomCreator.emit();
       });
