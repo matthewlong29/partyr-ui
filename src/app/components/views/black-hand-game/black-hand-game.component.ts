@@ -127,15 +127,15 @@ export class BlackHandGameComponent implements OnInit, OnDestroy {
     prefix: string,
     type: string
   ) {
-    const allPeerConnections = this.peerConnections.find(
-      (connection: RTCPeerConnection) => dest
-    );
-    dest.addIceCandidate(candidate);
-    console.log(
-      `${prefix}New ${type} ICE candidate: ${
-        candidate ? candidate.candidate : '(null)'
-      }`
-    );
+    // const allPeerConnections = this.peerConnections.find(
+    //   (connection: RTCPeerConnection) => dest
+    // );
+    // dest.addIceCandidate(candidate);
+    // console.log(
+    //   `${prefix}New ${type} ICE candidate: ${
+    //     candidate ? candidate.candidate : '(null)'
+    //   }`
+    // );
   }
 
   /** getRTCPeerConnection
