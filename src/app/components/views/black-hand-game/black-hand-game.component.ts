@@ -1,10 +1,24 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { BehaviorSubject, Subscription, concat } from 'rxjs';
+import {
+  BehaviorSubject,
+  Subscription,
+  concat,
+  combineLatest,
+  Observable,
+  scheduled,
+  merge
+} from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 import { LobbyService } from 'src/app/services/lobby.service';
 import { LobbyRoom } from 'src/app/classes/models/shared/lobby-room';
-import { map } from 'rxjs/operators';
+import { map, tap, switchMap, take, skipWhile } from 'rxjs/operators';
 import { AppFns } from 'src/app/classes/utils/app-fns';
+import { WebRtcService } from 'src/app/services/web-rtc.service';
+import { UserService } from 'src/app/services/user.service';
+import { PartyrUser } from 'src/app/classes/models/shared/PartyrUser';
+import { RTCConnectionMap } from 'src/app/classes/models/shared/rtc-connection-map';
+import { asap } from 'rxjs/internal/scheduler/asap';
+import { MediaStreamMap } from 'src/app/classes/models/shared/media-stream-map';
 
 @Component({
   selector: 'app-black-hand-game',
@@ -12,31 +26,128 @@ import { AppFns } from 'src/app/classes/utils/app-fns';
   styleUrls: ['./black-hand-game.component.scss']
 })
 export class BlackHandGameComponent implements OnInit, OnDestroy {
+  currUser = new BehaviorSubject<PartyrUser>(undefined);
   userStream = new BehaviorSubject<MediaStream>(undefined);
   room = new BehaviorSubject<LobbyRoom>(undefined);
   players = new BehaviorSubject<string[]>([]);
-  blankArray = new Array(15).fill(0);
-  peerConnections: RTCPeerConnection[] = [];
-  peerStreams = new BehaviorSubject<MediaStream[]>([]);
+
+  connections = new RTCConnectionMap();
+  streams = new MediaStreamMap();
+  // localConn: RTCPeerConnection;
+  // remoteConns: PeerConnectionContainer[];
+
   subs: Subscription[] = [];
 
   constructor(
     readonly route: ActivatedRoute,
-    readonly lobbySvc: LobbyService
+    readonly lobbySvc: LobbyService,
+    readonly rtcSvc: WebRtcService,
+    readonly userSvc: UserService
   ) {}
 
   ngOnInit() {
-    this.subs.push(this.watchGameContext());
+    this.subs.push(this.watchForOffers(), this.watchGameContext());
     this.getUserMedia();
     this.userStream.subscribe((stream: MediaStream) => {
       if (stream) {
-        this.startConnections();
       }
     });
   }
 
   ngOnDestroy() {
     this.subs.forEach((sub: Subscription) => sub.unsubscribe());
+  }
+
+  // /** signalInitialOffer
+  //  * @desc send the initial offer to the signaling websocket once room details are gathered
+  //  */
+  // signalInitialOffer(senderId: string): Observable<any> {
+  //   return this.room.pipe(
+  //     skipWhile((room?: LobbyRoom) => !room),
+  //     take(1),
+  //     switchMap((room: LobbyRoom) =>
+  //       this.rtcSvc.createAndSendOffer(
+  //         senderId,
+  //         this.peerConnectionObj,
+  //         room.gameRoomName
+  //       )
+  //     )
+  //   );
+  // }
+
+  /** watchForOffers
+   * @desc watch for Web RTC offers
+   */
+  watchForOffers(): Subscription {
+    return combineLatest([
+      this.room,
+      this.userStream,
+      this.userSvc.getCurrentUser()
+    ])
+      .pipe(
+        skipWhile(
+          ([room, stream, user]: [LobbyRoom?, MediaStream?, PartyrUser?]) =>
+            !room || !stream || !user
+        ),
+        take(1),
+        tap(([room, stream, user]: [LobbyRoom, MediaStream, PartyrUser]) => {
+          this.currUser.next(user);
+          AppFns.getAllPlayersInRoom(room)
+            .filter((username: string) => username !== user.username)
+            .forEach((username: string) =>
+              this.connections.addConnection(
+                username,
+                this.rtcSvc.createLocalConnection(
+                  user.username,
+                  room.gameRoomName,
+                  stream.getTracks(),
+                  this.addStream(username).bind(this)
+                )
+              )
+            );
+        }),
+        map(([room, _, user]: [LobbyRoom, MediaStream, PartyrUser]) => [
+          room,
+          user
+        ]),
+        switchMap(([room, user]: [LobbyRoom, PartyrUser]) => {
+          const potentialOffers: Observable<any>[] = Object.keys(
+            this.connections.getConnections()
+          ).map((remotePeerId: string) => {
+            const conn: RTCPeerConnection = this.connections.getConnection(
+              remotePeerId
+            );
+            return !conn.currentRemoteDescription
+              ? this.rtcSvc.createAndSendOffer(
+                  user.username,
+                  conn,
+                  room.gameRoomName
+                )
+              : scheduled([], asap);
+          });
+          return merge(...potentialOffers).pipe(
+            take(1),
+            map(() => room),
+            switchMap(() =>
+              this.rtcSvc.listenAndReplyToSignals(
+                user.username,
+                this.connections,
+                room.gameRoomName
+              )
+            )
+          );
+        })
+      )
+      .subscribe();
+  }
+
+  /** addStream
+   * @desc add a received stream when connection receives an RTCTrackEvent
+   */
+  addStream(remoteId: string) {
+    return (e: RTCTrackEvent) => {
+      this.streams.addStream(remoteId, e.streams[0]);
+    };
   }
 
   /** watchGameContext
@@ -53,103 +164,13 @@ export class BlackHandGameComponent implements OnInit, OnDestroy {
             (room: LobbyRoom) =>
               room.gameRoomName === this.route.snapshot.paramMap.get('roomName')
           )
-        )
+        ),
+        tap((room: LobbyRoom) => {
+          this.room.next(room);
+          this.players.next(AppFns.getAllPlayersInRoom(room));
+        })
       )
-      .subscribe((room: LobbyRoom) => {
-        this.room.next(room);
-
-        this.players.next(AppFns.getAllPlayersInRoom(room));
-        console.log(room);
-      });
-  }
-
-  /** startConnections
-   * @desc connect to WebRTC peer connections API
-   */
-  startConnections() {
-    const localStream: MediaStream = this.userStream.getValue();
-    const audioTracks = localStream.getAudioTracks();
-    const videoTracks = localStream.getVideoTracks();
-    if (audioTracks.length > 0) {
-      console.log(`Using audio device: ${audioTracks[0].label}`);
-    }
-    if (videoTracks.length > 0) {
-      console.log(`Using video device: ${videoTracks[0].label}`);
-    }
-
-    const localConnection = new RTCPeerConnection(null);
-    const peerConnection = new RTCPeerConnection(null);
-
-    peerConnection.ontrack = (event: RTCTrackEvent) => {
-      const peerStreams: MediaStream[] = this.peerStreams.getValue();
-      peerStreams.push(event.streams[0]);
-    };
-    localConnection.onicecandidate = (event: RTCPeerConnectionIceEvent) =>
-      this.handleCandidate(
-        event.candidate,
-        localConnection,
-        'local: ',
-        'local'
-      );
-    peerConnection.onicecandidate = (event: RTCPeerConnectionIceEvent) =>
-      this.handleCandidate(event.candidate, peerConnection, 'peer', 'remote');
-
-    localStream
-      .getTracks()
-      .forEach((track: MediaStreamTrack) =>
-        localConnection.addTrack(track, localStream)
-      );
-    localConnection
-      .createOffer({
-        offerToReceiveAudio: true,
-        offerToReceiveVideo: true
-      })
-      .then((desc: RTCSessionDescriptionInit) => {
-        localConnection.setLocalDescription(desc);
-        console.log(`Offer from local\n${desc.sdp}`);
-        peerConnection.setRemoteDescription(desc);
-        peerConnection
-          .createAnswer()
-          .then((desc: RTCSessionDescriptionInit) => {
-            peerConnection.setLocalDescription(desc);
-            console.log(`Answer from peer\n${desc.sdp}`);
-            localConnection.setRemoteDescription(desc);
-          });
-      });
-  }
-
-  /** handleCandidate
-   * @desc handle ICE candidates
-   */
-  handleCandidate(
-    candidate,
-    dest: RTCPeerConnection,
-    prefix: string,
-    type: string
-  ) {
-    // const allPeerConnections = this.peerConnections.find(
-    //   (connection: RTCPeerConnection) => dest
-    // );
-    // dest.addIceCandidate(candidate);
-    // console.log(
-    //   `${prefix}New ${type} ICE candidate: ${
-    //     candidate ? candidate.candidate : '(null)'
-    //   }`
-    // );
-  }
-
-  /** getRTCPeerConnection
-   * @desc connect to the WebRTC peer connection API
-   */
-  getRTCPeerConnection(): void {
-    const config: RTCConfiguration = {};
-    const pc = new RTCPeerConnection(null);
-
-    const gotOffer = (desc: RTCSessionDescriptionInit) => {
-      pc.setLocalDescription(desc);
-    };
-    // pc.on
-    pc.createOffer({});
+      .subscribe(() => {});
   }
 
   /** getUserMedia

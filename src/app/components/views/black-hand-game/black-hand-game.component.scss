@@ -1,4 +1,9 @@
 .bh-game {
+  &__video-container {
+    display: inline-flex;
+    align-items: center;
+    flex-direction: column;
+  }
   &__video {
     max-height: 25vh;
   }

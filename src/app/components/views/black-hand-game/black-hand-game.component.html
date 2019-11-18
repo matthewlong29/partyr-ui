@@ -3,6 +3,14 @@
     [ngStyle]="{width: calcMediaHeightWidth(players | async), height: calcMediaHeightWidth(players | async)}"
     class="bh-game__media-container">
   </div> -->
-  <video *ngFor="let player of allPlayers" [srcObject]="userStream | async" class="bh-game__video"
-    [ngStyle]="{width: calcMediaHeightWidth(allPlayers)}" autoplay></video>
+  <div *ngIf="currUser | async as me" class="bh-game__video-container">
+    <span>{{ me.username }}</span>
+    <video [srcObject]="userStream | async" class="bh-game__video" [ngStyle]="{width: calcMediaHeightWidth(allPlayers)}"
+      autoplay></video>
+  </div>
+  <div *ngFor="let remotePeerId of streams.getRemotePeerIds()">
+    <span>{{ remotePeerId }}</span>
+    <video [srcObject]="streams.getStream(remotePeerId)" class="bh-game__video"
+      [ngStyle]="{width: calcMediaHeightWidth(allPlayers)}" autoplay></video>
+  </div>
 </div>
