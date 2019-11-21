@@ -7,6 +7,7 @@ import { HomeComponent } from './components/views/home/home.component';
 import { LobbyComponent } from './components/views/lobby/lobby.component';
 import { GameSelectComponent } from 'src/app/components/views/game-select/game-select.component';
 import { WaitingRoomComponent } from './components/views/waiting-room/waiting-room.component';
+import { BlackHandGameComponent } from './components/views/black-hand-game/black-hand-game.component';
 
 const routes: Routes = [
   {
@@ -38,6 +39,11 @@ const routes: Routes = [
     path: 'lobby/:game/:roomName',
     pathMatch: 'full',
     component: WaitingRoomComponent
+  },
+  {
+    path: 'session/:game/:roomName',
+    pathMatch: 'full',
+    component: BlackHandGameComponent
   },
   { path: '**', pathMatch: 'full', redirectTo: 'home' }
 ];

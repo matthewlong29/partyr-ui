@@ -5,4 +5,5 @@ export interface BlackHandRoleObject {
   attributeDescription: string;
   dayAbilityDescription: string;
   nightAbilityDescription: string;
+  spritePath: string;
 }

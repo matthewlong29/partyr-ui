@@ -41,6 +41,7 @@ import { WaitingRoomComponent } from './components/views/waiting-room/waiting-ro
 import { NewUserPromptComponent } from './components/modals/new-user-prompt/new-user-prompt.component';
 import { SettingsComponent } from './components/views/settings/settings.component';
 import { ConfirmationDialogComponent } from './components/utils/confirmation-dialog/confirmation-dialog.component';
+import { BlackHandGameComponent } from './components/views/black-hand-game/black-hand-game.component';
 
 const GOOGLE_OAUTH_CLIENT_ID = '276174427953-o7q6mv623adttteep82an71rs4bgge0r';
 
@@ -72,7 +73,8 @@ export const provideConfig = () => config;
     NewUserPromptComponent,
     SettingsComponent,
     WaitingRoomComponent,
-    ConfirmationDialogComponent
+    ConfirmationDialogComponent,
+    BlackHandGameComponent
   ],
   imports: [
     BrowserModule,

@@ -15,10 +15,19 @@
   }
 
   &__button {
-    &--ready {
+    &--main {
       font-size: 2rem;
-      width: 8rem;
+      width: 10rem;
       height: 4rem;
+      span {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-evenly;
+      }
+      mat-icon {
+        font-size: 2rem;
+        padding-top: 2px;
+      }
     }
 
     &--active {
