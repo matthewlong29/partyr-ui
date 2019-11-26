@@ -7,9 +7,7 @@ export interface LobbyRoom {
   playersReady: string[];
   playersNotReady: string[];
   numberOfPlayers: number;
-  gameStarted: boolean;
   gameStartTime: string;
-  gameEndTime: string;
 }
 
 export const lobbyRoomGuard = (obj: any): boolean => {
@@ -20,8 +18,6 @@ export const lobbyRoomGuard = (obj: any): boolean => {
     'playersReady',
     'playersNotReady',
     'numberOfPlayers',
-    'gameStarted',
-    'gameStartTime',
-    'gameEndTime'
+    'gameStartTime'
   ]);
 };
