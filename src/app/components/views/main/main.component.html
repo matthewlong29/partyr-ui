@@ -2,3 +2,6 @@
 <div class="router-outlet__wrapper">
   <router-outlet></router-outlet>
 </div>
+<footer *ngIf="currUser | async" class="main__footer">
+  <app-social-bar></app-social-bar>
+</footer>

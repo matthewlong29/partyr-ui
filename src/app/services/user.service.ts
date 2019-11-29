@@ -20,7 +20,7 @@ export class UserService {
    */
   public getCurrentUser(): Observable<PartyrUser> {
     return this.currentUser && this.currentUser.email
-      ? scheduled([this.currentUser], asap)
+      ? scheduled([ this.currentUser ], asap)
       : this.authService.authState.pipe(
           first(),
           switchMap((socialUser: SocialUser) => {
@@ -36,7 +36,7 @@ export class UserService {
               );
             } else {
               console.error('Could not find authorized user');
-              return scheduled([new PartyrUser()], asap);
+              return scheduled([ new PartyrUser() ], asap);
             }
           })
         );
@@ -49,7 +49,7 @@ export class UserService {
     return this.http.post<PartyrUser>(URLStore.CURRENT_USER, { email }).pipe(
       catchError((err: any) => {
         console.error(err);
-        return scheduled([new PartyrUser()], asap);
+        return scheduled([ new PartyrUser() ], asap);
       })
     );
   }
