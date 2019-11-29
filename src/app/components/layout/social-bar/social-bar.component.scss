@@ -1,0 +1,98 @@
+$border-style: 1px solid gray;
+$elevation-z1: 0 2px 1px -1px rgba(0, 0, 0, .2), 0 1px 1px 0 rgba(0, 0, 0, .14), 0 1px 3px 0 rgba(0, 0, 0, .12);
+
+@mixin tabContainer() {
+  display: flex;
+  flex-direction: column;
+  width: 15rem;
+  margin-right: 1rem;
+  text-align: left;
+  border: $border-style;
+  border-radius: 5px 5px 0 0;
+  background: white;
+  box-shadow: $elevation-z1;
+}
+
+@mixin tabLabel() {
+  line-height: 1rem;
+  min-width: 10rem;
+  height: 1rem;
+  margin: 0;
+  padding: .75rem;
+  cursor: pointer;
+  border-bottom: $border-style;
+}
+
+.social-bar {
+  display: flex;
+  align-items: flex-end;
+  flex-direction: row-reverse;
+  &__tab-container {
+    &--main {
+      @include tabContainer();
+    }
+    &--chat {
+      @include tabContainer();
+    }
+  }
+  &__tab-label {
+    @include tabLabel();
+    &--chat {
+      font-weight: normal;
+
+      @include tabLabel();
+    }
+  }
+  &__list {
+    margin: 0;
+    padding: .75rem;
+    list-style: none;
+    text-align: left;
+    li {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    li:not(:last-of-type) {
+      margin-bottom: .75rem;
+      padding-bottom: .75rem;
+      border-bottom: $border-style;
+    }
+  }
+  &__chat-messages {
+    display: flex;
+    overflow-y: auto;
+    flex-direction: column;
+    height: 15rem;
+    padding: 0 .5rem;
+    list-style: none;
+  }
+  &__chat-message {
+    @mixin chatMessage() {
+      font-size: .85rem;
+      display: inline-flex;
+      margin: .5rem 0;
+      padding: .5rem;
+      word-break: break-word;
+      box-shadow: $elevation-z1;
+    }
+    &--received {
+      align-self: flex-start;
+      border-radius: 5px 5px 5px 0;
+
+      @include chatMessage();
+    }
+    &--sent {
+      align-self: flex-end;
+      color: white;
+      border-radius: 5px 5px 0 5px;
+      background: #673ab7;
+
+      @include chatMessage();
+    }
+  }
+  &__msg-input {
+    resize: none;
+  }
+}

@@ -2,16 +2,8 @@ import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
-import {
-  InjectableRxStompConfig,
-  RxStompService,
-  rxStompServiceFactory
-} from '@stomp/ng2-stompjs';
-import {
-  AuthServiceConfig,
-  GoogleLoginProvider,
-  SocialLoginModule
-} from 'angularx-social-login';
+import { InjectableRxStompConfig, RxStompService, rxStompServiceFactory } from '@stomp/ng2-stompjs';
+import { AuthServiceConfig, GoogleLoginProvider, SocialLoginModule } from 'angularx-social-login';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { AuthGuard } from './auth-guard';
@@ -42,6 +34,8 @@ import { NewUserPromptComponent } from './components/modals/new-user-prompt/new-
 import { SettingsComponent } from './components/views/settings/settings.component';
 import { ConfirmationDialogComponent } from './components/utils/confirmation-dialog/confirmation-dialog.component';
 import { BlackHandGameComponent } from './components/views/black-hand-game/black-hand-game.component';
+import { SocialBarComponent } from './components/layout/social-bar/social-bar.component';
+import { AddFriendComponent } from './components/dialogs/add-friend/add-friend.component';
 
 const GOOGLE_OAUTH_CLIENT_ID = '276174427953-o7q6mv623adttteep82an71rs4bgge0r';
 
@@ -74,7 +68,9 @@ export const provideConfig = () => config;
     SettingsComponent,
     WaitingRoomComponent,
     ConfirmationDialogComponent,
-    BlackHandGameComponent
+    BlackHandGameComponent,
+    SocialBarComponent,
+    AddFriendComponent
   ],
   imports: [
     BrowserModule,
@@ -110,14 +106,10 @@ export const provideConfig = () => config;
     {
       provide: RxStompService,
       useFactory: rxStompServiceFactory,
-      deps: [InjectableRxStompConfig]
+      deps: [ InjectableRxStompConfig ]
     }
   ],
-  entryComponents: [
-    RoomCreatorComponent,
-    NewUserPromptComponent,
-    ConfirmationDialogComponent
-  ],
-  bootstrap: [AppComponent]
+  entryComponents: [ RoomCreatorComponent, NewUserPromptComponent, ConfirmationDialogComponent, AddFriendComponent ],
+  bootstrap: [ AppComponent ]
 })
 export class AppModule {}

@@ -1,7 +1,15 @@
 @import '~src/app/styles/variables.scss';
 
 .router-outlet__wrapper {
-  padding: $header-height - 0.25rem 0.5rem 0 0.5rem;
+  padding: $header-height - .25rem .5rem 0 .5rem;
+}
+
+.main {
+  &__footer {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+  }
 }
 
 #modal-container {
@@ -26,7 +34,7 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(0, 0, 0, 0.8);
+  background: rgba(0, 0, 0, .8);
   &.hidden {
     display: none;
   }

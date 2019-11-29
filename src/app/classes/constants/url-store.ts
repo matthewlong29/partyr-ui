@@ -21,6 +21,10 @@ export class URLStore {
   static CURRENT_USER = 'api/users/current-user';
   static SET_USER_NAME = 'api/users/select-username';
 
+  /***** SOCIAL SERVICE *****/
+  static GET_ALL_RELATIONSHIPS = 'api/users/all-relationships';
+  static CREATE_RELATIONSHIP = 'api/users/create-relationship';
+
   /***** GAMES SERVICE *****/
   static GET_ALL_GAMES_URL = 'api/games';
   static GET_GAME_DETAILS_URL = 'api/game';
