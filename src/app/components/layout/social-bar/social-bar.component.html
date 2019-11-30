@@ -1,0 +1,40 @@
+<section class="social-bar">
+  <div class="social-bar__tab-container--main">
+    <h3 class="social-bar__tab-label" (click)="toggleFriendsList()">Friends</h3>
+    <ul *ngIf="friendsListExpanded | async" class="social-bar__list">
+      <li *ngFor="let friend of friendsList | async" (click)="openNewChatInstance(friend.username)">
+        {{ friend.username }}</li>
+      <li tabindex="0" (click)="addFriend()">
+        <mat-icon>add_circle_outline</mat-icon>
+        &nbsp;&nbsp;New Friend
+      </li>
+    </ul>
+  </div>
+
+  <div *ngFor="let instance of chatInstances | async" class="social-bar__tab-container--chat">
+    <h3 class="social-bar__tab-label--chat" (click)="toggleChatInstance(instance)">{{ instance.chatTarget }}</h3>
+    <ng-container *ngIf="instance.isOpen">
+      <ul class="social-bar__chat-messages">
+        <li class="social-bar__chat-message--received">
+          Ground Control to Major Tom
+        </li>
+        <li class="social-bar__chat-message--received">
+          Ground Control to Major Tommmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+        </li>
+        <li class="social-bar__chat-message--received">
+          Ground Control to Major Tom
+        </li>
+        <li class="social-bar__chat-message--sent">
+          10-4
+        </li>
+        <li class="social-bar__chat-message--sent">
+          10-4
+        </li>
+        <li class="social-bar__chat-message--sent">
+          10-4
+        </li>
+      </ul>
+      <textarea class="social-bar__msg-input" placeholder="Type a message..."></textarea>
+    </ng-container>
+  </div>
+</section>

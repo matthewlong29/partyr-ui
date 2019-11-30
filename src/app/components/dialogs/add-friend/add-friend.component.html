@@ -1,0 +1,15 @@
+<h2 mat-dialog-title>New Friend</h2>
+<form>
+  <mat-dialog-content>
+    <mat-form-field>
+      <mat-label>Friend Username</mat-label>
+      <input matInput [formControl]="friendCtrl">
+    </mat-form-field>
+    <footer>
+    </footer>
+  </mat-dialog-content>
+  <mat-dialog-actions>
+    <button mat-raised-button mat-dialog-close>Cancel</button>
+    <button mat-raised-button color="primary" (click)="submitFriendName()">Add Friend</button>
+  </mat-dialog-actions>
+</form>
