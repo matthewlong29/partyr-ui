@@ -8,9 +8,15 @@
     <video [srcObject]="userStream | async" class="bh-game__video" [ngStyle]="{width: calcMediaHeightWidth(allPlayers)}"
       autoplay></video>
   </div>
-  <div *ngFor="let remotePeerId of streams.getRemotePeerIds()">
-    <span>{{ remotePeerId }}</span>
-    <video [srcObject]="streams.getStream(remotePeerId)" class="bh-game__video"
+  <div *ngFor="let remoteStream of (remoteStreams | async)">
+    <span>{{ remoteStream.remotePeerId }}</span>
+    <video [srcObject]="remoteStream.stream" class="bh-game__video"
       [ngStyle]="{width: calcMediaHeightWidth(allPlayers)}" autoplay></video>
   </div>
+  <!-- <div *ngFor="let remotePeerId of streams.getRemotePeerIds()">
+    <span>{{ remotePeerId }}</span>
+    <span>{{ streams.getStream(remotePeerId) }}</span>
+    <video [srcObject]="streams.getStream(remotePeerId)" class="bh-game__video"
+      [ngStyle]="{width: calcMediaHeightWidth(allPlayers)}" autoplay></video>
+  </div> -->
 </div>
