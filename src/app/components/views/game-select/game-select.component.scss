@@ -23,6 +23,7 @@
     background-color: transparent;
     &:hover {
       box-shadow: -5px 5px 5px lighten(black, $amount: 75%);
+      cursor: pointer;
     }
   }
 
