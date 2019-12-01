@@ -35,4 +35,5 @@ export class URLStore {
   /***** BLACK HAND SERVICE *****/
   static GET_BH_ROLES = 'api/game/black-hand/roles';
   static GET_BH_FACTION_QUOTA = 'api/game/black-hand/player-total';
+  static GET_BH_GAME_DETAILS = 'api/game/black-hand/details';
 }

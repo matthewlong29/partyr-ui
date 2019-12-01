@@ -3,7 +3,7 @@ import { ActivatedRoute, Router, UrlSegment } from '@angular/router';
 import { LobbyService } from 'src/app/services/lobby.service';
 import { BehaviorSubject, concat, Subscription, combineLatest, Observable, scheduled } from 'rxjs';
 import { LobbyRoom } from 'src/app/classes/models/shared/lobby-room';
-import { map, switchMap, catchError } from 'rxjs/operators';
+import { map, switchMap, catchError, tap, skipWhile, take } from 'rxjs/operators';
 import { PartyrUser } from 'src/app/classes/models/shared/PartyrUser';
 import { UserService } from 'src/app/services/user.service';
 import { MatDialog } from '@angular/material';
@@ -62,7 +62,12 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    this.subs.push(this.watchForPlayerQuotas(), this.watchGameDetails(), this.watchContextUpdates(), this.getRoles());
+    this.subs.push(
+      this.watchForPlayerQuotas(),
+      this.watchGameDetails().subscribe(),
+      this.watchContextUpdates(),
+      this.getRoles()
+    );
   }
 
   ngOnDestroy() {
@@ -137,13 +142,21 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
   /** watchGameDetails 
    * @desc watch updates to the game settings and ready states
    */
-  watchGameDetails(): Subscription {
-    return this.bhSvc.watchGameDetails().subscribe((details: BlackHandDetails) => {
-      console.log('Game details', details);
-      if (details.gameStartTime) {
-        this.enterGame();
-      }
-    });
+  watchGameDetails(): Observable<BlackHandDetails> {
+    return this.roomDetails.pipe(
+      skipWhile((room: LobbyRoom) => !room || !room.gameRoomName),
+      take(1),
+      switchMap((room: LobbyRoom) =>
+        concat(this.bhSvc.getGameDetails(room.gameRoomName), this.bhSvc.watchGameDetails()).pipe(
+          tap((details: BlackHandDetails) => {
+            console.log('Game details', details);
+            if (details.gameStartTime) {
+              this.navigateToGamePage();
+            }
+          })
+        )
+      )
+    );
   }
 
   /** watchForPlayerQuotas
@@ -265,7 +278,7 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
     }
   }
 
-  enterGame(): void {
+  navigateToGamePage(): void {
     this.router.navigateByUrl(
       `session/${this.gameDetails.getValue().gameName}/${this.roomDetails.getValue().gameRoomName}`
     );

@@ -27,6 +27,16 @@ export class BlackHandService {
     this.wsSvc.publish(WsBrokerStore.START_BLACK_HAND_GAME, { roomName });
   }
 
+  /** getGameDetails 
+   * @desc http request for current game details status
+   */
+  getGameDetails(roomName: string): Observable<BlackHandDetails> {
+    return this.http.get<BlackHandDetails>(`${URLStore.GET_BH_GAME_DETAILS}/${roomName}`);
+  }
+
+  /** watchGameDetails
+   * @desc watch changes to game details status through websocket
+   */
   watchGameDetails(): Observable<BlackHandDetails> {
     return this.wsSvc.watch(WsBrokerStore.BH_GAME_DETAILS_BROKER);
   }
