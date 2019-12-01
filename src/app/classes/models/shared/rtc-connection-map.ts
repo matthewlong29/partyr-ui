@@ -1,15 +1,17 @@
+import { RTCConnectionContainer } from './rtc-connection-container';
+
 export class RTCConnectionMap {
-  private connections: { [remotePeerId: string]: RTCPeerConnection } = {};
+  private connContainers: { [remotePeerId: string]: RTCConnectionContainer } = {};
   getConnections() {
-    return this.connections;
+    return this.connContainers;
   }
-  getConnection(remotePeerId: string) {
-    return this.connections[remotePeerId];
+  getConnContainer(remotePeerId: string) {
+    return this.connContainers[remotePeerId];
   }
-  addConnection(remotePeerId: string, connection: RTCPeerConnection) {
-    this.connections[remotePeerId] = connection;
+  addConnContainer(remotePeerId: string, connContainer: RTCConnectionContainer) {
+    this.connContainers[remotePeerId] = connContainer;
   }
   getRemotePeerIds() {
-    return Object.keys(this.connections);
+    return Object.keys(this.connContainers);
   }
 }
