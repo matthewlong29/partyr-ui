@@ -1,6 +1,7 @@
 export class WsBrokerStore {
   /***** Brokers *****/
   static GAME_RTC_BROKER = '/game';
+  static BH_GAME_DETAILS_BROKER = '/game/black-hand';
 
   /***** Queues *****/
   static LOBBY_CHAT_QUEUE = '/chat/room';
@@ -14,4 +15,7 @@ export class WsBrokerStore {
   static DELETE_LOBBY_ROOM = '/app/delete-room';
   static TOGGLE_READY_STATUS = '/app/toggle-ready-status';
   static SEND_RTC_SIGNAL = '/app/signal-rtc';
+
+  /***** BlackHandMessageMaps *****/
+  static START_BLACK_HAND_GAME = '/app/start-black-hand';
 }

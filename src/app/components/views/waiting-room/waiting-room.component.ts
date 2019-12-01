@@ -1,14 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router, UrlSegment } from '@angular/router';
 import { LobbyService } from 'src/app/services/lobby.service';
-import {
-  BehaviorSubject,
-  concat,
-  Subscription,
-  combineLatest,
-  Observable,
-  scheduled
-} from 'rxjs';
+import { BehaviorSubject, concat, Subscription, combineLatest, Observable, scheduled } from 'rxjs';
 import { LobbyRoom } from 'src/app/classes/models/shared/lobby-room';
 import { map, switchMap, catchError } from 'rxjs/operators';
 import { PartyrUser } from 'src/app/classes/models/shared/PartyrUser';
@@ -29,11 +22,12 @@ import { asap } from 'rxjs/internal/scheduler/asap';
 import { GamesService } from 'src/app/services/games.service';
 import { GameObject } from 'src/app/classes/models/shared/game-object';
 import { GameStore } from 'src/app/classes/constants/game-store';
+import { BlackHandDetails } from 'src/app/classes/models/shared/black-hand/black-hand-details';
 
 @Component({
   selector: 'app-waiting-room',
   templateUrl: './waiting-room.component.html',
-  styleUrls: ['./waiting-room.component.scss']
+  styleUrls: [ './waiting-room.component.scss' ]
 })
 export class WaitingRoomComponent implements OnInit, OnDestroy {
   roomName = this.route.snapshot.paramMap.get('roomName');
@@ -45,9 +39,7 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
   factionQuotas = new BehaviorSubject<BlackHandNumberOfPlayers>(undefined);
   gameDetails = new BehaviorSubject<GameObject>(undefined);
   showStartButton = new BehaviorSubject<boolean>(false);
-  displayNameCtrl = this.fb.control('', [
-    Validators.pattern(AppRegex.DISPLAY_NAME)
-  ]);
+  displayNameCtrl = this.fb.control('', [ Validators.pattern(AppRegex.DISPLAY_NAME) ]);
 
   settingsForm = this.fb.group({
     allowFactionPrefCtrl: this.fb.control(true),
@@ -70,11 +62,7 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    this.subs.push(
-      this.watchForPlayerQuotas(),
-      this.watchContextUpdates(),
-      this.getRoles()
-    );
+    this.subs.push(this.watchForPlayerQuotas(), this.watchGameDetails(), this.watchContextUpdates(), this.getRoles());
   }
 
   ngOnDestroy() {
@@ -85,19 +73,13 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
    * @desc subscribe to form changes and push to the websocket accordingly
    */
   subToSettingsForm(): Subscription {
-    return this.settingsForm.valueChanges.subscribe(
-      (formVals: WaitingRoomSettingsForm) => {
-        const currUser: PartyrUser | undefined = this.currUser.getValue();
-        const roomDetails: LobbyRoom | undefined = this.roomDetails.getValue();
-        if (
-          currUser &&
-          roomDetails &&
-          currUser.username === roomDetails.hostUsername
-        ) {
-          console.log(formVals);
-        }
+    return this.settingsForm.valueChanges.subscribe((formVals: WaitingRoomSettingsForm) => {
+      const currUser: PartyrUser | undefined = this.currUser.getValue();
+      const roomDetails: LobbyRoom | undefined = this.roomDetails.getValue();
+      if (currUser && roomDetails && currUser.username === roomDetails.hostUsername) {
+        console.log(formVals);
       }
-    );
+    });
   }
 
   /** grantPrivileges
@@ -114,9 +96,7 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
    * @desc navigate to the page with all the available rooms
    */
   backToLobby(): void {
-    const paths: string[] = this.route.snapshot.pathFromRoot[1].url.map(
-      (segment: UrlSegment) => segment.path
-    );
+    const paths: string[] = this.route.snapshot.pathFromRoot[1].url.map((segment: UrlSegment) => segment.path);
     this.router.navigateByUrl(`/${paths[0]}/${paths[1]}`);
   }
 
@@ -133,36 +113,37 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
   watchContextUpdates(): Subscription {
     // Observable that monitors any changes to the Lobby Room
     const watchRoomUpdates: () => Observable<LobbyRoom> = () =>
-      concat(
-        this.lobbySvc.getAvailableRooms(),
-        this.lobbySvc.watchAvailableRooms()
-      ).pipe(
-        map((rooms: LobbyRoom[]) =>
-          rooms.find((room: LobbyRoom) => room.gameRoomName === this.roomName)
-        )
+      concat(this.lobbySvc.getAvailableRooms(), this.lobbySvc.watchAvailableRooms()).pipe(
+        map((rooms: LobbyRoom[]) => rooms.find((room: LobbyRoom) => room.gameRoomName === this.roomName))
       );
 
     return combineLatest([
       this.userSvc.getCurrentUser(),
       watchRoomUpdates(),
       this.gameSvc.getGameDetails(GameStore.BLACK_HAND_NAME)
-    ]).subscribe(
-      ([newCurrUser, foundRoom, gameDetails]: [
-        PartyrUser,
-        LobbyRoom,
-        GameObject
-      ]) => {
-        this.roomDetails.next(foundRoom);
-        this.gameDetails.next(gameDetails);
-        const currUser = this.currUser.getValue();
-        if (JSON.stringify(currUser) !== JSON.stringify(newCurrUser)) {
-          this.displayNameCtrl.setValue(newCurrUser.username);
-        }
-        this.currUser.next(newCurrUser);
-        this.grantPrivileges();
-        this.showHideStartButton();
+    ]).subscribe(([ newCurrUser, foundRoom, gameDetails ]: [PartyrUser, LobbyRoom, GameObject]) => {
+      this.roomDetails.next(foundRoom);
+      this.gameDetails.next(gameDetails);
+      const currUser = this.currUser.getValue();
+      if (JSON.stringify(currUser) !== JSON.stringify(newCurrUser)) {
+        this.displayNameCtrl.setValue(newCurrUser.username);
       }
-    );
+      this.currUser.next(newCurrUser);
+      this.grantPrivileges();
+      this.showHideStartButton();
+    });
+  }
+
+  /** watchGameDetails 
+   * @desc watch updates to the game settings and ready states
+   */
+  watchGameDetails(): Subscription {
+    return this.bhSvc.watchGameDetails().subscribe((details: BlackHandDetails) => {
+      console.log('Game details', details);
+      if (details.gameStartTime) {
+        this.enterGame();
+      }
+    });
   }
 
   /** watchForPlayerQuotas
@@ -176,11 +157,11 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
           if (totalPlayers) {
             return this.bhSvc.getBlackHandRoleTotals(totalPlayers);
           }
-          return scheduled([undefined], asap);
+          return scheduled([ undefined ], asap);
         }),
         catchError((err: any) => {
           console.error(err);
-          return scheduled([undefined], asap);
+          return scheduled([ undefined ], asap);
         })
       )
       .subscribe((quotas: BlackHandNumberOfPlayers) => {
@@ -193,17 +174,11 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
    * @desc get all the roles included in the Black Hand game
    */
   getRoles(): Subscription {
-    return this.bhSvc
-      .getBlackHandRoles()
-      .subscribe((rolesResp: BlackHandRoleRespObject) => {
-        const roles: BlackHandRoleObject[] = [
-          ...rolesResp.BlackHand,
-          ...rolesResp.Monster,
-          ...rolesResp.Townie
-        ];
+    return this.bhSvc.getBlackHandRoles().subscribe((rolesResp: BlackHandRoleRespObject) => {
+      const roles: BlackHandRoleObject[] = [ ...rolesResp.BlackHand, ...rolesResp.Monster, ...rolesResp.Townie ];
 
-        this.roles.next(roles);
-      });
+      this.roles.next(roles);
+    });
   }
 
   /** getPlayerContext
@@ -215,8 +190,7 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
     const isHost = room && username === room.hostUsername;
     const isCurrUser = currUser && username === currUser.username;
     const isReady = room && room.playersReady.includes(username);
-    const isInRoom =
-      room && AppFns.getAllPlayersInRoom(room).includes(username);
+    const isInRoom = room && AppFns.getAllPlayersInRoom(room).includes(username);
     return { username, isHost, isCurrUser, isReady, isInRoom };
   }
 
@@ -244,10 +218,7 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
    * @desc toggle a user's ready state to start the game
    */
   toggleReady() {
-    this.lobbySvc.toggleReadyStatus(
-      this.currUser.getValue(),
-      this.roomDetails.getValue()
-    );
+    this.lobbySvc.toggleReadyStatus(this.currUser.getValue(), this.roomDetails.getValue());
   }
 
   /** toggleFactionPref
@@ -281,17 +252,22 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
 
     // TODO: Re-enable these conditionals once the game is ready
     // this.showStartButton.next(isHost && overMin && underMax && allReady);
-    this.showStartButton.next(true);
+    this.showStartButton.next(allReady);
   }
 
   /** startGame
    * @desc send the start game signal to the backend and navigate to the game page
    */
   startGame(): void {
+    const room = this.roomDetails.getValue();
+    if (room) {
+      this.bhSvc.startGame(room.gameRoomName);
+    }
+  }
+
+  enterGame(): void {
     this.router.navigateByUrl(
-      `session/${this.gameDetails.getValue().gameName}/${
-        this.roomDetails.getValue().gameRoomName
-      }`
+      `session/${this.gameDetails.getValue().gameName}/${this.roomDetails.getValue().gameRoomName}`
     );
   }
 }
