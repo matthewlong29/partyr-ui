@@ -25,10 +25,7 @@ export class BlackHandGameComponent implements OnInit, OnDestroy {
   players = new BehaviorSubject<string[]>([]);
 
   connections = new RTCConnectionMap();
-  remoteStreams = new BehaviorSubject<RemoteStream[]>([]);
-  // streams = new MediaStreamMap();
-  // localConn: RTCPeerConnection;
-  // remoteConns: PeerConnectionContainer[];
+  streams = new MediaStreamMap();
 
   subs: Subscription[] = [];
 
@@ -40,13 +37,7 @@ export class BlackHandGameComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    this.subs.push(
-      this.setupConnectionSlots().subscribe(),
-      this.watchGameContext(),
-      this.remoteStreams.subscribe((stream) => {
-        console.log(stream);
-      })
-    );
+    this.subs.push(this.setupConnectionSlots().subscribe(), this.watchGameContext());
   }
 
   ngOnDestroy() {
@@ -65,7 +56,7 @@ export class BlackHandGameComponent implements OnInit, OnDestroy {
         AppFns.getAllPlayersInRoom(room)
           .filter((peerUsername: string) => peerUsername !== user.username)
           .forEach((peerUsername: string) =>
-            this.connections.addConnection(
+            this.connections.addConnContainer(
               peerUsername,
               this.rtcSvc.createLocalConnection(
                 user.username,
@@ -91,10 +82,7 @@ export class BlackHandGameComponent implements OnInit, OnDestroy {
    */
   addStream(remoteId: string) {
     return (e: RTCTrackEvent) => {
-      const stream: RemoteStream = { remotePeerId: remoteId, stream: e.streams[0] };
-      const currStreams = this.remoteStreams.getValue();
-      currStreams.push(stream);
-      this.remoteStreams.next(currStreams);
+      this.streams.addStream(remoteId, e.streams[0]);
     };
   }
 
@@ -133,8 +121,8 @@ export class BlackHandGameComponent implements OnInit, OnDestroy {
    * @desc distribute the media width based on the number of players in the game
    */
   calcMediaHeightWidth(players?: string[]): string {
-    const playerCount: number = (players || { length: 0 }).length;
-    return `calc(90vw / ${Math.round(playerCount / 2)})`;
-    // return `calc(90vw / ${15})`;
+    const playerCount: number = (players || { length: 1 }).length;
+    const width = Math.max(18, 90 / playerCount);
+    return `${width}vw`;
   }
 }

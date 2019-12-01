@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { from, Observable, scheduled, merge } from 'rxjs';
+import { from, Observable, scheduled, merge, concat } from 'rxjs';
 import { WebsocketService } from './websocket.service';
 import { map, switchMap, tap, catchError } from 'rxjs/operators';
 import { WsBrokerStore } from '../classes/constants/ws-broker-store';
@@ -7,6 +7,7 @@ import { asap } from 'rxjs/internal/scheduler/asap';
 import { Signal } from '../classes/models/shared/signal';
 import { RTCConnectionMap } from '../classes/models/shared/rtc-connection-map';
 import { RTCConnectionRequest } from '../classes/models/shared/rtc-connection-request';
+import { RTCConnectionContainer } from '../classes/models/shared/rtc-connection-container';
 
 @Injectable({
   providedIn: 'root'
@@ -14,120 +15,105 @@ import { RTCConnectionRequest } from '../classes/models/shared/rtc-connection-re
 export class WebRtcService {
   constructor(readonly wsSvc: WebsocketService) {}
 
-  createLocalConnection(senderId: string, channel: string, stream: MediaStream, onTrack: (e: RTCTrackEvent) => void) {
-    const conn = new RTCPeerConnection();
-    console.log('Sending the following tracks', stream.getTracks());
+  createLocalConnection(
+    senderId: string,
+    channel: string,
+    stream: MediaStream,
+    onTrack: (e: RTCTrackEvent) => void
+  ): RTCConnectionContainer {
+    const connContainer = new RTCConnectionContainer();
+    connContainer.connection = new RTCPeerConnection({
+      iceServers: [ { urls: 'stun:stun3.l.google.com:19302' } ]
+    });
+    const conn = connContainer.connection;
     stream.getTracks().forEach((track: MediaStreamTrack) => conn.addTrack(track, stream));
     conn.onicecandidate = (e: RTCPeerConnectionIceEvent) => {
       const candidate = e.candidate;
-      console.log('New local candidate', candidate);
-      this.sendSignal(senderId, channel, 'CANDIDATE', JSON.stringify(candidate));
+      if (candidate) {
+        this.sendSignal(senderId, channel, 'CANDIDATE', JSON.stringify(candidate));
+      }
     };
     conn.onnegotiationneeded = async (e: Event) => {
-      console.log('negotiation needed');
       if (conn.localDescription) {
-        this.createAndSendOffer(senderId, conn, channel).subscribe();
+        this.createOffer(conn).subscribe();
       }
     };
 
-    conn.onconnectionstatechange = (e: Event) => {
-      console.log('Connection state', conn.connectionState);
-    };
-
     conn.onsignalingstatechange = (e: Event) => {
-      console.log('Signaling state', conn.signalingState);
+      switch (conn.signalingState) {
+        case 'have-local-offer':
+          this.sendSignal(senderId, channel, 'OFFER', JSON.stringify(conn.localDescription));
+          break;
+        case 'have-remote-offer':
+          this.createAnswer(conn)
+            .pipe(tap(() => this.sendSignal(senderId, channel, 'ANSWER', JSON.stringify(conn.localDescription))))
+            .subscribe();
+      }
     };
 
     conn.ontrack = onTrack;
 
-    return conn;
+    return connContainer;
   }
 
   sendConnectionRequest(senderId: string, channel: string): void {
-    console.log(`Sending connection request to ${channel}`);
     const request = new RTCConnectionRequest(senderId);
     return this.sendSignal(senderId, channel, 'REQUEST', JSON.stringify(request));
   }
 
-  createAndSendOffer(senderId: string, conn: RTCPeerConnection, channel: string): Observable<RTCPeerConnection> {
-    return this.createOffer(conn).pipe(
-      switchMap((desc: RTCSessionDescriptionInit) =>
-        this.setLocalDesc(conn, desc).pipe(
-          tap((localConn: RTCPeerConnection) => {
-            const localDesc = JSON.stringify(localConn.localDescription.toJSON());
-            console.log('Offer', localDesc);
-            this.sendSignal(senderId, channel, 'OFFER', localDesc);
-          })
-        )
-      )
+  private createOffer(conn: RTCPeerConnection): Observable<void> {
+    return from(conn.createOffer({ offerToReceiveVideo: true, offerToReceiveAudio: true })).pipe(
+      switchMap((desc: RTCSessionDescriptionInit) => conn.setLocalDescription(desc))
     );
   }
 
-  createAndSendAnswer(senderId: string, conn: RTCPeerConnection, channel: string): Observable<RTCPeerConnection> {
-    return this.createAnswer(conn).pipe(
-      switchMap((desc: RTCSessionDescription) => {
-        return this.setLocalDesc(conn, desc).pipe(
-          tap((localConn: RTCPeerConnection) => {
-            const localDesc = JSON.stringify(localConn.localDescription.toJSON());
-            console.log('Answer', localDesc);
-            this.sendSignal(senderId, channel, 'ANSWER', localDesc);
-          })
-        );
-      }),
-      map(() => conn)
-    );
-  }
-
-  private setLocalDesc(conn: RTCPeerConnection, desc: RTCSessionDescriptionInit): Observable<RTCPeerConnection> {
-    return from(conn.setLocalDescription(desc)).pipe(map(() => conn));
-  }
-
-  private createOffer(conn: RTCPeerConnection): Observable<RTCSessionDescriptionInit> {
-    return from(conn.createOffer({ offerToReceiveVideo: true, offerToReceiveAudio: true }));
-  }
-
-  private createAnswer(conn: RTCPeerConnection) {
+  private createAnswer(conn: RTCPeerConnection): Observable<void> {
     return from(
       conn.createAnswer({
         offerToReceiveAudio: true,
         offerToReceiveVideo: true
       })
-    ).pipe(tap((answer: RTCSessionDescriptionInit) => console.log('Creating answer', answer)));
+    ).pipe(
+      switchMap((desc: RTCSessionDescriptionInit) => {
+        return conn.setLocalDescription(desc);
+      })
+    );
   }
 
   listenAndReplyToSignals(currUsername: string, remoteConns: RTCConnectionMap, channel: string): Observable<any> {
     const signalingURL = `${WsBrokerStore.GAME_RTC_BROKER}/${channel}`;
-    console.log(`Listening for signals at ${signalingURL}`);
     return this.wsSvc.watch(signalingURL).pipe(
       switchMap((signal: Signal) => {
         if (signal.senderId === currUsername) {
           return scheduled([], asap);
         }
-        console.log('Signal received');
-        const remoteConn: RTCPeerConnection = remoteConns.getConnection(signal.senderId);
+        const remoteConnContainer: RTCConnectionContainer = remoteConns.getConnContainer(signal.senderId);
+        const remoteConn = remoteConnContainer.connection;
         const parsedData = JSON.parse(signal.signalData);
-        console.log('Signal type', signal.signalType);
-        console.log('Remote conn', remoteConn);
-        console.log('Data', parsedData);
 
-        if (remoteConn && parsedData) {
+        if (remoteConn) {
           switch (signal.signalType) {
             case 'REQUEST':
               if (remoteConn.connectionState === 'new') {
-                return this.createAndSendOffer(currUsername, remoteConn, channel);
+                return this.createOffer(remoteConn);
               }
               break;
             case 'CANDIDATE':
               if (remoteConn.remoteDescription) {
+                if (remoteConnContainer.iceCandidates.length) {
+                  const addCandidateQueue = remoteConnContainer.iceCandidates.map((cachedCandidate: any) =>
+                    this.addICECandidate(remoteConn, cachedCandidate)
+                  );
+                  remoteConnContainer.iceCandidates = [];
+                  return concat(...addCandidateQueue, this.addICECandidate(remoteConn, parsedData));
+                }
                 return this.addICECandidate(remoteConn, parsedData);
+              } else {
+                remoteConnContainer.iceCandidates.push(parsedData);
               }
-
               break;
             case 'OFFER':
-              console.log('OFFER received', parsedData);
-              return this.setRemoteDesc(remoteConn, parsedData).pipe(
-                switchMap(() => this.createAndSendAnswer(currUsername, remoteConn, channel))
-              );
+              return this.setRemoteDesc(remoteConn, parsedData);
             case 'ANSWER':
               return this.setRemoteDesc(remoteConn, parsedData);
           }
@@ -144,7 +130,6 @@ export class WebRtcService {
     signalType: 'REQUEST' | 'CANDIDATE' | 'OFFER' | 'ANSWER',
     signalData: string
   ): void {
-    console.log(`Sending signal to ${WsBrokerStore.SEND_RTC_SIGNAL}`);
     this.wsSvc.publish(WsBrokerStore.SEND_RTC_SIGNAL, {
       signal: JSON.stringify({ senderId, signalType, signalData }),
       channel
@@ -152,20 +137,16 @@ export class WebRtcService {
   }
 
   setRemoteDesc(conn: RTCPeerConnection, desc: RTCSessionDescriptionInit): Observable<RTCPeerConnection> {
-    console.log('Attempting to set remote description');
-
     return from(conn.setRemoteDescription(desc)).pipe(
       catchError((err: any) => {
         console.error(err);
         return scheduled([], asap);
       }),
-      map(() => conn),
-      tap(() => console.log('Setting remote description'))
+      map(() => conn)
     );
   }
 
   addICECandidate(conn: RTCPeerConnection, candidate: RTCIceCandidate): Observable<RTCPeerConnection> {
-    console.log('Adding candidate', candidate);
     return from(conn.addIceCandidate(candidate)).pipe(map(() => conn));
   }
 }
