@@ -1,4 +1,6 @@
 import { LobbyRoom } from '../models/shared/lobby-room';
+import { BlackHandDetails } from '../models/shared/black-hand/black-hand-details';
+import { BlackHandPlayer } from '../models/shared/black-hand/black-hand-player';
 
 export class AppFns {
   /** typeGuard
@@ -12,6 +14,11 @@ export class AppFns {
    * @desc return an array of the players in the room
    */
   static getAllPlayersInRoom(room?: LobbyRoom) {
-    return room ? [...room.playersReady, ...room.playersNotReady] : [];
+    return room ? [ ...room.playersReady, ...room.playersNotReady ] : [];
+  }
+
+  static findPlayerInBlackHandGame(username: string, gameDetails: BlackHandDetails) {
+    const allPlayers: BlackHandPlayer[] = [ ...gameDetails.alivePlayers, ...gameDetails.deadPlayers ];
+    return allPlayers.find((player: BlackHandPlayer) => player.username === username);
   }
 }

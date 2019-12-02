@@ -1,9 +1,9 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router, UrlSegment } from '@angular/router';
 import { LobbyService } from 'src/app/services/lobby.service';
-import { BehaviorSubject, concat, Subscription, combineLatest, Observable, scheduled } from 'rxjs';
+import { BehaviorSubject, concat, Subscription, combineLatest, Observable, scheduled, merge } from 'rxjs';
 import { LobbyRoom } from 'src/app/classes/models/shared/lobby-room';
-import { map, switchMap, catchError, tap, skipWhile, take } from 'rxjs/operators';
+import { map, switchMap, catchError, tap, skipWhile, take, debounceTime } from 'rxjs/operators';
 import { PartyrUser } from 'src/app/classes/models/shared/PartyrUser';
 import { UserService } from 'src/app/services/user.service';
 import { MatDialog } from '@angular/material';
@@ -23,6 +23,7 @@ import { GamesService } from 'src/app/services/games.service';
 import { GameObject } from 'src/app/classes/models/shared/game-object';
 import { GameStore } from 'src/app/classes/constants/game-store';
 import { BlackHandDetails } from 'src/app/classes/models/shared/black-hand/black-hand-details';
+import { BlackHandPlayer } from 'src/app/classes/models/shared/black-hand/black-hand-player';
 
 @Component({
   selector: 'app-waiting-room',
@@ -62,16 +63,51 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    this.subs.push(
-      this.watchForPlayerQuotas(),
-      this.watchGameDetails().subscribe(),
-      this.watchContextUpdates(),
-      this.getRoles()
-    );
+    this.subs.push(this.setUpRoom().subscribe());
   }
 
   ngOnDestroy() {
     this.subs.forEach((sub: Subscription) => sub.unsubscribe());
+  }
+
+  /** setUpRoom 
+   * @desc get the current user and room details before subscribing to other observables
+   */
+  setUpRoom(): Observable<any> {
+    return this.userSvc
+      .getCurrentUser()
+      .pipe(
+        skipWhile((currUser: PartyrUser) => !currUser || !currUser.username),
+        take(1),
+        tap((currUser: PartyrUser) => this.currUser.next(currUser)),
+        switchMap(() =>
+          merge(
+            this.roomDetails,
+            this.watchContextUpdates(),
+            this.watchForPlayerQuotas(),
+            this.watchGameDetails(),
+            this.getRoles()
+          )
+        )
+      );
+  }
+
+  /** subToDisplayNameCtrl
+   * @desc updates the display name for the game on valid form change
+   */
+  subToDisplayNameCtrl(): Subscription {
+    return this.displayNameCtrl.valueChanges
+      .pipe(
+        debounceTime(1000),
+        tap((displayName: string) => {
+          this.bhSvc.updateDisplayName(
+            this.currUser.getValue().username,
+            displayName,
+            this.roomDetails.getValue().gameRoomName
+          );
+        })
+      )
+      .subscribe();
   }
 
   /** subToSettingsForm
@@ -93,7 +129,7 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
   grantPrivileges(): void {
     const currUser: PartyrUser = this.currUser.getValue();
     const room: LobbyRoom = this.roomDetails.getValue();
-    const userIsHost = currUser.username === room.hostUsername;
+    const userIsHost = room && currUser && currUser.username === room.hostUsername;
     this.settingsForm[userIsHost ? 'enable' : 'disable']();
   }
 
@@ -115,41 +151,46 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
   /** watchContextUpdates
    * @desc updates the player privileges and settings for any room or current user change
    */
-  watchContextUpdates(): Subscription {
+  watchContextUpdates(): Observable<any> {
     // Observable that monitors any changes to the Lobby Room
     const watchRoomUpdates: () => Observable<LobbyRoom> = () =>
       concat(this.lobbySvc.getAvailableRooms(), this.lobbySvc.watchAvailableRooms()).pipe(
         map((rooms: LobbyRoom[]) => rooms.find((room: LobbyRoom) => room.gameRoomName === this.roomName))
       );
 
-    return combineLatest([
-      this.userSvc.getCurrentUser(),
-      watchRoomUpdates(),
-      this.gameSvc.getGameDetails(GameStore.BLACK_HAND_NAME)
-    ]).subscribe(([ newCurrUser, foundRoom, gameDetails ]: [PartyrUser, LobbyRoom, GameObject]) => {
-      this.roomDetails.next(foundRoom);
-      this.gameDetails.next(gameDetails);
-      const currUser = this.currUser.getValue();
-      if (JSON.stringify(currUser) !== JSON.stringify(newCurrUser)) {
-        this.displayNameCtrl.setValue(newCurrUser.username);
-      }
-      this.currUser.next(newCurrUser);
-      this.grantPrivileges();
-      this.showHideStartButton();
-    });
+    return combineLatest([ watchRoomUpdates(), this.gameSvc.getGameDetails(GameStore.BLACK_HAND_NAME) ]).pipe(
+      tap(([ foundRoom, gameDetails ]: [LobbyRoom, GameObject]) => {
+        console.log('Next found room', foundRoom);
+        this.roomDetails.next(foundRoom);
+        this.gameDetails.next(gameDetails);
+        const currUser = this.currUser.getValue();
+        // if (JSON.stringify(currUser) !== JSON.stringify(newCurrUser)) {
+        //   this.displayNameCtrl.setValue(newCurrUser.username);
+        // }
+
+        this.grantPrivileges();
+        this.showHideStartButton();
+      })
+    );
   }
 
   /** watchGameDetails 
    * @desc watch updates to the game settings and ready states
    */
   watchGameDetails(): Observable<BlackHandDetails> {
-    return this.roomDetails.pipe(
-      skipWhile((room: LobbyRoom) => !room || !room.gameRoomName),
+    return combineLatest([ this.currUser, this.roomDetails ]).pipe(
+      skipWhile(
+        ([ currUser, room ]: [PartyrUser, LobbyRoom]) => !currUser || !currUser.username || !room || !room.gameRoomName
+      ),
       take(1),
-      switchMap((room: LobbyRoom) =>
+      switchMap(([ currUser, room ]: [PartyrUser, LobbyRoom]) =>
         concat(this.bhSvc.getGameDetails(room.gameRoomName), this.bhSvc.watchGameDetails()).pipe(
           tap((details: BlackHandDetails) => {
             console.log('Game details', details);
+            const playerData: BlackHandPlayer = AppFns.findPlayerInBlackHandGame(currUser.username, details);
+            if (this.displayNameCtrl.value !== playerData.displayName) {
+              this.displayNameCtrl.setValue(playerData.displayName);
+            }
             if (details.gameStartTime) {
               this.navigateToGamePage();
             }
@@ -162,36 +203,36 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
   /** watchForPlayerQuotas
    * @desc update the faction quota every time the room details change
    */
-  watchForPlayerQuotas(): Subscription {
-    return this.roomDetails
-      .pipe(
-        switchMap((room: LobbyRoom) => {
-          const totalPlayers = AppFns.getAllPlayersInRoom(room).length;
-          if (totalPlayers) {
-            return this.bhSvc.getBlackHandRoleTotals(totalPlayers);
-          }
-          return scheduled([ undefined ], asap);
-        }),
-        catchError((err: any) => {
-          console.error(err);
-          return scheduled([ undefined ], asap);
-        })
-      )
-      .subscribe((quotas: BlackHandNumberOfPlayers) => {
+  watchForPlayerQuotas(): Observable<any> {
+    return this.roomDetails.pipe(
+      switchMap((room: LobbyRoom) => {
+        const totalPlayers = AppFns.getAllPlayersInRoom(room).length;
+        if (totalPlayers) {
+          return this.bhSvc.getBlackHandRoleTotals(totalPlayers);
+        }
+        return scheduled([ undefined ], asap);
+      }),
+      catchError((err: any) => {
+        console.error(err);
+        return scheduled([ undefined ], asap);
+      }),
+      tap((quotas: BlackHandNumberOfPlayers) => {
         this.factionQuotas.next(quotas);
         console.log(quotas);
-      });
+      })
+    );
   }
 
   /** getRoles
    * @desc get all the roles included in the Black Hand game
    */
-  getRoles(): Subscription {
-    return this.bhSvc.getBlackHandRoles().subscribe((rolesResp: BlackHandRoleRespObject) => {
-      const roles: BlackHandRoleObject[] = [ ...rolesResp.BlackHand, ...rolesResp.Monster, ...rolesResp.Townie ];
-
-      this.roles.next(roles);
-    });
+  getRoles(): Observable<any> {
+    return this.bhSvc.getBlackHandRoles().pipe(
+      tap((rolesResp: BlackHandRoleRespObject) => {
+        const roles: BlackHandRoleObject[] = [ ...rolesResp.BlackHand, ...rolesResp.Monster, ...rolesResp.Townie ];
+        this.roles.next(roles);
+      })
+    );
   }
 
   /** getPlayerContext
@@ -258,7 +299,7 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
     const totalPlayers: number = notReadyCount + readyCount;
 
     // Conditional variables used to determine if view should show start button
-    const isHost: boolean = currUser.username === room.hostUsername;
+    const isHost: boolean = currUser && currUser.username === room.hostUsername;
     const overMin: boolean = totalPlayers >= minPlayers;
     const underMax: boolean = totalPlayers <= maxPlayers;
     const allReady: boolean = !notReadyCount && !!readyCount;

@@ -24,7 +24,14 @@ export class BlackHandService {
   }
 
   startGame(roomName: string): void {
-    this.wsSvc.publish(WsBrokerStore.START_BLACK_HAND_GAME, { roomName });
+    this.wsSvc.publish(WsBrokerStore.BLACK_HAND_START_SEND, { roomName });
+  }
+
+  /** updateDisplayName 
+   * @desc change the user's display name for the specified game
+   */
+  updateDisplayName(username: string, displayName: string, roomName: string) {
+    this.wsSvc.publish(WsBrokerStore.BLACK_HAND_SELECT_DISPLAY_NAME, { username, displayName, roomName });
   }
 
   /** getGameDetails 
