@@ -1,5 +1,14 @@
-<ng-container *ngIf="currUser | async as self">
-  <app-stream-collection *ngIf="self && (room | async)" [currUser]="self" [room]="room | async"
-    (allStreamsActive)="startGame()">
-  </app-stream-collection>
-</ng-container>
+  <h1 *ngIf="currGameState | async as gameState" class="bh-game__header">
+    {{ gameState.phase }}&nbsp;PHASE
+  </h1>
+  <h2 *ngIf="turnStart | async" class="bh-game__timer-display">
+    <span>Turn ends in</span>
+    <div>
+      <div>{{ turnTimerDisplay | async }}</div>
+    </div>
+  </h2>
+  <ng-container *ngIf="currUser | async as self">
+    <app-stream-collection *ngIf="self && (room | async)" [currUser]="self" [room]="room | async"
+      (allStreamsActive)="startGame()">
+    </app-stream-collection>
+  </ng-container>

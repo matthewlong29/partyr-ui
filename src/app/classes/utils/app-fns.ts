@@ -24,4 +24,8 @@ export class AppFns {
     const allPlayers: BlackHandPlayer[] = [ ...gameDetails.alivePlayers, ...gameDetails.deadPlayers ];
     return allPlayers.find((player: BlackHandPlayer) => player.username === username);
   }
+
+  static formatHHMMSS(seconds: number) {
+    
+  }
 }

@@ -23,7 +23,7 @@ export class StreamCollectionComponent implements OnInit {
   @Input() hideStreams: string[] = [];
 
   @Output() allStreamsActive = new EventEmitter<boolean>();
-  
+
   userStream = new BehaviorSubject<MediaStream>(undefined);
   players = new BehaviorSubject<string[]>([]);
 
@@ -44,23 +44,26 @@ export class StreamCollectionComponent implements OnInit {
   }
 
   setupConnectionSlots() {
-    return combineLatest([ this.getUserMedia() ]).pipe(
-      skipWhile(([ stream ]: [MediaStream]) => !stream || !stream.getTracks().length),
+    return this.getUserMedia().pipe(
+      skipWhile((stream: MediaStream) => !stream || !stream.getTracks().length),
       take(1),
-      tap(([ stream ]: [MediaStream]) => {
-        AppFns.getAllPlayersInRoom(this.room)
-          .filter((peerUsername: string) => peerUsername !== this.currUser.username)
-          .forEach((peerUsername: string) =>
-            this.connections.addConnContainer(
-              peerUsername,
-              this.rtcSvc.createLocalConnection(
-                this.currUser.username,
-                this.room.gameRoomName,
-                stream,
-                this.addStream(peerUsername).bind(this)
-              )
+      tap((stream: MediaStream) => {
+        const allPlayers: string[] = AppFns.getAllPlayersInRoom(this.room).filter(
+          (peerUsername: string) => peerUsername !== this.currUser.username
+        );
+        this.players.next(allPlayers);
+        allPlayers.forEach((peerUsername: string) =>
+          this.connections.addConnContainer(
+            peerUsername,
+            this.rtcSvc.createLocalConnection(
+              this.currUser.username,
+              this.room.gameRoomName,
+              stream,
+              this.addStream(peerUsername).bind(this)
             )
-          );
+          )
+        );
+        this.checkAllStreamsActive();
         this.rtcSvc.sendConnectionRequest(this.currUser.username, this.room.gameRoomName);
       }),
       switchMap(() =>
