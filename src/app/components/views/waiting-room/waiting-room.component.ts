@@ -38,7 +38,8 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
   roles = new BehaviorSubject<BlackHandRoleObject[]>([]);
   factionPref = new BehaviorSubject<Faction>(undefined);
   factionQuotas = new BehaviorSubject<BlackHandNumberOfPlayers>(undefined);
-  gameDetails = new BehaviorSubject<GameObject>(undefined);
+  generalGameInfo = new BehaviorSubject<GameObject>(undefined);
+  gameDetails = new BehaviorSubject<BlackHandDetails>(undefined);
   showStartButton = new BehaviorSubject<boolean>(false);
   displayNameCtrl = this.fb.control('', [ Validators.pattern(AppRegex.DISPLAY_NAME) ]);
 
@@ -63,7 +64,7 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    this.subs.push(this.setUpRoom().subscribe());
+    this.subs.push(this.getRoles().subscribe(), this.setUpRoom().subscribe());
   }
 
   ngOnDestroy() {
@@ -86,41 +87,45 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
             this.watchContextUpdates(),
             this.watchForPlayerQuotas(),
             this.watchGameDetails(),
-            this.getRoles()
+            this.watchDisplayNameCtrlChanges(),
+            this.subToSettingsForm()
           )
         )
       );
   }
 
-  /** subToDisplayNameCtrl
+  /** watchDisplayNameCtrlChanges
    * @desc updates the display name for the game on valid form change
    */
-  subToDisplayNameCtrl(): Subscription {
-    return this.displayNameCtrl.valueChanges
-      .pipe(
-        debounceTime(1000),
-        tap((displayName: string) => {
+  watchDisplayNameCtrlChanges(): Observable<any> {
+    return this.displayNameCtrl.valueChanges.pipe(
+      debounceTime(1000),
+      tap((displayName: string) => {
+        if (this.displayNameCtrl.valid) {
           this.bhSvc.updateDisplayName(
             this.currUser.getValue().username,
             displayName,
             this.roomDetails.getValue().gameRoomName
           );
-        })
-      )
-      .subscribe();
+        }
+      })
+    );
   }
 
   /** subToSettingsForm
    * @desc subscribe to form changes and push to the websocket accordingly
    */
-  subToSettingsForm(): Subscription {
-    return this.settingsForm.valueChanges.subscribe((formVals: WaitingRoomSettingsForm) => {
-      const currUser: PartyrUser | undefined = this.currUser.getValue();
-      const roomDetails: LobbyRoom | undefined = this.roomDetails.getValue();
-      if (currUser && roomDetails && currUser.username === roomDetails.hostUsername) {
-        console.log(formVals);
-      }
-    });
+  subToSettingsForm(): Observable<any> {
+    return this.settingsForm.valueChanges.pipe(
+      debounceTime(1000),
+      tap((formVals: WaitingRoomSettingsForm) => {
+        const currUser: PartyrUser | undefined = this.currUser.getValue();
+        const roomDetails: LobbyRoom | undefined = this.roomDetails.getValue();
+        if (currUser && roomDetails && currUser.username === roomDetails.hostUsername) {
+          console.log(formVals);
+        }
+      })
+    );
   }
 
   /** grantPrivileges
@@ -148,6 +153,14 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
     return AppFns.getAllPlayersInRoom(this.roomDetails.getValue());
   }
 
+  /** getUserDisplayName 
+   * @desc get the display name for a given username
+   */
+  getUserDisplayName(username: string): string {
+    const blackHandPlayer = AppFns.findPlayerInBlackHandGame(username, this.gameDetails.getValue());
+    return (blackHandPlayer && blackHandPlayer.displayName !== 'null' && blackHandPlayer.displayName) || username;
+  }
+
   /** watchContextUpdates
    * @desc updates the player privileges and settings for any room or current user change
    */
@@ -162,7 +175,7 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
       tap(([ foundRoom, gameDetails ]: [LobbyRoom, GameObject]) => {
         console.log('Next found room', foundRoom);
         this.roomDetails.next(foundRoom);
-        this.gameDetails.next(gameDetails);
+        this.generalGameInfo.next(gameDetails);
         const currUser = this.currUser.getValue();
         // if (JSON.stringify(currUser) !== JSON.stringify(newCurrUser)) {
         //   this.displayNameCtrl.setValue(newCurrUser.username);
@@ -186,10 +199,12 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
       switchMap(([ currUser, room ]: [PartyrUser, LobbyRoom]) =>
         concat(this.bhSvc.getGameDetails(room.gameRoomName), this.bhSvc.watchGameDetails()).pipe(
           tap((details: BlackHandDetails) => {
-            console.log('Game details', details);
+            this.gameDetails.next(details);
             const playerData: BlackHandPlayer = AppFns.findPlayerInBlackHandGame(currUser.username, details);
             if (this.displayNameCtrl.value !== playerData.displayName) {
-              this.displayNameCtrl.setValue(playerData.displayName);
+              this.displayNameCtrl.setValue(
+                (playerData.displayName !== 'null' && playerData.displayName) || currUser.username
+              );
             }
             if (details.gameStartTime) {
               this.navigateToGamePage();
@@ -218,7 +233,6 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
       }),
       tap((quotas: BlackHandNumberOfPlayers) => {
         this.factionQuotas.next(quotas);
-        console.log(quotas);
       })
     );
   }
@@ -289,7 +303,7 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
     // Cached objects
     const currUser: PartyrUser = this.currUser.getValue();
     const room: LobbyRoom = this.roomDetails.getValue();
-    const gameDetails: GameObject = this.gameDetails.getValue();
+    const gameDetails: GameObject = this.generalGameInfo.getValue();
 
     // Intermediary values used for calculations
     const minPlayers: number = gameDetails.minNumberOfPlayers;
@@ -321,7 +335,7 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
 
   navigateToGamePage(): void {
     this.router.navigateByUrl(
-      `session/${this.gameDetails.getValue().gameName}/${this.roomDetails.getValue().gameRoomName}`
+      `session/${this.generalGameInfo.getValue().gameName}/${this.roomDetails.getValue().gameRoomName}`
     );
   }
 }

@@ -17,7 +17,10 @@ export class AppFns {
     return room ? [ ...room.playersReady, ...room.playersNotReady ] : [];
   }
 
-  static findPlayerInBlackHandGame(username: string, gameDetails: BlackHandDetails) {
+  static findPlayerInBlackHandGame(username: string, gameDetails?: BlackHandDetails) {
+    if (!gameDetails) {
+      return undefined;
+    }
     const allPlayers: BlackHandPlayer[] = [ ...gameDetails.alivePlayers, ...gameDetails.deadPlayers ];
     return allPlayers.find((player: BlackHandPlayer) => player.username === username);
   }
