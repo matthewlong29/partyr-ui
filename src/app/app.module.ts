@@ -36,6 +36,7 @@ import { ConfirmationDialogComponent } from './components/utils/confirmation-dia
 import { BlackHandGameComponent } from './components/views/black-hand-game/black-hand-game.component';
 import { SocialBarComponent } from './components/layout/social-bar/social-bar.component';
 import { AddFriendComponent } from './components/dialogs/add-friend/add-friend.component';
+import { StreamCollectionComponent } from './components/stream-collection/stream-collection.component';
 
 const GOOGLE_OAUTH_CLIENT_ID = '276174427953-o7q6mv623adttteep82an71rs4bgge0r';
 
@@ -70,7 +71,8 @@ export const provideConfig = () => config;
     ConfirmationDialogComponent,
     BlackHandGameComponent,
     SocialBarComponent,
-    AddFriendComponent
+    AddFriendComponent,
+    StreamCollectionComponent
   ],
   imports: [
     BrowserModule,

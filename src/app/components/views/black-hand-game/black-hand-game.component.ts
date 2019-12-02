@@ -37,53 +37,18 @@ export class BlackHandGameComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    this.subs.push(this.setupConnectionSlots().subscribe(), this.watchGameContext());
+    this.subs.push(this.watchGameContext(), this.getCurrUser().subscribe());
   }
 
   ngOnDestroy() {
     this.subs.forEach((sub: Subscription) => sub.unsubscribe());
   }
 
-  setupConnectionSlots() {
-    return combineLatest([ this.room, this.getUserMedia(), this.userSvc.getCurrentUser() ]).pipe(
-      skipWhile(
-        ([ room, stream, user ]: [LobbyRoom, MediaStream, PartyrUser]) =>
-          !room || !stream || !stream.getTracks().length || !user
-      ),
-      take(1),
-      tap(([ room, stream, user ]: [LobbyRoom, MediaStream, PartyrUser]) => {
-        this.currUser.next(user);
-        AppFns.getAllPlayersInRoom(room)
-          .filter((peerUsername: string) => peerUsername !== user.username)
-          .forEach((peerUsername: string) =>
-            this.connections.addConnContainer(
-              peerUsername,
-              this.rtcSvc.createLocalConnection(
-                user.username,
-                room.gameRoomName,
-                stream,
-                this.addStream(peerUsername).bind(this)
-              )
-            )
-          );
-      }),
-      map(([ room, _, user ]) => [ room, user ]),
-      tap(([ room, user ]: [LobbyRoom, PartyrUser]) =>
-        this.rtcSvc.sendConnectionRequest(user.username, room.gameRoomName)
-      ),
-      switchMap(([ room, user ]: [LobbyRoom, PartyrUser]) =>
-        this.rtcSvc.listenAndReplyToSignals(user.username, this.connections, room.gameRoomName)
-      )
-    );
-  }
-
-  /** addStream
-   * @desc add a received stream when connection receives an RTCTrackEvent
+  /** getCurrUser 
+   * @desc get current user
    */
-  addStream(remoteId: string) {
-    return (e: RTCTrackEvent) => {
-      this.streams.addStream(remoteId, e.streams[0]);
-    };
+  getCurrUser(): Observable<any> {
+    return this.userSvc.getCurrentUser().pipe(tap((currUser: PartyrUser) => this.currUser.next(currUser)));
   }
 
   /** watchGameContext
@@ -101,28 +66,5 @@ export class BlackHandGameComponent implements OnInit, OnDestroy {
         })
       )
       .subscribe(() => {});
-  }
-
-  /** getUserMedia
-   * @desc get the user's webcam and microphone
-   */
-  getUserMedia(): Observable<MediaStream> {
-    const constraints: MediaStreamConstraints = { video: true, audio: true };
-    return from(navigator.mediaDevices.getUserMedia(constraints)).pipe(
-      catchError((err: any) => {
-        console.error(err);
-        return scheduled([], asap);
-      }),
-      tap((stream: MediaStream) => this.userStream.next(stream))
-    );
-  }
-
-  /** calcMediaHeightWidth
-   * @desc distribute the media width based on the number of players in the game
-   */
-  calcMediaHeightWidth(players?: string[]): string {
-    const playerCount: number = (players || { length: 1 }).length;
-    const width = Math.max(18, 90 / playerCount);
-    return `${width}vw`;
   }
 }

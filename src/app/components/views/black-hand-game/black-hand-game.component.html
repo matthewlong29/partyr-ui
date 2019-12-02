@@ -1,12 +1,4 @@
-<div class="bh-game__row--media" *ngIf="players | async as allPlayers">
-  <div *ngIf="currUser | async as me" class="bh-game__video-container">
-    <span>{{ me.username }}</span>
-    <video [srcObject]="userStream | async" class="bh-game__video" [ngStyle]="{width: calcMediaHeightWidth(allPlayers)}"
-      autoplay></video>
-  </div>
-  <div *ngFor="let remotePeerId of streams.getRemotePeerIds()" class="bh-game__video-container">
-    <span>{{ remotePeerId }}</span>
-    <video [srcObject]="streams.getStream(remotePeerId)" class="bh-game__video"
-      [ngStyle]="{width: calcMediaHeightWidth(allPlayers)}" autoplay></video>
-  </div>
-</div>
+<ng-container *ngIf="currUser | async as self">
+  <app-stream-collection *ngIf="self && (room | async)" [currUser]="self" [room]="room | async">
+  </app-stream-collection>
+</ng-container>

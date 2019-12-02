@@ -1,0 +1,22 @@
+.stream-collection {
+    &__video-container {
+      display: inline-flex;
+      align-items: center;
+      flex-direction: column;
+    }
+    &__video {
+      max-height: 25vh;
+    }
+    &__media-container {
+      border: 1px solid black;
+      border-radius: 0.5rem;
+    }
+    &__row {
+      &--media {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-evenly;
+      }
+    }
+  }
+  
