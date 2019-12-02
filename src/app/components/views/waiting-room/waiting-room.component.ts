@@ -293,7 +293,10 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
    * @desc change the user's preferred faction to play
    */
   toggleFactionPref(faction?: Faction) {
+    const username = this.currUser.getValue().username;
+    const roomName = this.roomDetails.getValue().gameRoomName;
     this.factionPref.next(faction);
+    this.bhSvc.selectPreferredFaction(username, roomName, faction);
   }
 
   /** showHideStartButton
