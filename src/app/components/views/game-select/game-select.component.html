@@ -1,8 +1,8 @@
 <div class="game-select">
   <div class="game-select__widget">
     <div class="game-select__header">Select A Game</div>
-    <button *ngFor="let game of gameList" class="game-select__card--black-hand" (click)="enterLobby(game.gameName)">
-      <h1>{{ game.gameName }}</h1>
+    <button *ngFor="let game of gameList" class="game-select__card" (click)="enterLobby(game.gameName)">
+      <img src="assets/images/game-posters/black-hand.png" class="game-select__poster">
     </button>
   </div>
 </div>
