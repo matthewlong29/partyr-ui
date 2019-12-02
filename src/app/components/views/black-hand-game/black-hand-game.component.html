@@ -1,4 +1,5 @@
 <ng-container *ngIf="currUser | async as self">
-  <app-stream-collection *ngIf="self && (room | async)" [currUser]="self" [room]="room | async">
+  <app-stream-collection *ngIf="self && (room | async)" [currUser]="self" [room]="room | async"
+    (allStreamsActive)="startGame()">
   </app-stream-collection>
 </ng-container>

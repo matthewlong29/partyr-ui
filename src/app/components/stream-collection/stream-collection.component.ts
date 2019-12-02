@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core';
 import { combineLatest, BehaviorSubject, Subscription, Observable, from, scheduled } from 'rxjs';
 import { skipWhile, take, tap, map, switchMap, catchError } from 'rxjs/operators';
 import { LobbyRoom } from 'src/app/classes/models/shared/lobby-room';
@@ -21,7 +21,9 @@ export class StreamCollectionComponent implements OnInit {
   @Input() currUser: PartyrUser;
   @Input() room: LobbyRoom;
   @Input() hideStreams: string[] = [];
-  // currUser = new BehaviorSubject<PartyrUser>(undefined);
+
+  @Output() allStreamsActive = new EventEmitter<boolean>();
+  
   userStream = new BehaviorSubject<MediaStream>(undefined);
   players = new BehaviorSubject<string[]>([]);
 
@@ -73,7 +75,19 @@ export class StreamCollectionComponent implements OnInit {
   addStream(remoteId: string) {
     return (e: RTCTrackEvent) => {
       this.streams.addStream(remoteId, e.streams[0]);
+      this.checkAllStreamsActive();
     };
+  }
+
+  /** checkAllStreamsActive 
+   * @desc check if there is an active stream for all players and emit event if true
+   */
+  checkAllStreamsActive(): void {
+    const allPlayers: string[] = this.players.getValue();
+    const streamIds: string[] = this.streams.getRemotePeerIds();
+    if (allPlayers.length === streamIds.length) {
+      this.allStreamsActive.emit(true);
+    }
   }
 
   /** getUserMedia

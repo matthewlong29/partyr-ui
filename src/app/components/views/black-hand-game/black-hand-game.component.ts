@@ -27,6 +27,8 @@ export class BlackHandGameComponent implements OnInit, OnDestroy {
   connections = new RTCConnectionMap();
   streams = new MediaStreamMap();
 
+  gameStarted = new BehaviorSubject<boolean>(false);
+
   subs: Subscription[] = [];
 
   constructor(
@@ -66,5 +68,12 @@ export class BlackHandGameComponent implements OnInit, OnDestroy {
         })
       )
       .subscribe(() => {});
+  }
+
+  /** startGame 
+   * @desc start the actual game phases once all streams are confirmed
+  */
+  startGame(): void {
+    this.gameStarted.next(true);
   }
 }
