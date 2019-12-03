@@ -15,7 +15,8 @@ import {
   MatIconModule,
   MatToolbarModule,
   MatTableModule,
-  MatSelectModule
+  MatSelectModule,
+  MatRadioModule
 } from '@angular/material';
 
 const MAT_MODULES = [
@@ -33,12 +34,13 @@ const MAT_MODULES = [
   MatIconModule,
   MatToolbarModule,
   MatTableModule,
-  MatSelectModule
+  MatSelectModule,
+  MatRadioModule
 ];
 
 @NgModule({
   declarations: [],
-  imports: [CommonModule, ...MAT_MODULES],
-  exports: [...MAT_MODULES]
+  imports: [ CommonModule, ...MAT_MODULES ],
+  exports: [ ...MAT_MODULES ]
 })
 export class MaterialModule {}

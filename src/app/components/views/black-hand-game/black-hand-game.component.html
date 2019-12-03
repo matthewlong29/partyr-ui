@@ -1,14 +1,35 @@
-  <h1 *ngIf="currGameState | async as gameState" class="bh-game__header">
-    {{ gameState.phase }}&nbsp;PHASE
-  </h1>
-  <h2 *ngIf="turnStart | async" class="bh-game__timer-display">
-    <span>Turn ends in</span>
-    <div>
-      <div>{{ turnTimerDisplay | async }}</div>
-    </div>
-  </h2>
-  <ng-container *ngIf="currUser | async as self">
-    <app-stream-collection *ngIf="self && (room | async)" [currUser]="self" [room]="room | async"
-      (allStreamsActive)="startGame()">
-    </app-stream-collection>
+  <ng-container *ngIf="currGameState | async as gameState">
+
+    <h1 class="bh-game__header">
+      {{ gameState.phase }}&nbsp;PHASE
+    </h1>
+    <h2 *ngIf="turnStart | async" class="bh-game__timer-display">
+      <span>Turn ends in</span>
+      <div>
+        <div>{{ turnTimerDisplay | async }}</div>
+      </div>
+    </h2>
+    <ng-container *ngIf="currUser | async as self">
+      <app-stream-collection *ngIf="self && (room | async)" [currUser]="self" [room]="room | async"
+        (allStreamsActive)="startGame()">
+      </app-stream-collection>
+    </ng-container>
+    <section *ngIf="isNight() && currPlayerData | async as playerData" class="bh-game__action-container">
+      <ng-container *ngIf="playerData.role.canAttack && !hasPlayerActed(playerData)">
+        <mat-radio-group [formControl]="actionCtrl">
+          <mat-radio-button *ngFor="let attackee of getValidAttackList(playerData)" [value]="attackee">
+            {{ attackee }}
+          </mat-radio-button>
+        </mat-radio-group>
+        <button mat-raised-button color="primary" (click)="attack()">Attack</button>
+      </ng-container>
+      <ng-container *ngIf="playerData.role.canBlock">
+        <mat-radio-group [formControl]="actionCtrl">
+          <mat-radio-button *ngFor="let blockee of getValidBlockList(playerData)" [value]="blockee">
+            {{ blockee }}
+          </mat-radio-button>
+        </mat-radio-group>
+        <button mat-raised-button color="primary" (click)="block()">Block</button>
+      </ng-container>
+    </section>
   </ng-container>

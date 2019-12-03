@@ -17,6 +17,10 @@ import { BlackHandDetails } from 'src/app/classes/models/shared/black-hand/black
 import { Moment, Duration } from 'moment';
 import * as moment from 'moment';
 import { BlackHandPlayer } from 'src/app/classes/models/shared/black-hand/black-hand-player';
+import { BlackHandRoleObject } from 'src/app/classes/models/shared/black-hand/black-hand-role-object';
+import { FormBuilder, Validators } from '@angular/forms';
+import { BlackHandPlayerTurn } from 'src/app/classes/models/shared/black-hand/black-hand-player-turn';
+import { BlackHandPhase } from 'src/app/classes/constants/type-aliases';
 
 @Component({
   selector: 'app-black-hand-game',
@@ -25,7 +29,6 @@ import { BlackHandPlayer } from 'src/app/classes/models/shared/black-hand/black-
 })
 export class BlackHandGameComponent implements OnInit, OnDestroy {
   currUser = new BehaviorSubject<PartyrUser>(undefined);
-  userStream = new BehaviorSubject<MediaStream>(undefined);
   room = new BehaviorSubject<LobbyRoom>(undefined);
   players = new BehaviorSubject<string[]>([]);
   hiddenPlayers = new BehaviorSubject<string[]>([]);
@@ -33,15 +36,15 @@ export class BlackHandGameComponent implements OnInit, OnDestroy {
   turnTimerDisplay = new BehaviorSubject<string>('00:00:00');
   currGameState = new BehaviorSubject<BlackHandDetails>(undefined);
   currPlayerData = new BehaviorSubject<BlackHandPlayer>(undefined);
-
-  connections = new RTCConnectionMap();
-  streams = new MediaStreamMap();
+  turnsElapsed = 0;
 
   gameStarted = new BehaviorSubject<boolean>(false);
 
+  actionCtrl = this.fb.control(null, Validators.required);
   subs: Subscription[] = [];
 
   constructor(
+    readonly fb: FormBuilder,
     readonly route: ActivatedRoute,
     readonly lobbySvc: LobbyService,
     readonly userSvc: UserService,
@@ -88,19 +91,26 @@ export class BlackHandGameComponent implements OnInit, OnDestroy {
     this.gameStarted.next(true);
     const currGameState = this.currGameState.getValue();
     if (currGameState) {
-      this.startTurnTimer(currGameState.settings.lengthOfDay).subscribe();
+      this.startTurnTimer(currGameState.settings.lengthOfDay, currGameState.phase).subscribe();
     } else {
       this.currGameState
         .pipe(
           skipWhile((gameState: BlackHandDetails) => !gameState),
           take(1),
-          switchMap((gameState: BlackHandDetails) => this.startTurnTimer(gameState.settings.lengthOfDay))
+          switchMap((gameState: BlackHandDetails) =>
+            this.startTurnTimer(gameState.settings.lengthOfDay, gameState.phase)
+          ),
+          finalize(() => {
+            if (this.currGameState.getValue().phase === 'DAY') {
+              this.bhSvc.evaluateDay(this.room.getValue().gameRoomName);
+            }
+          })
         )
         .subscribe();
     }
   }
 
-  startTurnTimer(minutesPerTurn: number): Observable<any> {
+  startTurnTimer(minutesPerTurn: number, phase: BlackHandPhase): Observable<any> {
     return timer(0, 1).pipe(
       tap(() => {
         if (!this.turnStart.getValue()) {
@@ -140,9 +150,92 @@ export class BlackHandGameComponent implements OnInit, OnDestroy {
             this.currGameState.next(details);
             const playerData: BlackHandPlayer = AppFns.findPlayerInBlackHandGame(this.currUser.getValue().username);
             this.currPlayerData.next(playerData);
+            if (details.phase === 'TRIAL' && this.turnsElapsed === 0) {
+              this.bhSvc.evaluateTrial(room.gameRoomName);
+            }
           })
         )
       )
     );
+  }
+
+  /** isNight
+   * @desc checks if the current game phase is night time
+   */
+  isNight(): boolean {
+    const gameState = this.currGameState.getValue();
+    return gameState && gameState.phase === 'NIGHT';
+  }
+
+  /** getValidAttackList 
+   * @desc get a list of players that this player is allowed to attack
+   */
+  getValidAttackList(player: BlackHandPlayer): string[] {
+    const gameState = this.currGameState.getValue();
+    let validAttackList: BlackHandPlayer[] = ((gameState && gameState.alivePlayers) || [])
+      .filter((validAttackee: BlackHandPlayer) => validAttackee.displayName !== player.displayName);
+    if (player.actualFaction === 'Black Hand') {
+      validAttackList = validAttackList.filter(
+        (validAttackee: BlackHandPlayer) => validAttackee.actualFaction !== 'Black Hand'
+      );
+    }
+    return validAttackList.map((validAttackee: BlackHandPlayer) => validAttackee.displayName);
+  }
+
+  /** getValidBlockList 
+   * @desc get a list of players that this player is allowed to block
+   */
+  getValidBlockList(player: BlackHandPlayer): string[] {
+    const gameState = this.currGameState.getValue();
+    const validBlockList: BlackHandPlayer[] = (gameState && gameState.alivePlayers) || [];
+    return validBlockList
+      .filter((validBlockee: BlackHandPlayer) => validBlockee.displayName !== player.displayName)
+      .map((validBlockee: BlackHandPlayer) => validBlockee.displayName);
+  }
+
+  /** attack 
+   * @desc submit turn action to attack the selected player
+   */
+  attack() {
+    const currUser: PartyrUser = this.currUser.getValue();
+    const room: LobbyRoom = this.room.getValue();
+    if (currUser && room && this.actionCtrl.valid) {
+      const turnAction: BlackHandPlayerTurn = {
+        username: currUser.username,
+        roomName: room.gameRoomName,
+        attacking: this.actionCtrl.value,
+        blocking: null,
+        note: null,
+        placeOnTrial: null
+      };
+      this.bhSvc.submitTurn(turnAction);
+    }
+  }
+
+  /** block
+   * @desc submit turn action to block the selected player
+   */
+  block() {
+    const currPlayer: BlackHandPlayer = this.currPlayerData.getValue();
+    const room: LobbyRoom = this.room.getValue();
+    if (currPlayer && room && this.actionCtrl.valid) {
+      const turnAction: BlackHandPlayerTurn = {
+        username: currPlayer.username,
+        roomName: room.gameRoomName,
+        attacking: null,
+        blocking: this.actionCtrl.value,
+        note: null,
+        placeOnTrial: null
+      };
+      this.bhSvc.submitTurn(turnAction);
+    }
+  }
+
+  /** hasPlayerActed
+   * @desc check if the player has already submitted an action for this turn
+   */
+  hasPlayerActed(player: BlackHandPlayer): boolean {
+    const gameState: BlackHandDetails = this.currGameState.getValue();
+    return !gameState.playersTurnRemaining.find((remainingPlayer: string) => player.displayName === remainingPlayer);
   }
 }
