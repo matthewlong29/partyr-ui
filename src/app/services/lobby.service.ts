@@ -85,21 +85,10 @@ export class LobbyService {
       const username = user.username;
       const roomName = room.gameRoomName;
       if (AppFns.getAllPlayersInRoom(room).includes(username)) {
-        // TODO: REMOVE THIS CODE BELOW USED ONLY FOR TESTING
-        room.playersNotReady.forEach((player: string) => {
-          console.log('Toggling for ', player);
-          this.wsSvc.publish(WsBrokerStore.TOGGLE_READY_STATUS, {
-            username: player,
-            roomName
-          });
+        this.wsSvc.publish(WsBrokerStore.TOGGLE_READY_STATUS, {
+          username,
+          roomName
         });
-        // END OF TEST CODE
-
-        // TODO: UNCOMMENT THIS WHEN TESTING IS COMPLETE
-        // this.wsSvc.publish(WsBrokerStore.TOGGLE_READY_STATUS, {
-        //   username,
-        //   roomName
-        // });
       }
     }
   }
