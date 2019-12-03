@@ -14,22 +14,28 @@
         (allStreamsActive)="startGame()">
       </app-stream-collection>
     </ng-container>
-    <section *ngIf="isNight() && currPlayerData | async as playerData" class="bh-game__action-container">
-      <ng-container *ngIf="playerData.role.canAttack && !hasPlayerActed(playerData)">
-        <mat-radio-group [formControl]="actionCtrl">
+    <section *ngIf="currPlayerData | async as playerData" class="bh-game__action-container">
+      <div *ngIf="playerData.role.canAttack && !playerData.hasAttacked" class="bh-game__action-form">
+        <h4>Select a player to attack</h4>
+        <mat-radio-group [formControl]="attackCtrl">
           <mat-radio-button *ngFor="let attackee of getValidAttackList(playerData)" [value]="attackee">
             {{ attackee }}
           </mat-radio-button>
         </mat-radio-group>
-        <button mat-raised-button color="primary" (click)="attack()">Attack</button>
-      </ng-container>
-      <ng-container *ngIf="playerData.role.canBlock">
-        <mat-radio-group [formControl]="actionCtrl">
+        <span>
+          <button mat-raised-button color="primary" (click)="attack()">Attack</button>
+        </span>
+      </div>
+      <div *ngIf="playerData.role.canBlock && !playerData.hasBlocked" class="bh-game__action-form">
+        <h4>Select a player to block</h4>
+        <mat-radio-group [formControl]="blockCtrl">
           <mat-radio-button *ngFor="let blockee of getValidBlockList(playerData)" [value]="blockee">
             {{ blockee }}
           </mat-radio-button>
         </mat-radio-group>
-        <button mat-raised-button color="primary" (click)="block()">Block</button>
-      </ng-container>
+        <span>
+          <button mat-raised-button color="primary" (click)="block()">Block</button>
+        </span>
+      </div>
     </section>
   </ng-container>

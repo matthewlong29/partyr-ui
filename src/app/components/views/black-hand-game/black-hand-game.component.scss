@@ -11,4 +11,13 @@
     display: flex;
     justify-content: center;
   }
+  &__action-form {
+    display: inline-flex;
+    align-items: center;
+    flex-direction: column;
+    margin: 0 1rem;
+    span {
+      margin-top: 1rem;
+    }
+  }
 }

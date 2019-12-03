@@ -40,7 +40,8 @@ export class BlackHandGameComponent implements OnInit, OnDestroy {
 
   gameStarted = new BehaviorSubject<boolean>(false);
 
-  actionCtrl = this.fb.control(null, Validators.required);
+  attackCtrl = this.fb.control(null, Validators.required);
+  blockCtrl = this.fb.control(null, Validators.required);
   subs: Subscription[] = [];
 
   constructor(
@@ -52,7 +53,12 @@ export class BlackHandGameComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    this.subs.push(this.watchRoomContext(), this.getCurrUser().subscribe(), this.watchGameProgress().subscribe());
+    this.subs.push(
+      this.watchRoomContext(),
+      this.findPlayerData().subscribe(),
+      this.getCurrUser().subscribe(),
+      this.watchGameProgress().subscribe()
+    );
   }
 
   ngOnDestroy() {
@@ -148,14 +154,24 @@ export class BlackHandGameComponent implements OnInit, OnDestroy {
           skipWhile((details: BlackHandDetails) => !details || details.roomName !== room.gameRoomName),
           tap((details: BlackHandDetails) => {
             this.currGameState.next(details);
-            const playerData: BlackHandPlayer = AppFns.findPlayerInBlackHandGame(this.currUser.getValue().username);
-            this.currPlayerData.next(playerData);
             if (details.phase === 'TRIAL' && this.turnsElapsed === 0) {
               this.bhSvc.evaluateTrial(room.gameRoomName);
             }
           })
         )
       )
+    );
+  }
+
+  /** findPlayerData */
+  findPlayerData(): Observable<any> {
+    return combineLatest([ this.currUser, this.currGameState ]).pipe(
+      skipWhile(([ currUser, gameState ]: [PartyrUser, BlackHandDetails]) => !currUser || !gameState),
+      tap(([ currUser, gameState ]: [PartyrUser, BlackHandDetails]) => {
+        const playerData: BlackHandPlayer = AppFns.findPlayerInBlackHandGame(currUser.username, gameState);
+        console.log('New player data', playerData);
+        this.currPlayerData.next(playerData);
+      })
     );
   }
 
@@ -199,15 +215,16 @@ export class BlackHandGameComponent implements OnInit, OnDestroy {
   attack() {
     const currUser: PartyrUser = this.currUser.getValue();
     const room: LobbyRoom = this.room.getValue();
-    if (currUser && room && this.actionCtrl.valid) {
+    if (currUser && room && this.attackCtrl.valid) {
       const turnAction: BlackHandPlayerTurn = {
         username: currUser.username,
         roomName: room.gameRoomName,
-        attacking: this.actionCtrl.value,
+        attacking: this.attackCtrl.value,
         blocking: null,
         note: null,
         placeOnTrial: null
       };
+      console.log(`Attacking ${this.attackCtrl.value}`);
       this.bhSvc.submitTurn(turnAction);
     }
   }
@@ -218,24 +235,17 @@ export class BlackHandGameComponent implements OnInit, OnDestroy {
   block() {
     const currPlayer: BlackHandPlayer = this.currPlayerData.getValue();
     const room: LobbyRoom = this.room.getValue();
-    if (currPlayer && room && this.actionCtrl.valid) {
+    if (currPlayer && room && this.blockCtrl.valid) {
       const turnAction: BlackHandPlayerTurn = {
         username: currPlayer.username,
         roomName: room.gameRoomName,
         attacking: null,
-        blocking: this.actionCtrl.value,
+        blocking: this.blockCtrl.value,
         note: null,
         placeOnTrial: null
       };
+      console.log(`Blocking ${this.blockCtrl.value}`);
       this.bhSvc.submitTurn(turnAction);
     }
-  }
-
-  /** hasPlayerActed
-   * @desc check if the player has already submitted an action for this turn
-   */
-  hasPlayerActed(player: BlackHandPlayer): boolean {
-    const gameState: BlackHandDetails = this.currGameState.getValue();
-    return !gameState.playersTurnRemaining.find((remainingPlayer: string) => player.displayName === remainingPlayer);
   }
 }

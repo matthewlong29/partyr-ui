@@ -1,8 +1,15 @@
 <div class="game-select">
   <div class="game-select__widget">
     <div class="game-select__header">Select A Game</div>
-    <button *ngFor="let game of gameList" class="game-select__card" (click)="enterLobby(game.gameName)">
-      <img src="assets/images/game-posters/black-hand.png" class="game-select__poster">
-    </button>
+    <div class="game-select__poster-row">
+      <button *ngFor="let game of gameList" class="game-select__card">
+        <ng-container [ngSwitch]="game.gameName">
+          <img *ngSwitchCase="'Black Hand'" src="assets/images/game-posters/black-hand.png" class="game-select__poster"
+            (click)="enterLobby(game.gameName)">
+          <img *ngSwitchCase="'Know Your Meme'" src="assets/images/game-posters/know-your-meme.png"
+            class="game-select__poster--know-your-meme">
+        </ng-container>
+      </button>
+    </div>
   </div>
 </div>

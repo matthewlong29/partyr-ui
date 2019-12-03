@@ -1,5 +1,7 @@
 @import '~src/app/styles/variables.scss';
-
+@mixin poster() {
+  height: 25rem;
+}
 .game-select {
   display: flex;
   justify-content: center;
@@ -22,12 +24,23 @@
     border: none;
     background-color: transparent;
     &:hover {
-      box-shadow: -5px 5px 5px lighten(black, $amount: 75%);
       cursor: pointer;
+      box-shadow: -5px 5px 5px lighten(black, $amount: 75%);
     }
+  }
+  &__poster-row {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: space-evenly;
   }
 
   &__poster {
-    height: 25rem;
+    @include poster();
+
+    &--know-your-meme {
+      cursor: not-allowed;
+
+      @include poster();
+    }
   }
 }

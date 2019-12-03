@@ -41,7 +41,7 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
   generalGameInfo = new BehaviorSubject<GameObject>(undefined);
   gameDetails = new BehaviorSubject<BlackHandDetails>(undefined);
   showStartButton = new BehaviorSubject<boolean>(false);
-  displayNameCtrl = this.fb.control('', [ Validators.pattern(AppRegex.DISPLAY_NAME) ]);
+  displayNameCtrl = this.fb.control('Player', [ Validators.pattern(AppRegex.DISPLAY_NAME) ]);
 
   settingsForm = this.fb.group({
     allowFactionPrefCtrl: this.fb.control(true),
@@ -201,7 +201,7 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
           tap((details: BlackHandDetails) => {
             this.gameDetails.next(details);
             const playerData: BlackHandPlayer = AppFns.findPlayerInBlackHandGame(currUser.username, details);
-            if (this.displayNameCtrl.value !== playerData.displayName) {
+            if (playerData && this.displayNameCtrl.value !== playerData.displayName) {
               this.displayNameCtrl.setValue(
                 (playerData.displayName !== 'null' && playerData.displayName) || currUser.username
               );
