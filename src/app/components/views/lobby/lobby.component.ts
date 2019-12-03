@@ -1,10 +1,4 @@
-import {
-  Component,
-  OnInit,
-  ChangeDetectionStrategy,
-  HostListener,
-  ChangeDetectorRef
-} from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, HostListener, ChangeDetectorRef } from '@angular/core';
 import { AutoTableColumn } from 'src/app/classes/models/frontend/auto-table-column';
 import { BehaviorSubject, Observable, concat } from 'rxjs';
 import { LobbyRoom } from 'src/app/classes/models/shared/lobby-room';
@@ -28,16 +22,14 @@ const AVAILABLE_ROOMS_COLS: AutoTableColumn[] = [
 @Component({
   selector: 'app-lobby',
   templateUrl: './lobby.component.html',
-  styleUrls: ['./lobby.component.scss'],
+  styleUrls: [ './lobby.component.scss' ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LobbyComponent implements OnInit {
   gameName = this.route.snapshot.paramMap.get('game');
   maxPlayersPerGame = 0;
   availableRoomsCols: AutoTableColumn[] = AVAILABLE_ROOMS_COLS;
-  availableRoomsHeaderDefs: string[] = AVAILABLE_ROOMS_COLS.map(
-    (col: AutoTableColumn) => col.id
-  );
+  availableRoomsHeaderDefs: string[] = AVAILABLE_ROOMS_COLS.map((col: AutoTableColumn) => col.id);
   availableRooms = new BehaviorSubject<LobbyRoom[]>([]);
   currUser = new BehaviorSubject<PartyrUser>(undefined);
   selectedRoom = new BehaviorSubject<LobbyRoom>(undefined);
@@ -71,18 +63,14 @@ export class LobbyComponent implements OnInit {
    * @desc connect to websocket and listen for changes in available lobby rooms
    */
   watchAvailableRooms(): Observable<LobbyRoom[]> {
-    return this.lobbySvc
-      .watchAvailableRooms()
-      .pipe(tap((rooms: LobbyRoom[]) => this.availableRooms.next(rooms)));
+    return this.lobbySvc.watchAvailableRooms().pipe(tap((rooms: LobbyRoom[]) => this.availableRooms.next(rooms)));
   }
 
   /** getAvailableRooms
    * @desc get all lobby rooms available for this game
    */
   getAvailableRooms(): Observable<LobbyRoom[]> {
-    return this.lobbySvc
-      .getAvailableRooms()
-      .pipe(tap((rooms: LobbyRoom[]) => this.availableRooms.next(rooms)));
+    return this.lobbySvc.getAvailableRooms().pipe(tap((rooms: LobbyRoom[]) => this.availableRooms.next(rooms)));
   }
 
   /** getGameDetails
@@ -126,10 +114,7 @@ export class LobbyComponent implements OnInit {
       return;
     }
 
-    this.lobbySvc.joinRoom(
-      this.currUser.getValue().username,
-      room.gameRoomName
-    );
+    this.lobbySvc.joinRoom(this.currUser.getValue().username, room.gameRoomName);
   }
 
   /** leaveRoom
@@ -144,8 +129,7 @@ export class LobbyComponent implements OnInit {
       return;
     }
 
-    const leave = () =>
-      this.lobbySvc.leaveRoom(currUser.username, room.gameRoomName);
+    const leave = () => this.lobbySvc.leaveRoom(currUser.username, room.gameRoomName);
 
     if (room.hostUsername !== currUser.username) {
       leave();
@@ -170,13 +154,8 @@ export class LobbyComponent implements OnInit {
   isPlayerInRoom(room: LobbyRoom): boolean {
     const currUser: PartyrUser | undefined = this.currUser.getValue();
     if (currUser) {
-      const allPlayers: string[] = [
-        ...room.playersReady,
-        ...room.playersNotReady
-      ];
-      return allPlayers.some(
-        (userName: string) => userName === currUser.username
-      );
+      const allPlayers: string[] = [ ...room.playersReady, ...room.playersNotReady ];
+      return allPlayers.some((userName: string) => userName === currUser.username);
     }
     return false;
   }
@@ -194,10 +173,7 @@ export class LobbyComponent implements OnInit {
    */
   currentlyOccupiedRoom(): LobbyRoom | undefined {
     return this.availableRooms.getValue().find((room: LobbyRoom) => {
-      const allPlayers: string[] = [
-        ...room.playersReady,
-        ...room.playersNotReady
-      ];
+      const allPlayers: string[] = [ ...room.playersReady, ...room.playersNotReady ];
       return allPlayers
         .map((player: string) => player.toLowerCase())
         .includes(this.currUser.getValue().username.toLowerCase());
@@ -218,7 +194,7 @@ export class LobbyComponent implements OnInit {
   goToWaitingRoom() {
     const selectedRoom: LobbyRoom | undefined = this.selectedRoom.getValue();
     if (selectedRoom) {
-      this.router.navigate([`${selectedRoom.gameRoomName}`], {
+      this.router.navigate([ `${selectedRoom.gameRoomName}` ], {
         relativeTo: this.route
       });
     }

@@ -23,7 +23,7 @@
               </ng-template>
               &nbsp;
             </span>
-            <span>{{ player }}</span>
+            <span>{{ getUserDisplayName(player) }}</span>
             <span *ngIf="getPlayerContext(player).isCurrUser">&nbsp;(You)</span>
             <span *ngIf="getPlayerContext(player).isHost">
               &nbsp;<mat-icon>star</mat-icon>
