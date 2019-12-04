@@ -34,7 +34,8 @@
           10-4
         </li>
       </ul>
-      <textarea class="social-bar__msg-input" placeholder="Type a message..."></textarea>
+      <textarea [formControl]="newMsgCtrl" class="social-bar__msg-input" placeholder="Type a message..."
+        (keypress)="sendMessage($event)"></textarea>
     </ng-container>
   </div>
 </section>

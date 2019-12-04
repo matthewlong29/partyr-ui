@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core';
+import { Component, OnInit, Input, EventEmitter, Output, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { combineLatest, BehaviorSubject, Subscription, Observable, from, scheduled } from 'rxjs';
 import { skipWhile, take, tap, map, switchMap, catchError } from 'rxjs/operators';
 import { LobbyRoom } from 'src/app/classes/models/shared/lobby-room';
@@ -17,7 +17,7 @@ import { asap } from 'rxjs/internal/scheduler/asap';
   templateUrl: './stream-collection.component.html',
   styleUrls: [ './stream-collection.component.scss' ]
 })
-export class StreamCollectionComponent implements OnInit {
+export class StreamCollectionComponent implements OnInit, AfterViewInit {
   @Input() currUser: PartyrUser;
   @Input() room: LobbyRoom;
   @Input() hideStreams: string[] = [];
@@ -32,6 +32,9 @@ export class StreamCollectionComponent implements OnInit {
 
   subs: Subscription[] = [];
 
+  @ViewChild('selfVideo', { read: ElementRef })
+  selfVideo: ElementRef;
+
   constructor(
     readonly route: ActivatedRoute,
     readonly lobbySvc: LobbyService,
@@ -41,6 +44,11 @@ export class StreamCollectionComponent implements OnInit {
 
   ngOnInit() {
     this.subs.push(this.setupConnectionSlots().subscribe());
+  }
+
+  ngAfterViewInit() {
+    // this.selfVideo.nativeElement.muted = true;
+    // from(this.selfVideo.nativeElement.requestPictureInPicture()).subscribe();
   }
 
   setupConnectionSlots() {

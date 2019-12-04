@@ -10,6 +10,9 @@ import { AddFriendComponent } from '../../dialogs/add-friend/add-friend.componen
 import { RelationshipRespObject } from 'src/app/classes/models/shared/resp-objects.ts/relationship-resp-object';
 import { asap } from 'rxjs/internal/scheduler/asap';
 import { UserChatInstance } from 'src/app/classes/models/frontend/user-chat-instance';
+import { FormBuilder } from '@angular/forms';
+import { ChatService } from 'src/app/services/chat.service';
+import { Message } from 'src/app/classes/models/shared/Message';
 
 @Component({
   selector: 'app-social-bar',
@@ -25,7 +28,15 @@ export class SocialBarComponent implements OnInit, OnDestroy {
 
   chatInstances = new BehaviorSubject<UserChatInstance[]>([]);
 
-  constructor(readonly userSvc: UserService, readonly socialSvc: SocialService, readonly dialog: MatDialog) {}
+  newMsgCtrl = this.fb.control('');
+
+  constructor(
+    readonly fb: FormBuilder,
+    readonly chatSvc: ChatService,
+    readonly userSvc: UserService,
+    readonly socialSvc: SocialService,
+    readonly dialog: MatDialog
+  ) {}
 
   subs: Subscription[] = [];
 
@@ -97,6 +108,19 @@ export class SocialBarComponent implements OnInit, OnDestroy {
     );
     if (instanceIndex >= 0) {
       currInstances[instanceIndex].isOpen = !instance.isOpen;
+    }
+  }
+
+  sendMessage(event: KeyboardEvent) {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      const msg: Message = new Message(
+        this.newMsgCtrl.value,
+        this.currUser.getValue().username,
+        new Date().toISOString()
+      );
+      this.chatSvc.sendToChat(msg);
+      this.newMsgCtrl.reset(null);
     }
   }
 }

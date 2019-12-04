@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { BehaviorSubject, Subscription, concat, combineLatest, Observable, scheduled, merge, from, timer } from 'rxjs';
 import { ActivatedRoute, Route } from '@angular/router';
 import { LobbyService } from 'src/app/services/lobby.service';
