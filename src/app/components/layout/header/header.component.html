@@ -8,8 +8,11 @@
       <button mat-menu-item>
         <mat-icon>settings</mat-icon>Settings
       </button>
-      <button mat-menu-item>
+      <button mat-menu-item (click)="signOut()">
         <mat-icon>exit_to_app</mat-icon>Sign Out
+      </button>
+      <button mat-menu-item (click)="openHelp()">
+        <mat-icon>help</mat-icon>Help
       </button>
     </mat-menu>
   </div>

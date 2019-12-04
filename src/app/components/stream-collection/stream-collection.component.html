@@ -1,12 +1,11 @@
 <div class="stream-collection__row--media" *ngIf="players | async as allPlayers">
   <div *ngIf="currUser && userStream | async as selfStream" class="stream-collection__video-container">
     <span>{{ currUser.username }}</span>
-    <video oncanplay="this.muted=true" [srcObject]="selfStream" class="stream-collection__video"
-      [ngStyle]="{width: calcMediaHeightWidth(allPlayers)}" autoplay></video>
+    <video oncanplay="this.muted=true" [srcObject]="selfStream" class="stream-collection__video" autoplay></video>
   </div>
   <div *ngFor="let remotePeerId of streams.getRemotePeerIds()" class="stream-collection__video-container">
     <span>{{ remotePeerId }}</span>
     <video *ngIf="!isStreamHidden(remotePeerId)" [srcObject]="streams.getStream(remotePeerId)"
-      class="stream-collection__video" [ngStyle]="{width: calcMediaHeightWidth(allPlayers)}" autoplay></video>
+      class="stream-collection__video" autoplay></video>
   </div>
 </div>

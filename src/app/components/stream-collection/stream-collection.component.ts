@@ -119,6 +119,7 @@ export class StreamCollectionComponent implements OnInit, AfterViewInit {
    * @desc distribute the media width based on the number of players in the game
    */
   calcMediaHeightWidth(players?: string[]): string {
+    console.log(players);
     const playerCount: number = (players || { length: 1 }).length;
     const width = Math.max(18, 90 / playerCount);
     return `${width}vw`;

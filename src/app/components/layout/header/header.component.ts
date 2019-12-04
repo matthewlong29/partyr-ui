@@ -6,7 +6,7 @@ import { URLStore } from 'src/app/classes/constants/url-store';
 @Component({
   selector: 'app-header',
   templateUrl: './header.component.html',
-  styleUrls: ['./header.component.scss']
+  styleUrls: [ './header.component.scss' ]
 })
 export class HeaderComponent implements OnInit {
   constructor(readonly appAuthSvc: AppAuthService, readonly router: Router) {}
@@ -23,5 +23,9 @@ export class HeaderComponent implements OnInit {
 
   navigateHome(): void {
     this.router.navigateByUrl(URLStore.HOME_URL);
+  }
+
+  openHelp() {
+    window.open('/assets/partyr_user_manual.pdf');
   }
 }
